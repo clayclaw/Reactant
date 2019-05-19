@@ -122,6 +122,7 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
         }
 
         return resolvedOrder
+                .filter { it.state == Inactive }
                 .map { invokeAction(it, action) }
                 .fold(true) { prev, next -> prev && next }
                 .also {

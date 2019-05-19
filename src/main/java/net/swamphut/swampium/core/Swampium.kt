@@ -1,5 +1,6 @@
 package net.swamphut.swampium.core
 
+import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.swobject.BukkitPluginContainerLoader
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.SwObjectState
@@ -41,6 +42,7 @@ class Swampium : JavaPlugin() {
 
         Swampium.instance.logger.log(Level.INFO, "Resolving service dependencies")
         swObjectManager.injectAllSwObject()
+        showNotFulfilledSwObject()
 
         Swampium.instance.logger.log(Level.INFO, "Initializing services")
         swObjectManager.swObjectClassMap.values
@@ -51,6 +53,25 @@ class Swampium : JavaPlugin() {
 
         Swampium.instance.logger.log(Level.INFO, "Load complete!")
 
+    }
+
+    fun showNotFulfilledSwObject() {
+        val notFulfilledSwObjects = swObjectManager.swObjectClassMap.values
+                .filter { !it.fulfilled };
+        if (notFulfilledSwObjects.isNotEmpty()) {
+            var message = "Some SwObjects' dependencies are not fulfilled:\n";
+            notFulfilledSwObjects.forEach { notFulfilled ->
+                val missingServices = notFulfilled.requiredServices
+                        .filter { !notFulfilled.requiredServicesResolvedResult.containsKey(it) }
+                        .map { "\t\t- ${it.canonicalName}" }
+                        .joinToString("\n")
+                message += "\t${notFulfilled.instance::class.java.canonicalName}:\n"
+                message += "$missingServices\n"
+
+            }
+            message += "To solve the problem, ensure you have correctly install all required dependencies.";
+            Swampium.instance.logger.log(Level.SEVERE, message);
+        }
     }
 
     override fun onDisable() {
@@ -66,5 +87,7 @@ class Swampium : JavaPlugin() {
     companion object {
         @JvmStatic
         lateinit var instance: Swampium
+
+        val mainThreadScheduler = Schedulers.from(Runnable::run);
     }
 }

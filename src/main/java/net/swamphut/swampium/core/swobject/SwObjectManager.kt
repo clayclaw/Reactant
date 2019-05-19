@@ -9,6 +9,7 @@ import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjection
 import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjectionImplement
 import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyDecider
+import net.swamphut.swampium.utils.reflections.FieldsFinder
 
 @SwObject
 @ServiceProvider
@@ -75,7 +76,7 @@ class SwObjectManager {
                 .filter { it.fulfilled } // Only inject when fulfilled
                 .forEach { swObjectInfo ->
                     swObjectInfo.state = SwObjectState.Inactive
-                    swObjectInfo.instance::class.java.declaredFields
+                    FieldsFinder.getAllDeclaredFieldsRecursively(swObjectInfo.instance::class.java)
                             .filter { it.isAnnotationPresent(Inject::class.java) }
                             .onEach { it.isAccessible = true }
                             .forEach {
