@@ -1,9 +1,12 @@
 package net.swamphut.swampium.example
 
+import io.reactivex.Single
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
 import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
+import net.swamphut.swampium.extra.command.PicocliCommandService
+import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.config.ConfigService
 import net.swamphut.swampium.service.spec.parser.JsonParserService
 import org.bukkit.Bukkit
@@ -24,12 +27,17 @@ class ExampleService : LifeCycleHook {
     @Inject
     private lateinit var configService: ConfigService
 
-    override fun init() {
-        val testerConfigPath = "plugins/SwampiumExample/testers.json"
-        val testersConfig = configService.loadOrDefault(jsonParser, TesterList::class.java, testerConfigPath, { TesterList() })
-                .blockingGet()
+    @Inject
+    private lateinit var commandService: PicocliCommandService
 
-        val testers = testersConfig.content.testers
+    private val testerConfigPath = "plugins/SwampiumExample/testers.json"
+    private lateinit var testersConfig: Single<Config<TesterList>>
+
+    override fun init() {
+        testersConfig = configService.loadOrDefault(jsonParser, TesterList::class.java, testerConfigPath, { TesterList() })
+        val configContent = testersConfig.blockingGet()
+
+        val testers = configContent.content.testers
         testers.map {
             """
 
@@ -45,7 +53,11 @@ class ExampleService : LifeCycleHook {
 
 
         testers.forEach { it.age++ }
-        testersConfig.save().subscribe()
+        configContent.save().subscribe()
         helloService.sayHello(Bukkit.getServer().name)
+
+        commandService.registerCommand(this) { GetTesterCommand(this) };
     }
+
+    fun getTesters(): Single<List<TesterList.Tester>> = testersConfig.map { it.content.testers }
 }
