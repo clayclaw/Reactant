@@ -4,13 +4,13 @@ import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
+import net.swamphut.swampium.extra.command.io.StdOutImpl
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import picocli.CommandLine
-import picocli.CommandLine.*
+import picocli.CommandLine.Model
 import java.io.PrintWriter
-import java.lang.IllegalArgumentException
 import java.util.logging.Level
 
 @SwObject
@@ -53,11 +53,13 @@ class PicocliCommandService : LifeCycleHook {
     }
 
     fun executeCommand(sender: CommandSender, commandRunnableProvider: () -> Runnable, args: Array<out String>) {
-        val out = PrintWriter(CommandSenderWriter(sender))
+        val writer = CommandSenderWriter(sender)
+        val out = PrintWriter(writer)
         CommandLine(commandRunnableProvider().apply {
             if (this is SwampiumCommand) {
                 this.sender = sender
-                this.stdout = out
+                this.stdout = StdOutImpl(writer)
+                this.stderr = StdOutImpl(writer)
             }
         }).setOut(out).execute(*args)
     }

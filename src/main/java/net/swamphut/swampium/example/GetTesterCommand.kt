@@ -1,11 +1,8 @@
 package net.swamphut.swampium.example
 
-import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.extra.command.SwampiumCommand
-import picocli.CommandLine
-import picocli.CommandLine.*
-import java.util.logging.Level
-
+import picocli.CommandLine.Command
+import picocli.CommandLine.Option
 
 @Command(name = "gettester", mixinStandardHelpOptions = true, version = ["0.0.3"])
 class GetTesterCommand(val exampleService: ExampleService) : SwampiumCommand(), Runnable {
@@ -18,11 +15,11 @@ class GetTesterCommand(val exampleService: ExampleService) : SwampiumCommand(), 
     override fun run() {
         exampleService.getTesters().subscribe { it ->
             it.filter {
-                (age == null || it.age == age) &&
-                        (food == null || (it.favouriteFoods ?: listOf()).contains(food!!))
+                age == null || it.age == age
+            }.filter {
+                food == null || (it.favouriteFoods ?: listOf()).contains(food!!)
             }.forEach {
-                stdout.print("${it.name} ${it.age} ${it.favouriteFoods} ${it.address}")
-                stdout.flush()
+                stdout.out("${it.name} ${it.age} ${it.favouriteFoods} ${it.address}")
             }
         }
     }
