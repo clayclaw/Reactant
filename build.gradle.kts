@@ -67,6 +67,7 @@ dependencies {
     compile("org.yaml:snakeyaml:1.24")
 
     compile ("info.picocli:picocli:4.0.0-alpha-3")
+    compile ("org.mariadb.jdbc:mariadb-java-client:2.4.1")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }

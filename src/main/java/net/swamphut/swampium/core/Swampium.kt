@@ -1,5 +1,6 @@
 package net.swamphut.swampium.core
 
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.swobject.BukkitPluginContainerLoader
 import net.swamphut.swampium.core.swobject.SwObjectManager
@@ -10,7 +11,10 @@ import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManager
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManagerImpl
 import org.bstats.bukkit.Metrics
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitScheduler
+import sun.plugin.com.Dispatcher
 import java.util.logging.Level
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
@@ -29,6 +33,8 @@ class Swampium : JavaPlugin() {
     override fun onEnable() {
         @Suppress("UNUSED_VARIABLE")
         val metrics = Metrics(this)
+
+        mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(this, command) }
 
         server.scheduler.scheduleSyncDelayedTask(this) {
             onPluginsLoaded()
@@ -88,6 +94,6 @@ class Swampium : JavaPlugin() {
         @JvmStatic
         lateinit var instance: Swampium
 
-        val mainThreadScheduler = Schedulers.from(Runnable::run);
+        lateinit var mainThreadScheduler: Scheduler
     }
 }
