@@ -13,8 +13,6 @@ import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManagerImp
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitScheduler
-import sun.plugin.com.Dispatcher
 import java.util.logging.Level
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])

@@ -7,34 +7,20 @@ version = "0.0.3"
 
 val kotlinVersion = "1.3.31"
 
-
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
-    }
-}
-
 plugins {
     java
-    maven
     `maven-publish`
     kotlin("jvm") version "1.3.31"
     id("com.jfrog.bintray") version "1.8.4"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
 }
-
-apply(plugin = "maven-publish")
-apply(plugin = "com.github.johnrengelman.shadow")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs = listOf("-Xjvm-default=compatibility")
 }
@@ -55,48 +41,51 @@ dependencies {
 //            "script-runtime",
 //            "compiler-embeddable",
 //            "scripting-compiler"
-    ).forEach { compile(kotlin(it, kotlinVersion)) }
+    ).forEach { api(kotlin(it, kotlinVersion)) }
 
-    implementation("org.bstats:bstats-bukkit:1.4")
+    implementation("org.bstats:bstats-bukkit:1.4") {
+        isTransitive = false
+    }
 
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
-    compile("io.reactivex.rxjava2:rxjava:2.2.0")
-    compile("org.reflections:reflections:0.9.11")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
+    api("io.reactivex.rxjava2:rxjava:2.2.0")
+    api("org.reflections:reflections:0.9.11")
 
-    compile("com.google.code.gson:gson:2.8.5")
-    compile("org.yaml:snakeyaml:1.24")
+    api("com.google.code.gson:gson:2.8.5")
+    api("org.yaml:snakeyaml:1.24")
 
-    compile ("info.picocli:picocli:4.0.0-alpha-3")
-    compile ("org.mariadb.jdbc:mariadb-java-client:2.4.1")
+    api("info.picocli:picocli:4.0.0-alpha-3")
+    api("org.mariadb.jdbc:mariadb-java-client:2.4.1")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }
 
+
 val sourcesJar by tasks.registering(Jar::class) {
-    classifier = "sources"
+    dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+    archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }
 
-val shadowJar: ShadowJar by tasks
-shadowJar.apply {
-    baseName = project.name
+val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "net.swamphut.swampium.core")
 }
 
-tasks.getByName("build").dependsOn(shadowJar)
-
-
-tasks.register<Copy>("deployPlugin") {
+val deployPlugin by tasks.registering(Copy::class) {
     dependsOn(shadowJar)
-    val pluginDeployPath = System.getenv("PLUGIN_DEPLOY_PATH")
-
-    if (pluginDeployPath != null) {
+    System.getenv("PLUGIN_DEPLOY_PATH")?.let {
         from(shadowJar)
-        into(pluginDeployPath)
+        into(it)
     }
 }
-val deployPlugin = tasks.getByName("deployPlugin")
-tasks.getByName("build").dependsOn(deployPlugin)
+
+val build = (tasks["build"] as Task).apply {
+    arrayOf(
+            sourcesJar,
+            shadowJar,
+            deployPlugin
+    ).forEach { dependsOn(it) }
+}
 
 publishing {
     publications {
