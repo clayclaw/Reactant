@@ -69,6 +69,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "net.swamphut.swampium.core")
+    archiveClassifier.set("all")
 }
 
 val deployPlugin by tasks.registering(Copy::class) {
