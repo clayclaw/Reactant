@@ -50,7 +50,7 @@ class SwampiumConfigService : ConfigService {
 
     protected fun <T> loadContent(parserService: ParserService, modelClass: Class<T>, path: String): Single<T> {
         return fileReader!!.readAll(File(path))
-                .map { lines -> lines.joinToString("") }
+                .map { lines -> lines.joinToString("\n") }
                 .flatMap { raw -> parserService.decode(modelClass, raw) }
     }
 

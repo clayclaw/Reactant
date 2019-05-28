@@ -91,6 +91,14 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
     }
 
+    private fun triggerInspector(inspector: HookInspector, action: () -> Unit) {
+        try {
+            action()
+        } catch (e: Throwable) {
+            Swampium.instance.logger.log(Level.SEVERE, "Throwable catched when trigger hook inspector", e)
+        }
+    }
+
     override fun invokeAction(swObjectsInfo: Collection<SwObjectInfo<Any>>, action: LifeCycleControlAction): Boolean {
         swObjectManager.injectAllSwObject()
 

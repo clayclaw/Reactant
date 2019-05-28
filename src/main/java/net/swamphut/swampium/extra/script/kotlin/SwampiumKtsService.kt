@@ -3,8 +3,6 @@ package net.swamphut.swampium.extra.script.kotlin
 import io.reactivex.Completable
 import io.reactivex.Single
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
 import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.extra.file.SwampiumTextFileReaderService
 import net.swamphut.swampium.service.spec.script.kotlin.KtsService
@@ -43,6 +41,7 @@ class SwampiumKtsService : KtsService {
             execute(File(path))
 
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> execute(file: File): Single<T> =
             preload(file)
                     .toSingle { scriptPathFileCache[file]!! }

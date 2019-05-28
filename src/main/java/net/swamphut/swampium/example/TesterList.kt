@@ -1,11 +1,9 @@
 package net.swamphut.swampium.example
 
-import java.util.*
-
 class TesterList {
-    var testers: List<Tester> = ArrayList()
+    var testers: ArrayList<Tester> = ArrayList()
 
-    inner class Tester {
+    class Tester {
         var name: String? = null
         var age: Int = 0
         var address: String? = null

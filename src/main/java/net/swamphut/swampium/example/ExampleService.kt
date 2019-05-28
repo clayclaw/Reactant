@@ -8,7 +8,7 @@ import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.extra.command.PicocliCommandService
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.config.ConfigService
-import net.swamphut.swampium.service.spec.parser.JsonParserService
+import net.swamphut.swampium.service.spec.parser.TomlParserService
 import org.bukkit.Bukkit
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -20,21 +20,26 @@ class ExampleService : LifeCycleHook {
 
     @Inject
     private lateinit var helloService: HelloService
+//
+//    @Inject
+//    private lateinit var jsonParser: JsonParserService
+
+//    @Inject
+//    private lateinit var yamlParser: YamlParserService
 
     @Inject
-    private lateinit var jsonParser: JsonParserService
-
+    private lateinit var tomlParserService: TomlParserService
     @Inject
     private lateinit var configService: ConfigService
 
     @Inject
     private lateinit var commandService: PicocliCommandService
 
-    private val testerConfigPath = "plugins/SwampiumExample/testers.json"
+    private val testerConfigPath = "plugins/SwampiumExample/testers.toml"
     private lateinit var testersConfig: Single<Config<TesterList>>
 
     override fun init() {
-        testersConfig = configService.loadOrDefault(jsonParser, TesterList::class.java, testerConfigPath, { TesterList() })
+        testersConfig = configService.loadOrDefault(tomlParserService, net.swamphut.swampium.example.TesterList::class.java, testerConfigPath, { TesterList() })
         val configContent = testersConfig.blockingGet()
 
         val testers = configContent.content.testers

@@ -53,13 +53,13 @@ dependencies {
 
     api("com.google.code.gson:gson:2.8.5")
     api("org.yaml:snakeyaml:1.24")
+    api("com.moandjiezana.toml:toml4j:0.7.2")
 
     api("info.picocli:picocli:4.0.0-alpha-3")
     api("org.mariadb.jdbc:mariadb-java-client:2.4.1")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }
-
 
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)

@@ -45,12 +45,12 @@ class SwampiumEventService : LifeCycleHook, Listener, EventService {
     }
 
     override fun <T : Event> on(listener: Any, eventClass: Class<T>, eventPriority: EventPriority): Observable<T> {
-        val swObjectInfo =
-                return (eventPrioritySubjectMap
-                        .getOrPut(eventClass, { HashMap() })
-                        .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
-                        .doOnSubscribe { Swampium.instance.logger.log(Level.INFO, "on subscribe") }
-                        .doOnDispose { Swampium.instance.logger.log(Level.INFO, "on dispose") }
-                        as Observable<T>
+        @Suppress("UNCHECKED_CAST")
+        return (eventPrioritySubjectMap
+                .getOrPut(eventClass, { HashMap() })
+                .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
+                .doOnSubscribe { Swampium.instance.logger.log(Level.INFO, "on subscribe") }
+                .doOnDispose { Swampium.instance.logger.log(Level.INFO, "on dispose") }
+                as Observable<T>
     }
 }

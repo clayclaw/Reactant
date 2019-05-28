@@ -52,7 +52,16 @@ class Swampium : JavaPlugin() {
         swObjectManager.swObjectClassMap.values
                 .filter { it.state == SwObjectState.Inactive }
                 .let {
-                    swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Initialize)
+                    val success = swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Initialize)
+                    if (!success) {
+                        val failed = it.filter { it.state != SwObjectState.Active }
+                        Swampium.instance.logger.log(Level.INFO, "${failed.size} SwObject failed to initialize!")
+                        failed.forEach { swObject ->
+                            swObject.lifeCycleActionExceptions.forEach { exception ->
+                                Swampium.instance.logger.log(Level.SEVERE, swObject.javaClass.canonicalName, exception)
+                            }
+                        }
+                    }
                 }
 
         Swampium.instance.logger.log(Level.INFO, "Load complete!")
