@@ -6,9 +6,12 @@ object PatternMatchingUtils {
         return if (pattern.startsWith('/') && pattern.endsWith('/') && pattern.length >= 2) {
             pattern.substring(1, pattern.length - 1).toRegex().matches(test)
         } else if (pattern.contains('*')) {
-            "\\Q$$pattern\\E".replace("*", "\\E.*\\Q").toRegex().matches(test)
+            matchWildcard(pattern, test)
         } else {
             pattern == test
         }
     }
+
+    fun matchWildcard(wildcard: String, test: String): Boolean =
+            "\\Q$wildcard\\E".replace("*", "\\E.*\\Q").toRegex().matches(test)
 }

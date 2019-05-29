@@ -6,6 +6,7 @@ import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.HookInspector
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
+import net.swamphut.swampium.extra.command.exceptions.CommandExecutionPermissionException
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
@@ -49,7 +50,16 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
                 commandSpec.aliases().toList()) {
             override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
                 val writer = CommandSenderWriter(sender)
-                commandTreeMap[name]!!.getCommandLine(sender, writer).execute(*args)
+                commandTreeMap[name]!!.getCommandLine(sender, writer)
+                        .setExecutionExceptionHandler { ex, commandLine, parseResult ->
+                            if (ex is CommandExecutionPermissionException) {
+                                sender.sendMessage("You don't have permission to do it.")
+                                return@setExecutionExceptionHandler 0
+                            }
+                            Swampium.logger.error("Error occured while executing the command \"$name ${args.joinToString(" ")}\"", ex);
+                            1
+                        }
+                        .execute(*args)
                 return true;
             }
         })
@@ -92,16 +102,16 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
     inner class CommandRegistering(private val registerSwObject: Any) {
         private lateinit var commandTree: CommandTree
 
-        fun command(commandRunnableProvider: () -> Runnable, subCommandRegistering: SubCommandRegistering.() -> Unit) {
+        fun command(commandRunnableProvider: () -> Runnable, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
             commandTree = registerCommand(registerSwObject, commandRunnableProvider)
-            SubCommandRegistering(commandRunnableProvider).subCommandRegistering()
+            subCommandRegistering?.let { SubCommandRegistering(commandRunnableProvider).it() }
         }
 
         inner class SubCommandRegistering(val rootCommandProvider: () -> Runnable)
 
-        fun SubCommandRegistering.subCommand(subCommandRunnableProvider: () -> Runnable, subCommandRegistering: SubCommandRegistering.() -> Unit) {
+        fun SubCommandRegistering.subCommand(subCommandRunnableProvider: () -> Runnable, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
             commandTree.addSubcommand(rootCommandProvider, subCommandRunnableProvider)
-            SubCommandRegistering(subCommandRunnableProvider).subCommandRegistering()
+            subCommandRegistering?.let { SubCommandRegistering(subCommandRunnableProvider).it() }
         }
     }
 

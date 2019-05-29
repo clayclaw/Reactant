@@ -4,7 +4,7 @@ import net.swamphut.swampium.extra.command.io.StdOutConsumer
 import org.bukkit.command.CommandSender
 import java.io.Writer
 
-class CommandSenderWriter(private val commandSender: CommandSender) : CommandSender by commandSender, Writer(), StdOutConsumer {
+class CommandSenderWriter(private val commandSender: CommandSender, private val spliting: Boolean = false) : CommandSender by commandSender, Writer(), StdOutConsumer {
     override fun onOut(output: String) {
         write(output)
         flush()
@@ -18,7 +18,10 @@ class CommandSenderWriter(private val commandSender: CommandSender) : CommandSen
     override fun flush() {
         synchronized(lock) {
             if (buffer.isEmpty()) return;
-            commandSender.sendMessage(buffer.toString())
+            if (spliting) buffer.lines()
+                    .let { if (it.last().isBlank()) it.take(it.size - 1) else it } //remove last blank line
+                    .forEach(commandSender::sendMessage)
+            else commandSender.sendMessage(buffer.toString())
             buffer.setLength(0)
         }
     }

@@ -10,10 +10,11 @@ import net.swamphut.swampium.core.swobject.instance.SwampiumInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManager
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManagerImpl
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.logging.Level
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
 class Swampium : JavaPlugin() {
@@ -40,31 +41,31 @@ class Swampium : JavaPlugin() {
     }
 
     fun onPluginsLoaded() {
-        Swampium.instance.logger.log(Level.INFO, "Searching all containers")
+        Swampium.logger.info("Searching all containers")
         BukkitPluginContainerLoader.findAllLoadedPluginContainer()
 
 
-        Swampium.instance.logger.log(Level.INFO, "Resolving service dependencies")
+        Swampium.logger.info("Resolving service dependencies")
         swObjectManager.injectAllSwObject()
         showNotFulfilledSwObject()
 
-        Swampium.instance.logger.log(Level.INFO, "Initializing services")
+        Swampium.logger.info("Initializing services")
         swObjectManager.swObjectClassMap.values
                 .filter { it.state == SwObjectState.Inactive }
                 .let {
                     val success = swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Initialize)
                     if (!success) {
                         val failed = it.filter { it.state != SwObjectState.Active }
-                        Swampium.instance.logger.log(Level.INFO, "${failed.size} SwObject failed to initialize!")
+                        Swampium.logger.info("${failed.size} SwObject failed to initialize!")
                         failed.forEach { swObject ->
                             swObject.lifeCycleActionExceptions.forEach { exception ->
-                                Swampium.instance.logger.log(Level.SEVERE, swObject.javaClass.canonicalName, exception)
+                                Swampium.logger.error(swObject.javaClass.canonicalName, exception)
                             }
                         }
                     }
                 }
 
-        Swampium.instance.logger.log(Level.INFO, "Load complete!")
+        Swampium.logger.info("Load complete!")
 
     }
 
@@ -83,12 +84,12 @@ class Swampium : JavaPlugin() {
 
             }
             message += "To solve the problem, ensure you have correctly install all required dependencies.";
-            Swampium.instance.logger.log(Level.SEVERE, message);
+            Swampium.logger.error(message);
         }
     }
 
     override fun onDisable() {
-        Swampium.instance.logger.log(Level.INFO, "Disabling services")
+        Swampium.logger.info("Disabling services")
         swObjectManager.swObjectClassMap.values
                 .filter { it.state == SwObjectState.Active }
                 .let {
@@ -102,5 +103,7 @@ class Swampium : JavaPlugin() {
         lateinit var instance: Swampium
 
         lateinit var mainThreadScheduler: Scheduler
+
+        val logger: Logger = LogManager.getLogger("Swampium")
     }
 }

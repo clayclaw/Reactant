@@ -36,7 +36,7 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
     companion object {
         @JvmStatic
         fun getIdentifier(plugin: Plugin): String {
-            return "bukkit-plugin:${plugin.description.name}"
+            return "bk:${plugin.description.name}"
         }
     }
 }

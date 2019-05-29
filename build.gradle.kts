@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "net.swamphut"
-version = "0.0.3"
+version = "0.0.4"
 
 val kotlinVersion = "1.3.31"
 
@@ -57,6 +57,8 @@ dependencies {
 
     api("info.picocli:picocli:4.0.0-alpha-3")
     api("org.mariadb.jdbc:mariadb-java-client:2.4.1")
+
+    api("org.apache.logging.log4j:log4j-core:2.11.2")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }

@@ -12,7 +12,6 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.RegisteredListener
-import java.util.logging.Level
 
 
 @SwObject
@@ -49,8 +48,8 @@ class SwampiumEventService : LifeCycleHook, Listener, EventService {
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass, { HashMap() })
                 .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
-                .doOnSubscribe { Swampium.instance.logger.log(Level.INFO, "on subscribe") }
-                .doOnDispose { Swampium.instance.logger.log(Level.INFO, "on dispose") }
+                .doOnSubscribe { Swampium.logger.info("on subscribe") }
+                .doOnDispose { Swampium.logger.info("on dispose") }
                 as Observable<T>
     }
 }

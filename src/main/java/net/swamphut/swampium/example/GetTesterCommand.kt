@@ -1,11 +1,11 @@
 package net.swamphut.swampium.example
 
-import net.swamphut.swampium.extra.command.SwampiumCommand
+import net.swamphut.swampium.extra.command.SwCommand
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 
 @Command(name = "gettester", mixinStandardHelpOptions = true, version = ["0.0.3"])
-class GetTesterCommand(val exampleService: ExampleService) : SwampiumCommand(), Runnable {
+class GetTesterCommand(val exampleService: ExampleService) : SwCommand(), Runnable {
     @Option(names = ["-a", "--age"], paramLabel = "AGE", description = ["filter by age"])
     var age: Int? = null
 

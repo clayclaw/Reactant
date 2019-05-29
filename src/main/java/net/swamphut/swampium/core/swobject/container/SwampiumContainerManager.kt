@@ -9,7 +9,7 @@ import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
 import java.util.*
 
 @SwObject
-@ServiceProvider
+@ServiceProvider([ContainerManager::class])
 class SwampiumContainerManager : ContainerManager {
     private val swObjectContainerMap = HashMap<String, Container>()
 

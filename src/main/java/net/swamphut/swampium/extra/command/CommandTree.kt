@@ -1,5 +1,6 @@
 package net.swamphut.swampium.extra.command
 
+import net.swamphut.swampium.extra.command.io.StdOut
 import net.swamphut.swampium.extra.command.io.StdOutImpl
 import org.bukkit.command.CommandSender
 import picocli.CommandLine
@@ -11,25 +12,30 @@ class CommandTree(
 ) {
     private val subCommandMap: HashMap<() -> Runnable, ArrayList<() -> Runnable>> = hashMapOf()
     fun getCommandLine(sender: CommandSender, writer: CommandSenderWriter): CommandLine {
-        val out = PrintWriter(writer)
-        val commandLine = CommandLine(rootCommandProvider().apply {
-            if (this is SwampiumCommand) {
-                this.sender = sender
-                this.stdout = StdOutImpl(writer)
-                this.stderr = StdOutImpl(writer)
-            }
-        }).setOut(out)
-        addSubCommandsIntoCommandLineRecursively(commandLine, rootCommandProvider)
-        return commandLine;
+        val out = PrintWriter(CommandSenderWriter(writer, true));
+        return constructCommandLineRecursively(rootCommandProvider, sender, StdOutImpl(writer), StdOutImpl(writer))
+                .setOut(out)
+                .setErr(out);
     }
 
-    private fun addSubCommandsIntoCommandLineRecursively(commandLine: CommandLine, parentCommandProvider: () -> Runnable) {
-        subCommandMap[parentCommandProvider]?.forEach { subCommandProvider ->
-            CommandLine(parentCommandProvider).let { subCommandCommandLine ->
-                addSubCommandsIntoCommandLineRecursively(subCommandCommandLine, subCommandProvider)
-                commandLine.addSubcommand(subCommandCommandLine)
+    private fun constructCommandLineRecursively(commandProvider: () -> Runnable,
+                                                sender: CommandSender, stdOut: StdOut, stdErr: StdOut): CommandLine {
+        val commandLine = CommandLine(commandProvider().apply {
+            if (this is SwCommand) {
+                this.sender = sender
+                this.stdout = stdOut
+                this.stderr = stdErr
+            }
+        }).apply {
+            getCommand<Runnable>().let { if (it is SwCommand) it.commandLine = this }
+        };
+        subCommandMap[commandProvider]?.forEach { subCommandProvider ->
+            constructCommandLineRecursively(subCommandProvider,
+                    sender, stdOut, stdErr).let {
+                commandLine.addSubcommand(it.commandSpec.name(), it, *it.commandSpec.aliases())
             }
         }
+        return commandLine
     }
 
     fun addSubcommand(superCommandProvider: () -> Runnable, subCommandProvider: () -> Runnable) {
