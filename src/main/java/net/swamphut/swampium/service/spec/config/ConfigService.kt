@@ -46,3 +46,6 @@ interface ConfigService {
     fun refresh(config: Config<Any>): Completable
 
 }
+
+inline fun <reified T : Any> ConfigService.load(parser: ParserService, path: String) = load(parser, T::class.java, path)
+inline fun <reified T : Any> ConfigService.loadOrDefault(parser: ParserService, path: String, noinline defaultContentCallable: () -> T) = loadOrDefault(parser, T::class.java, path, defaultContentCallable)

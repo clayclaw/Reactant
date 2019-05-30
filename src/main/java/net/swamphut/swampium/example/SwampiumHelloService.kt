@@ -13,9 +13,7 @@ import java.util.logging.Logger
 class SwampiumHelloService : LifeCycleHook, HelloService {
     private val logger = Logger.getLogger(this.javaClass.name)
 
-    override fun init() {
-        throw IllegalStateException();
-    }
+    override fun init() {}
 
 
     override fun sayHello(toWho: String) {

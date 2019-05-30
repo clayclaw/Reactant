@@ -60,6 +60,10 @@ dependencies {
 
     api("org.apache.logging.log4j:log4j-core:2.11.2")
 
+    api("com.squareup.retrofit2:retrofit:2.5.0")
+    api("com.squareup.retrofit2:adapter-rxjava2:2.5.0")
+    api("com.squareup.retrofit2:converter-gson:2.5.0")
+
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }
 
