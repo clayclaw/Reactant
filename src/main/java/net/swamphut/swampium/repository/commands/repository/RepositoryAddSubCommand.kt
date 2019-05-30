@@ -24,7 +24,8 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
         if (!overwrite && repositoryService.getRepository(name) != null)
             stderr.out("Repository $name already exist, you can overwrite it with option '-o'");
         else repositoryService.setRepository(name, url, !skipConnectionChecking)
-                .doOnError { stderr.out("Exception occurred: ${it.message}, consider use '-s' to skip connection checking.") }
+                .doOnError { throw it }
+//                .doOnError { stderr.out("Exception occurred: ${it.message}, consider use '-s' to skip connection checking.") }
                 .subscribe { stdout.out("Repository $name added successfully") }
     }
 }

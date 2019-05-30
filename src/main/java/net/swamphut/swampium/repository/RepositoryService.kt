@@ -36,12 +36,12 @@ class RepositoryService : LifeCycleHook {
     val repositoriesMap get() = repositoryConfig.content.repositories.toMap()
 
     fun setRepository(name: String, url: String, connectionChecking: Boolean = true): Completable =
-            Completable.fromCallable { if (connectionChecking) URL(url).openConnection().connect() }
+            Completable.fromAction { if (connectionChecking) URL(url).openConnection().connect() }
                     .subscribeOn(Schedulers.io())
                     .observeOn(Swampium.mainThreadScheduler)
-                    .doOnComplete { repositoryConfig.content.repositories[name] = url }
+                    .andThen(Completable.fromAction { repositoryConfig.content.repositories[name] = url })
                     .observeOn(Schedulers.io())
-                    .andThen { repositoryConfig.save() }
+                    .andThen(Completable.fromAction { repositoryConfig.save() })
 
     fun removeRepository(name: String): Completable {
         if (!repositoryConfig.content.repositories.containsKey(name))
