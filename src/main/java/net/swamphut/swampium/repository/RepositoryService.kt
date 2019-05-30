@@ -39,7 +39,7 @@ class RepositoryService : LifeCycleHook {
             Completable.fromCallable { if (connectionChecking) URL(url).openConnection().connect() }
                     .subscribeOn(Schedulers.io())
                     .observeOn(Swampium.mainThreadScheduler)
-                    .andThen { repositoryConfig.content.repositories[name] = url }
+                    .doOnComplete { repositoryConfig.content.repositories[name] = url }
                     .observeOn(Schedulers.io())
                     .andThen { repositoryConfig.save() }
 

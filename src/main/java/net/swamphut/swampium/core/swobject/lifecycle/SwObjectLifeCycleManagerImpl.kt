@@ -36,44 +36,36 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
             Active -> if (action == Initialize) throw java.lang.IllegalStateException()
         }
 
-        val inspectors = swObjectManager.swObjectClassMap.values
-                .filter { it.state == Active }
-                .map { it.instance }
-                .filter { HookInspector::class.java.isAssignableFrom(it.javaClass) }
-                .map { it as HookInspector }
-                .toSet()
-
         try {
-
-            // Throw if required service not actived
             swObjectInfo.requiredServicesResolvedResult.values.filter { it.state != Active }.let {
                 if (!it.isEmpty()) throw RequiredServiceNotActivedException(swObjectInfo, action, it)
             }
 
             when (action) {
                 Initialize -> {
-                    inspectors.forEach { inspector -> inspector.beforeInit(swObjectInfo) }
+                    triggerInspector { inspector -> inspector.beforeInit(swObjectInfo) }
                     if (swObjectInfo.instance is LifeCycleHook) {
                         (swObjectInfo.instance as LifeCycleHook).init()
                     }
                     swObjectInfo.state = Active
-                    inspectors.forEach { inspector -> inspector.afterInit(swObjectInfo) }
+                    triggerInspector { inspector -> inspector.afterInit(swObjectInfo) }
                 }
                 Save -> {
-                    inspectors.forEach { inspector -> inspector.beforeSave(swObjectInfo) }
+                    triggerInspector { inspector -> inspector.beforeSave(swObjectInfo) }
                     if (swObjectInfo.instance is LifeCycleHook) {
                         (swObjectInfo.instance as LifeCycleHook).save()
                     }
-                    inspectors.forEach { inspector -> inspector.afterSave(swObjectInfo) }
+                    triggerInspector { inspector -> inspector.afterSave(swObjectInfo) }
                 }
                 Disable -> {
-                    inspectors.forEach { inspector -> inspector.beforeDisable(swObjectInfo) }
+                    triggerInspector { inspector -> inspector.beforeDisable(swObjectInfo) }
                     if (swObjectInfo.instance is LifeCycleHook) {
                         (swObjectInfo.instance as LifeCycleHook).disable()
                     }
                     swObjectInfo.state = Inactive
+                    triggerInspector { inspector -> inspector.afterDisable(swObjectInfo) }
+
                     //reconstruct it
-                    inspectors.forEach { inspector -> inspector.afterDisable(swObjectInfo) }
                     Swampium.instance.instanceManager.removeInstance(swObjectInfo.instance.javaClass)
                 }
             }
@@ -91,16 +83,19 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
     }
 
-    private fun triggerInspector(inspector: HookInspector, action: () -> Unit) {
-        try {
-            action()
-        } catch (e: Throwable) {
-            Swampium.instance.logger.log(Level.SEVERE, "Throwable catched when trigger hook inspector", e)
+    private fun triggerInspector(action: (HookInspector) -> Unit) {
+        getHookInspectors().forEach {
+            try {
+                it.apply(action)
+            } catch (e: Throwable) {
+                Swampium.instance.logger.log(Level.SEVERE, "Throwable catched when trigger hook inspector", e)
+            }
         }
     }
 
     override fun invokeAction(swObjectsInfo: Collection<SwObjectInfo<Any>>, action: LifeCycleControlAction): Boolean {
         swObjectManager.injectAllSwObject()
+        val invokingClassesHashSet = swObjectsInfo.map { it.instance::class.java }.toHashSet()
 
         val serviceProviders = swObjectsInfo
                 .filter { it.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java) }
@@ -130,17 +125,18 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
         }
 
         return resolvedOrder
-                .filter { it.state == Inactive }
+                .filter { invokingClassesHashSet.contains(it.instance::class.java) }
                 .map { invokeAction(it, action) }
                 .fold(true) { prev, next -> prev && next }
-                .also {
-                    swObjectManager.swObjectClassMap.values
-                            .filter { it.state == Active }
-                            .map { it.instance }
-                            .filter { HookInspector::class.java.isAssignableFrom(it.javaClass) }
-                            .map { it as HookInspector }
-                            .forEach { it.afterBulkActionComeplete(action) }
-                }
+                .also { triggerInspector { it.afterBulkActionComeplete(action) } }
     }
 
+
+    private fun getHookInspectors(): Set<HookInspector> = swObjectManager.swObjectClassMap.values
+            .asSequence()
+            .filter { it.state == Active }
+            .map { it.instance }
+            .filter { HookInspector::class.java.isAssignableFrom(it.javaClass) }
+            .map { it as HookInspector }
+            .toSet()
 }

@@ -5,15 +5,21 @@ import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.swobject.BukkitPluginContainerLoader
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.SwObjectState
+import net.swamphut.swampium.core.swobject.container.BukkitPluginContainer
+import net.swamphut.swampium.core.swobject.container.ContainerManager
+import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
 import net.swamphut.swampium.core.swobject.instance.InstanceManager
 import net.swamphut.swampium.core.swobject.instance.SwampiumInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManager
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManagerImpl
+import net.swamphut.swampium.extra.server.SwampiumEventService
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
+import org.bukkit.event.EventPriority
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
@@ -21,12 +27,16 @@ class Swampium : JavaPlugin() {
     val instanceManager: InstanceManager
     private val swObjectManager: SwObjectManager
     private val swObjectLifeCycleManager: SwObjectLifeCycleManager
+    private val eventService: SwampiumEventService
+    private val containerManager: ContainerManager
 
     init {
         instance = this
         instanceManager = SwampiumInstanceManager()
         swObjectManager = instanceManager.getInstance(SwObjectManager::class.java)
         swObjectLifeCycleManager = instanceManager.getInstance(SwObjectLifeCycleManagerImpl::class.java)
+        eventService = instanceManager.getInstance(SwampiumEventService::class.java);
+        containerManager = instanceManager.getInstance(SwampiumContainerManager::class.java);
     }
 
     override fun onEnable() {
@@ -38,6 +48,17 @@ class Swampium : JavaPlugin() {
         server.scheduler.scheduleSyncDelayedTask(this) {
             onPluginsLoaded()
         }
+
+        eventService.on(this, PluginDisableEvent::class.java, EventPriority.HIGH)
+                .subscribe { event ->
+                    val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(event.plugin))
+                    container?.swObjectClasses!!.mapNotNull { swObjectManager.swObjectClassMap[it] }
+                            .filter { it.state == SwObjectState.Active }
+                            .let {
+                                swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
+                                swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
+                            }
+                }
     }
 
     fun onPluginsLoaded() {
@@ -89,7 +110,6 @@ class Swampium : JavaPlugin() {
     }
 
     override fun onDisable() {
-        Swampium.logger.info("Disabling services")
         swObjectManager.swObjectClassMap.values
                 .filter { it.state == SwObjectState.Active }
                 .let {
