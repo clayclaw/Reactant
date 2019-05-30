@@ -35,6 +35,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
 
     override fun run() {
         requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.RETRIEVE)
+        stdout.out("Retrieving ${identifiers.size} plugin from repositories...")
         Observable.fromIterable(identifiers)
                 .flatMapSingle(this::download)
                 .flatMapSingle(this::replaceCurrentPlugin)
@@ -96,8 +97,8 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
 
         val currentPlugin = Bukkit.getPluginManager().plugins
                 .filter { it.description.main == pluginDescription.main }
-                .first()
-        val oldName = currentPlugin.description.fullName
+                .firstOrNull()
+        val oldName = currentPlugin?.description?.fullName
         currentPlugin?.let {
             Bukkit.getPluginManager().disablePlugin(it)
             stdout.out("Updating: $oldName->${pluginDescription.fullName}")
