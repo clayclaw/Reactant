@@ -2,6 +2,7 @@ package net.swamphut.swampium.repository.commands.repository
 
 import net.swamphut.swampium.extra.command.SwCommand
 import net.swamphut.swampium.repository.RepositoryService
+import net.swamphut.swampium.repository.commands.RepositoryPermission
 import net.swamphut.swampium.utils.PatternMatchingUtils
 import picocli.CommandLine
 
@@ -11,6 +12,7 @@ class RepositoryRemoveSubCommand(private val repositoryService: RepositoryServic
     lateinit var nameWildcards: ArrayList<String>
 
     override fun run() {
+        requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.MODIFY)
         repositoryService.repositoriesMap.keys
                 .filter { nameWildcards.any { wildcard -> PatternMatchingUtils.matchWildcard(wildcard, it) } }
                 .onEach { repositoryService.removeRepository(it) }

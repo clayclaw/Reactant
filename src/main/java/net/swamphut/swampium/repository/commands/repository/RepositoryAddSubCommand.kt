@@ -2,6 +2,7 @@ package net.swamphut.swampium.repository.commands.repository
 
 import net.swamphut.swampium.extra.command.SwCommand
 import net.swamphut.swampium.repository.RepositoryService
+import net.swamphut.swampium.repository.commands.RepositoryPermission.Companion.SWAMPIUM
 import picocli.CommandLine
 
 @CommandLine.Command(name = "add", mixinStandardHelpOptions = true, description = ["Add a maven repository"])
@@ -19,6 +20,7 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
     lateinit var url: String
 
     override fun run() {
+        requirePermission(SWAMPIUM.REPOSITORY.MODIFY)
         if (!overwrite && repositoryService.getRepository(name) != null)
             stderr.out("Repository $name already exist, you can overwrite it with option '-o'");
         else repositoryService.setRepository(name, url, !skipConnectionChecking)

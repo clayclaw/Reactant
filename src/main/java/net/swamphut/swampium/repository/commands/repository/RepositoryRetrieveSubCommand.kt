@@ -7,6 +7,7 @@ import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.extra.command.SwCommand
 import net.swamphut.swampium.repository.MavenRepositoryRetrieverService
 import net.swamphut.swampium.repository.RepositoryService
+import net.swamphut.swampium.repository.commands.RepositoryPermission
 import net.swamphut.swampium.utils.converter.StacktraceConverterUtils
 import okio.Okio
 import org.bukkit.Bukkit
@@ -33,6 +34,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
     var verbose: Boolean = false
 
     override fun run() {
+        requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.RETRIEVE)
         Observable.fromIterable(identifiers)
                 .flatMapSingle(this::download)
                 .flatMapSingle(this::replaceCurrentPlugin)
