@@ -21,7 +21,7 @@ class SwampiumContainerManager : ContainerManager {
 
     override fun addContainer(container: Container) {
         if (swObjectContainerMap[container.identifier] != null) {
-            throw IllegalArgumentException("SwObject Container with same identifier already exist: ${container.identifier}")
+            throw IllegalArgumentException("SwObject Container with same rawIdentifier already exist: ${container.identifier}")
         }
         swObjectContainerMap[container.identifier] = container
         Swampium.instance.instanceManager.let { instanceManager ->

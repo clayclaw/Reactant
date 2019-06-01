@@ -76,7 +76,7 @@ class ServiceProviderManager() {
     /**
      * Find all available provider for a service class, ordered by provider classes' canonical name
      */
-    fun <T> findPossibleProvider(serviceClass: Class<T>): Set<ServiceProviderInfo<T>> {
+    fun <T : Any> findPossibleProvider(serviceClass: Class<T>): Set<ServiceProviderInfo<T>> {
         @Suppress("UNCHECKED_CAST")
         return ((serviceProvidersMap[serviceClass] ?: setOf())
                 .sortedBy { serviceClass.canonicalName }

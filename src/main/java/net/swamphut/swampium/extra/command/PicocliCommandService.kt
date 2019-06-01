@@ -86,11 +86,15 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
     fun unregisterCommand(commandName: String) {
         if (commandTreeMap.containsKey(commandName)) {
             commandTreeMap.remove(commandName);
-            bukkitCommandMap::class.java.getDeclaredField("knownCommands").apply {
-                isAccessible = true
-                @Suppress("UNCHECKED_CAST")
-                (get(Bukkit.getServer()) as HashMap<String, org.bukkit.command.Command>)
-                        .remove(commandName)
+            try {
+                bukkitCommandMap::class.java.getDeclaredField("knownCommands").apply {
+                    isAccessible = true
+                    @Suppress("UNCHECKED_CAST")
+                    (get(Bukkit.getServer()) as HashMap<String, org.bukkit.command.Command>)
+                            .remove(commandName)
+                }
+            } catch (e: NoSuchFieldException) {
+
             }
         } else {
             throw IllegalArgumentException();

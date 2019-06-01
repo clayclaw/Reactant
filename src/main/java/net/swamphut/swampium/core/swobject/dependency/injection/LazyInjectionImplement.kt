@@ -4,7 +4,7 @@ import net.swamphut.swampium.core.swobject.SwObjectInfo
 import net.swamphut.swampium.core.swobject.SwObjectState
 import java.lang.reflect.Field
 
-class LazyInjectionImplement<T>(val swObjectInfo: SwObjectInfo<T>, val field: Field) : LazyInjection<T> {
+class LazyInjectionImplement<T : Any>(val swObjectInfo: SwObjectInfo<T>, val field: Field) : LazyInjection<T> {
     override fun get(): T {
         if (!isAvailable()) throw IllegalStateException("Lazy injection is not available")
         @Suppress("UNCHECKED_CAST")

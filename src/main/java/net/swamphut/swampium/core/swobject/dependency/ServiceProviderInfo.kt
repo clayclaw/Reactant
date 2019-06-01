@@ -2,7 +2,7 @@ package net.swamphut.swampium.core.swobject.dependency
 
 import net.swamphut.swampium.core.swobject.SwObjectInfo
 
-interface ServiceProviderInfo<out T> : SwObjectInfo<T> {
+interface ServiceProviderInfo<out T : Any> : SwObjectInfo<T> {
 
     /**
      * The services this provider provided

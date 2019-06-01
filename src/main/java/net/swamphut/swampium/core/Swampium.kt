@@ -20,6 +20,7 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
 import org.bukkit.event.server.PluginDisableEvent
+import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
@@ -46,22 +47,26 @@ class Swampium : JavaPlugin() {
         mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(this, command) }
 
         server.scheduler.scheduleSyncDelayedTask(this) {
-            onPluginsLoaded()
+            updateContainers()
         }
-
         eventService.on(this, PluginDisableEvent::class.java, EventPriority.HIGH)
-                .subscribe { event ->
-                    val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(event.plugin))
-                    container?.swObjectClasses!!.mapNotNull { swObjectManager.swObjectClassMap[it] }
-                            .filter { it.state == SwObjectState.Active }
-                            .let {
-                                swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
-                                swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
-                            }
-                }
+                .subscribe { onPluginDisable(it.plugin) }
     }
 
-    fun onPluginsLoaded() {
+    fun onPluginDisable(plugin: Plugin) {
+        val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(plugin))
+        if (container == null) {
+            container?.swObjectClasses?.mapNotNull { swObjectManager.swObjectClassMap[it] }
+                    ?.filter { it.state == SwObjectState.Active }
+                    ?.let {
+                        swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
+                        swObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
+                    }
+        }
+    }
+
+
+    private fun updateContainers() {
         Swampium.logger.info("Searching all containers")
         BukkitPluginContainerLoader.findAllLoadedPluginContainer()
 

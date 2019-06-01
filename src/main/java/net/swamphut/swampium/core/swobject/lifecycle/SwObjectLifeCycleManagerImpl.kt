@@ -11,6 +11,7 @@ import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
 import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
 import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfoImpl
 import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
 import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyResolver
@@ -33,7 +34,7 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
             Unsolved -> throw IllegalStateException("Unsolved object cannot invoke any action: ${swObjectInfo.instance.javaClass}")
             Inactive -> if (action == Disable || action == Save) throw IllegalStateException()
-            Active -> if (action == Initialize) throw java.lang.IllegalStateException()
+            Active -> if (action == Initialize) return true;
         }
 
         try {
@@ -94,41 +95,39 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
     }
 
     override fun invokeAction(swObjectsInfo: Collection<SwObjectInfo<Any>>, action: LifeCycleControlAction): Boolean {
-        swObjectManager.injectAllSwObject()
-        val invokingClassesHashSet = swObjectsInfo.map { it.instance::class.java }.toHashSet()
+        if (action == Initialize) swObjectManager.injectAllSwObject()
 
-        val serviceProviders = swObjectsInfo
-                .filter { it.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java) }
-                .map { serviceProviderManager.serviceClassProvidersInfoMap.getOrElse(it.instance.javaClass, { throw java.lang.IllegalStateException() }) }
-                .toSet()
+//        val invokingClassesHashSet = swObjectsInfo.map { it.instance::class.java }.toHashSet()
+
+        val serviceProviders = extractServiceProviderInfo(swObjectsInfo)
+        val serviceProvidersClasses = serviceProviders.map { it.instanceClass }
+        val pureSwObjects = swObjectsInfo.filter { !serviceProvidersClasses.contains(it.instanceClass) }
+
         val resolveResult = ServiceDependencyResolver.resolve(serviceProviders);
-        Swampium.instance.logger.log(Level.INFO,
-                """
-
-                    Resolved: ${resolveResult.solvedOrder.size}
-                    Cyclic nodes: ${resolveResult.cyclicNodesLists}
-                    Ignored: ${resolveResult.ignoredNodes.size}
-
-                """.trimIndent())
-        val resolvedOrder = ArrayList(resolveResult.solvedOrder.map { it.data }.map {
-            @Suppress("UNCHECKED_CAST")
-            it as SwObjectInfo<Any>
+        Swampium.instance.logger.log(Level.INFO, ("Resolved: ${resolveResult.solvedOrder.size}, " +
+                "Cyclic nodes: ${resolveResult.cyclicNodesLists}, Ignored: ${resolveResult.ignoredNodes.size}"))
+        val resolvedOrder = ArrayList(resolveResult.solvedOrder.map {
+            swObjectManager.swObjectClassMap[it.data.instanceClass] ?: throw IllegalStateException()
         })
 
+        // After provider loaded, load pure swobject
+        resolvedOrder.addAll(pureSwObjects)
 
-        // After provider loaded, load sw object
-        swObjectsInfo.filter { !it.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java) }
-                .let { resolvedOrder.addAll(it) }
-
-        if (action == Disable || action == Save) {
-            resolvedOrder.reverse()
-        }
+        // execute with reversed order
+        if (action == Disable || action == Save) resolvedOrder.reverse()
 
         return resolvedOrder
-                .filter { invokingClassesHashSet.contains(it.instance::class.java) }
+//                .filter { invokingClassesHashSet.contains(it.instance::class.java) }
                 .map { invokeAction(it, action) }
                 .fold(true) { prev, next -> prev && next }
                 .also { triggerInspector { it.afterBulkActionComeplete(action) } }
+    }
+
+    private fun extractServiceProviderInfo(swObjectsInfo: Collection<SwObjectInfo<Any>>): Set<ServiceProviderInfo<Any>> {
+        return swObjectsInfo
+                .filter { it.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java) }
+                .map { serviceProviderManager.serviceClassProvidersInfoMap.getOrElse(it.instance.javaClass, { throw java.lang.IllegalStateException() }) }
+                .toSet()
     }
 
 

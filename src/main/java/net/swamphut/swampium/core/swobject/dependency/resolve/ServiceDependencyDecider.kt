@@ -1,13 +1,14 @@
 package net.swamphut.swampium.core.swobject.dependency.resolve
 
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
+import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig.ServiceSpecifyingRule
 import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
 import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
 import net.swamphut.swampium.utils.PatternMatchingUtils
 
-class ServiceDependencyDecider(val serviceSpecifyingConfig: ServiceSpecifyingConfig,
-                               val serviceProviderManager: ServiceProviderManager) {
-    val classDecidedDependencies = HashMap<Class<*>, HashMap<Class<*>, ServiceProviderInfo<Any>>>()
+class ServiceDependencyDecider(private val serviceSpecifyingConfig: ServiceSpecifyingConfig,
+                               private val serviceProviderManager: ServiceProviderManager) {
+    private val classDecidedDependencies = HashMap<Class<*>, HashMap<Class<*>, ServiceProviderInfo<Any>>>()
     fun <T : Any> getDecided(requester: Class<out Any>, requesting: Class<T>): ServiceProviderInfo<T>? {
 
         val decidedDependencies = classDecidedDependencies.getOrPut(requester, { HashMap() })
@@ -31,40 +32,44 @@ class ServiceDependencyDecider(val serviceSpecifyingConfig: ServiceSpecifyingCon
         return null
     }
 
-    private fun <T : Any> decide(
-            requester: Class<out Any>,
-            requiring: Class<out T>,
-            possibleProviders: Collection<ServiceProviderInfo<T>>
-    ): ServiceProviderInfo<T>? {
-        possibleProviders.filter { possibleProvider ->
-            for (blacklistProviderPattern in serviceSpecifyingConfig.blacklistRules
-                    .filter { rule -> PatternMatchingUtils.matchWildcardOrRegex(rule.requester, requester.canonicalName) }
-                    .flatMap { rule -> rule.fullfillWith }
-                    .filter { specifier -> PatternMatchingUtils.matchWildcardOrRegex(specifier.require, requiring.canonicalName) }
-                    .map { specifier -> specifier.provider }
-                    .reversed()) {
-                if (PatternMatchingUtils.matchWildcardOrRegex(blacklistProviderPattern, possibleProvider.instance::class.java.canonicalName)) {
-                    return@filter false
-                }
-            }
-            return@filter true
-        }.let { allowedPossibleProviders ->
-            for (specifyProviderPattern in serviceSpecifyingConfig.specifyRules
-                    .filter { rule -> PatternMatchingUtils.matchWildcardOrRegex(rule.requester, requester.canonicalName) }
-                    .flatMap { rule -> rule.fullfillWith }
-                    .filter { specifier -> PatternMatchingUtils.matchWildcardOrRegex(specifier.require, requiring.canonicalName) }
-                    .map { specifier -> specifier.provider }
-                    .reversed()) {
-                for (possibleProvider in allowedPossibleProviders) {
-                    if (PatternMatchingUtils.matchWildcardOrRegex(specifyProviderPattern, possibleProvider.instance::class.java.canonicalName)) {
-                        return possibleProvider
+    private fun <T : Any> decide(requester: Class<out Any>, requiring: Class<out T>,
+                                 possibleProviders: Collection<ServiceProviderInfo<T>>): ServiceProviderInfo<T>? {
+        val allowedPossibleProviders = possibleProviders.filter { !isProviderBlacklisted(requester, requiring, it) };
+        val firstMatchedSpecifiedProvider = getFirstMatchedSpecifiedProvider(requester, requiring, allowedPossibleProviders)
+        return firstMatchedSpecifiedProvider ?: allowedPossibleProviders.firstOrNull()
+    }
+
+    private fun <T : Any> getFirstMatchedSpecifiedProvider(requester: Class<out Any>, requiring: Class<out T>,
+                                                           allowedPossibleProviders: Collection<ServiceProviderInfo<T>>): ServiceProviderInfo<T>? {
+        getRulesSpecifiedProviderPatterns(requester, requiring, serviceSpecifyingConfig.specifyRules)
+                .mapNotNull { specifyProviderPattern ->
+                    allowedPossibleProviders.firstOrNull {
+                        PatternMatchingUtils.matchWildcardOrRegex(specifyProviderPattern, it.instance::class.java.canonicalName)
                     }
                 }
-            }
+                .firstOrNull()// first matched rule and first matched provider
+                .let { return it }
+    }
 
-            // If have at least one: use it
-            // else: Not deciable yet
-            return allowedPossibleProviders.firstOrNull()
-        }
+
+    private fun <T : Any> isProviderBlacklisted(requester: Class<out Any>, requiring: Class<out T>,
+                                                filteringServiceProvider: ServiceProviderInfo<Any>): Boolean {
+        return getRulesSpecifiedProviderPatterns(requester, requiring, serviceSpecifyingConfig.blacklistRules)
+                .map { providerPattern ->
+                    PatternMatchingUtils.matchWildcardOrRegex(
+                            providerPattern, filteringServiceProvider.instance::class.java.canonicalName)
+                }.fold(false) { sum, next -> sum || next } // if any true = all true
+    }
+
+    /**
+     * Get what providers are specified under the "requester and requiring" condition
+     */
+    private fun getRulesSpecifiedProviderPatterns(requester: Class<out Any>, requiring: Class<out Any>,
+                                                  ruleList: Collection<ServiceSpecifyingRule>): List<String> {
+        return ruleList.filter { rule -> PatternMatchingUtils.matchWildcardOrRegex(rule.requester, requester.canonicalName) }
+                .flatMap { rule -> rule.fullfillWith }
+                .filter { specifier -> PatternMatchingUtils.matchWildcardOrRegex(specifier.require, requiring.canonicalName) }
+                .map { specifier -> specifier.provider }
+                .reversed() // Match from bottom first
     }
 }
