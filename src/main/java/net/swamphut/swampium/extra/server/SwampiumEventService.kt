@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.RegisteredListener
+import kotlin.reflect.KClass
 
 
 @SwObject
@@ -43,10 +44,10 @@ class SwampiumEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
-    override fun <T : Event> on(listener: Any, eventClass: Class<T>, eventPriority: EventPriority): Observable<T> {
+    override fun <T : Event> on(registerSwObject: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
         @Suppress("UNCHECKED_CAST")
         return (eventPrioritySubjectMap
-                .getOrPut(eventClass, { HashMap() })
+                .getOrPut(eventClass.java, { HashMap() })
                 .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
                 .doOnSubscribe { Swampium.logger.info("on subscribe") }
                 .doOnDispose { Swampium.logger.info("on dispose") }

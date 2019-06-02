@@ -18,8 +18,6 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
-import org.bukkit.event.EventPriority
-import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -49,8 +47,6 @@ class Swampium : JavaPlugin() {
         server.scheduler.scheduleSyncDelayedTask(this) {
             updateContainers()
         }
-        eventService.on(this, PluginDisableEvent::class.java, EventPriority.HIGH)
-                .subscribe { onPluginDisable(it.plugin) }
     }
 
     fun onPluginDisable(plugin: Plugin) {
