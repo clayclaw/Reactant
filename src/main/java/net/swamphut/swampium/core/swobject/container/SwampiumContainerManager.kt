@@ -6,7 +6,9 @@ import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.SwObjectState
 import net.swamphut.swampium.core.swobject.dependency.InjectionAnnotationReader
 import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.swobject.instance.factory.SwObjectClassConstructorFactory
 import java.util.*
+import kotlin.reflect.full.createType
 
 @SwObject
 @ServiceProvider([ContainerManager::class])
@@ -24,19 +26,19 @@ class SwampiumContainerManager : ContainerManager {
             throw IllegalArgumentException("SwObject Container with same rawIdentifier already exist: ${container.identifier}")
         }
         swObjectContainerMap[container.identifier] = container
-        Swampium.instance.instanceManager.let { instanceManager ->
-            val swObjectManager = instanceManager.getInstance(SwObjectManager::class)
-            container.swObjectClasses
-                    .filter { it.isAnnotationPresent(SwObject::class.java) }
-                    .forEach { swObjectClass ->
-                        if (swObjectManager.swObjectClassMap[swObjectClass] != null) {
-                            throw IllegalStateException("Duplicated provider class: ${swObjectClass.canonicalName}")
-                        }
-                        val swObjectInfo = SwObjectInfoImpl(swObjectClass)
-                        InjectionAnnotationReader.read(swObjectInfo)
-                        swObjectManager.addSwObject(swObjectInfo)
+        val instanceManager = Swampium.instance.instanceManager
+        val swObjectManager = instanceManager.getInstance(SwObjectManager::class.createType())
+        container.swObjectClasses
+                .filter { it.java.isAnnotationPresent(SwObject::class.java) }
+                .forEach { swObjectClass ->
+                    instanceManager.addInstanceFactory(SwObjectClassConstructorFactory(swObjectClass, instanceManager))
+                    if (swObjectManager.swObjectClassMap[swObjectClass] != null) {
+                        throw IllegalStateException("Duplicated provider class: ${swObjectClass.canonicalName}")
                     }
-        }
+                    val swObjectInfo = SwObjectInfoImpl(swObjectClass)
+                    InjectionAnnotationReader.read(swObjectInfo)
+                    swObjectManager.addSwObject(swObjectInfo)
+                }
     }
 
     override fun removeContainer(container: Container) {

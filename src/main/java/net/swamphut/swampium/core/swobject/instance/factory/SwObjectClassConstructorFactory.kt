@@ -1,28 +1,35 @@
 package net.swamphut.swampium.core.swobject.instance.factory
 
-import net.swamphut.swampium.core.exception.ServiceInstantiateException
+import net.swamphut.swampium.core.exception.SwObjectInstantiateException
+import net.swamphut.swampium.core.swobject.container.SwObject
+import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.instance.InstanceManager
-import java.lang.IllegalArgumentException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSupertypeOf
 import kotlin.reflect.jvm.isAccessible
 
-class SwObjectClassConstructorFactory<T : Any>(val clazz: KClass<T>, instanceManager: InstanceManager) : InstanceFactory<T> {
-    override fun <T : Any> createInstance(named: String, vararg genericTypes: KClass<out Any>): T? {
+class SwObjectClassConstructorFactory<T : Any>(val clazz: KClass<T>, val instanceManager: InstanceManager) : InstanceFactory {
+    override fun createInstance(type: KType, named: String): InstanceProductInfo? {
+        if (!type.isSupertypeOf(clazz.createType()) || named != clazz.java.getDeclaredAnnotation(SwObject::class.java).name) {
+            return null;
+        }
         if (clazz.constructors.size != 1) throw IllegalArgumentException("SwObject must have only one constructor")
         try {
             val constructor = clazz.constructors.first();
             constructor.isAccessible = true
-            constructor.parameters.map { it. }
-        } catch (e: IllegalAccessException) {
-            throw ServiceInstantiateException(
-                    "SwObject classes are required to have a public default constructor", e, clazz)
-        } catch (e: NoSuchMethodException) {
-            throw ServiceInstantiateException("SwObject classes are required to have a public default constructor", e, clazz)
+
+            val constructorParamValues = constructor.parameters.map { parameter ->
+                val name = (parameter.annotations.firstOrNull { it is Inject } as Inject?)?.name ?: ""
+                return@map instanceManager.getInstance(parameter.type, name)
+            }
+            return InstanceProductInfo(type, named, constructor.call(constructorParamValues))
         } catch (e: InvocationTargetException) {
-            throw ServiceInstantiateException("Exception throwed while instantiate", e, clazz)
+            throw SwObjectInstantiateException("Exception throwed while instantiate", e, clazz.java)
         } catch (e: InstantiationException) {
-            throw ServiceInstantiateException("Exception throwed while instantiate", e, clazz)
+            throw SwObjectInstantiateException("Exception throwed while instantiate", e, clazz.java)
         }
     }
 }

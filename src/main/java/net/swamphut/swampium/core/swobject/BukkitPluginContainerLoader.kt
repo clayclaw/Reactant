@@ -9,12 +9,13 @@ import org.bukkit.Bukkit
 import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.PrintStream
+import kotlin.reflect.full.createType
 
 
 object BukkitPluginContainerLoader {
     fun findAllLoadedPluginContainer() {
         val containerManager: ContainerManager = Swampium.instance.instanceManager
-                .getInstance(SwampiumContainerManager::class.java)
+                .getInstance(SwampiumContainerManager::class.createType()) as ContainerManager
 
         val out = PrintStream(FileOutputStream(FileDescriptor.out))
 

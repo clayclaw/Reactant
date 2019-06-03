@@ -122,6 +122,7 @@ class Swampium : JavaPlugin() {
     companion object {
         @JvmStatic
         lateinit var instance: Swampium
+            private set
 
         lateinit var mainThreadScheduler: Scheduler
 
