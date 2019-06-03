@@ -1,11 +1,14 @@
 package net.swamphut.swampium.extra.command
 
+import net.swamphut.swampium.core.commands.swobject.SwCommandHelpTopic
 import net.swamphut.swampium.extra.command.exceptions.CommandExecutionPermissionException
 import net.swamphut.swampium.extra.command.io.StdOut
 import org.bukkit.command.CommandSender
+import org.bukkit.help.HelpTopic
 import picocli.CommandLine
 
-abstract class SwCommand : Runnable {
+abstract class SwCommand(val helpTopicPermission: String? = null) : Runnable {
+
     lateinit var sender: CommandSender
     lateinit var stdout: StdOut
     lateinit var stderr: StdOut
@@ -19,4 +22,9 @@ abstract class SwCommand : Runnable {
     }
 
     protected fun showUsage() = commandLine.usageMessage.lines().forEach(stdout::out)
+
+    fun canSeeHelpTopic(player: CommandSender): Boolean =
+            helpTopicPermission == null || player.hasPermission(helpTopicPermission)
+
+    fun getHelpTopic(): HelpTopic = SwCommandHelpTopic(this)
 }

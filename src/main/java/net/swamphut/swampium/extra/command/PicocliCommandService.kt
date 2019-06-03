@@ -34,14 +34,15 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
         registerCommandNameMap.remove(swObjectInfo.instance)
     }
 
-    fun registerCommand(registerSwObject: Any, commandRunnableProvider: () -> Runnable): CommandTree {
-        val commandRunnable = commandRunnableProvider();
-        val commandSpec = Model.CommandSpec.forAnnotatedObject(commandRunnable)
+    fun registerCommand(registerSwObject: Any, commandRunnableProvider: () -> SwCommand): CommandTree {
+        val swCommand = commandRunnableProvider();
+        val commandSpec = Model.CommandSpec.forAnnotatedObject(swCommand)
         var name = commandSpec.name();
         name = reviseConflictCommand(registerSwObject, name)
 
         registerCommandNameMap.getOrPut(registerSwObject) { hashSetOf() }.add(name)
         commandTreeMap[name] = CommandTree(name, commandRunnableProvider)
+        Bukkit.getHelpMap().addTopic(swCommand.getHelpTopic())
 
         bukkitCommandMap.register(registerSwObject.javaClass.canonicalName, object : org.bukkit.command.Command(
                 name,
@@ -106,7 +107,7 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
     inner class CommandRegistering(private val registerSwObject: Any) {
         private lateinit var commandTree: CommandTree
 
-        fun command(commandRunnableProvider: () -> Runnable, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
+        fun command(commandRunnableProvider: () -> SwCommand, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
             commandTree = registerCommand(registerSwObject, commandRunnableProvider)
             subCommandRegistering?.let { SubCommandRegistering(commandRunnableProvider).it() }
         }
