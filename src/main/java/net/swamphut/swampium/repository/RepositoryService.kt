@@ -4,7 +4,7 @@ import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.repository.config.RepositoryConfig

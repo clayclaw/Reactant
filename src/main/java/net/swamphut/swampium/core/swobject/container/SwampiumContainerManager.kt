@@ -5,7 +5,7 @@ import net.swamphut.swampium.core.swobject.SwObjectInfoImpl
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.SwObjectState
 import net.swamphut.swampium.core.swobject.dependency.InjectionAnnotationReader
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import java.util.*
 
 @SwObject
@@ -25,7 +25,7 @@ class SwampiumContainerManager : ContainerManager {
         }
         swObjectContainerMap[container.identifier] = container
         Swampium.instance.instanceManager.let { instanceManager ->
-            val swObjectManager = instanceManager.getInstance(SwObjectManager::class.java)
+            val swObjectManager = instanceManager.getInstance(SwObjectManager::class)
             container.swObjectClasses
                     .filter { it.isAnnotationPresent(SwObject::class.java) }
                     .forEach { swObjectClass ->

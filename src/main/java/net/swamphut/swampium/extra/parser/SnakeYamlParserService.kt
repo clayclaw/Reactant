@@ -2,7 +2,7 @@ package net.swamphut.swampium.extra.parser
 
 import io.reactivex.Single
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.service.spec.parser.YamlParserService
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor

@@ -10,10 +10,10 @@ import net.swamphut.swampium.core.swobject.SwObjectState.*
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfoImpl
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfoImpl
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyResolver
 import net.swamphut.swampium.core.swobject.instance.InstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction.*
@@ -32,7 +32,7 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
         when (swObjectInfo.state) {
 
-            Unsolved -> throw IllegalStateException("Unsolved object cannot invoke any action: ${swObjectInfo.instance.javaClass}")
+            Unsolved -> throw IllegalStateException("Unsolved object cannot invoke any action: ${swObjectInfo.instanceClass}")
             Inactive -> if (action == Disable || action == Save) throw IllegalStateException()
             Active -> if (action == Initialize) return true;
         }
@@ -67,7 +67,7 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
                     triggerInspector { inspector -> inspector.afterDisable(swObjectInfo) }
 
                     //reconstruct it
-                    Swampium.instance.instanceManager.removeInstance(swObjectInfo.instance.javaClass)
+                    Swampium.instance.instanceManager.destroyInstance(swObjectInfo.instanceClass)
                 }
             }
             return true
@@ -125,8 +125,8 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
     private fun extractServiceProviderInfo(swObjectsInfo: Collection<SwObjectInfo<Any>>): Set<ServiceProviderInfo<Any>> {
         return swObjectsInfo
-                .filter { it.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java) }
-                .map { serviceProviderManager.serviceClassProvidersInfoMap.getOrElse(it.instance.javaClass, { throw java.lang.IllegalStateException() }) }
+                .filter { it.instanceClass.isAnnotationPresent(ServiceProvider::class.java) }
+                .map { serviceProviderManager.serviceClassProvidersInfoMap.getOrElse(it.instanceClass, { throw java.lang.IllegalStateException() }) }
                 .toSet()
     }
 

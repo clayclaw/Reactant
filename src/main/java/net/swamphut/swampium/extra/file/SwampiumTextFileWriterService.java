@@ -3,7 +3,7 @@ package net.swamphut.swampium.extra.file;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 import net.swamphut.swampium.core.swobject.container.SwObject;
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider;
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider;
 import net.swamphut.swampium.service.spec.file.text.TextFileWriterService;
 
 import java.io.File;

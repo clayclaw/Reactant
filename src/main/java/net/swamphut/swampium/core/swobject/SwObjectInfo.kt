@@ -1,12 +1,14 @@
 package net.swamphut.swampium.core.swobject
 
 import net.swamphut.swampium.core.exception.lifecycle.LifeCycleActionException
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
 
 interface SwObjectInfo<out T : Any> {
-    val instance: T
+    val instance: T?
 
-    val instanceClass get() = instance::class.java
+    val fromFactory: Any?
+
+    val instanceClass: Class<out T>;
 
     /**
      * The required services of this object

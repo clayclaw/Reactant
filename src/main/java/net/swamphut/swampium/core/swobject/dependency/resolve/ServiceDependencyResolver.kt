@@ -1,8 +1,8 @@
 package net.swamphut.swampium.core.swobject.dependency.resolve
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.utils.types.DirectedAcyclicGraph
 
 
@@ -15,7 +15,7 @@ class ServiceDependencyResolver {
             resolvingProviders.forEach { resolving ->
                 val resolvingNode = serviceDAG.getNodeOrAdd(resolving)
                 resolving.requester
-                        .map { serviceProviderManager.serviceClassProvidersInfoMap[it.instance.javaClass] }
+                        .map { serviceProviderManager.serviceClassProvidersInfoMap[it.instanceClass] }
                         .filter { it != null }
                         .map { it!! }
                         .forEach { requester ->
@@ -33,7 +33,7 @@ class ServiceDependencyResolver {
             resolvingProviders.forEach { resolving ->
                 val resolvingNode = serviceDAG.getNodeOrAdd(resolving)
                 resolving.requester
-                        .map { serviceProviderManager.serviceClassProvidersInfoMap[it.instance.javaClass] }
+                        .map { serviceProviderManager.serviceClassProvidersInfoMap[it.instanceClass] }
                         .filter { it != null }
                         .map { it!! }
                         .forEach { requester ->

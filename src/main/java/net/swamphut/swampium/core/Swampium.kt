@@ -101,7 +101,7 @@ class Swampium : JavaPlugin() {
                         .filter { !notFulfilled.requiredServicesResolvedResult.containsKey(it) }
                         .map { "\t\t- ${it.canonicalName}" }
                         .joinToString("\n")
-                message += "\t${notFulfilled.instance::class.java.canonicalName}:\n"
+                message += "\t${notFulfilled.instanceClass.canonicalName}:\n"
                 message += "$missingServices\n"
 
             }

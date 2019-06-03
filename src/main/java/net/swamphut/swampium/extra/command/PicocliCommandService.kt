@@ -3,7 +3,7 @@ package net.swamphut.swampium.extra.command
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.swobject.SwObjectInfo
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.HookInspector
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.extra.command.exceptions.CommandExecutionPermissionException

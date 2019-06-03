@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency
+package net.swamphut.swampium.core.swobject.dependency.provide
 
 import net.swamphut.swampium.core.swobject.SwObjectInfo
 

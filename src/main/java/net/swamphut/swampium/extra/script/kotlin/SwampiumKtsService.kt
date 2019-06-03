@@ -23,7 +23,7 @@ class SwampiumKtsService : KtsService {
 
     private val scriptPathFileCache = HashMap<File, (Scripting<out Any>?) -> Scripting<out Any>>()
 
-    private val scriptEngineManager = ScriptEngineManager(Swampium.instance.javaClass.classLoader)
+    private val scriptEngineManager = ScriptEngineManager(Swampium::class.java.classLoader)
             .getEngineByExtension("kts")
 
 

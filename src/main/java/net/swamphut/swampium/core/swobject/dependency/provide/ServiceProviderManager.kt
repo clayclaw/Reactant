@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency
+package net.swamphut.swampium.core.swobject.dependency.provide
 
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
@@ -26,12 +26,12 @@ class ServiceProviderManager() {
             }
             swObjectManager.addSwObjectEventListener(object : SwObjectManager.SwObjectEventListener {
                 override fun afterAdded(swObjectInfo: SwObjectInfo<Any>) {
-                    if (!swObjectInfo.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java)) return
+                    if (!swObjectInfo.instanceClass.isAnnotationPresent(ServiceProvider::class.java)) return
                     addProvider(swObjectInfo)
                 }
 
                 override fun afterRemoved(swObjectInfo: SwObjectInfo<Any>) {
-                    if (!swObjectInfo.instance.javaClass.isAnnotationPresent(ServiceProvider::class.java)) return
+                    if (!swObjectInfo.instanceClass.isAnnotationPresent(ServiceProvider::class.java)) return
                     removeProvider(swObjectInfo)
                 }
             });
@@ -39,19 +39,19 @@ class ServiceProviderManager() {
     }
 
     private fun addProvider(swObjectInfo: SwObjectInfo<Any>) {
-        if (serviceClassProvidersInfoMap.containsKey(swObjectInfo.instance.javaClass)) throw IllegalArgumentException()
+        if (serviceClassProvidersInfoMap.containsKey(swObjectInfo.instanceClass)) throw IllegalArgumentException()
         val serviceProviderInfo = ServiceProviderInfoImpl(swObjectInfo)
 
-        serviceProviderInfo.instance.javaClass.getAnnotation(ServiceProvider::class.java)
+        serviceProviderInfo.instanceClass.getAnnotation(ServiceProvider::class.java)
                 .provide
                 .map { it.javaObjectType }
                 .toSet()
                 .let { serviceProviderInfo.provide.addAll(it) }
 
         //Provide itself
-        serviceProviderInfo.provide.add(serviceProviderInfo.instance.javaClass)
+        serviceProviderInfo.provide.add(serviceProviderInfo.instanceClass)
 
-        _serviceClassProvidersInfoMap.put(serviceProviderInfo.instance.javaClass, serviceProviderInfo)
+        _serviceClassProvidersInfoMap.put(serviceProviderInfo.instanceClass, serviceProviderInfo)
         serviceProviderInfo.provide.forEach { providing ->
             _serviceProvidersMap.getOrPut(providing, { HashSet() }).also { it.add(serviceProviderInfo) }
         }
@@ -61,15 +61,15 @@ class ServiceProviderManager() {
      * Remove the provider class from class map
      */
     private fun removeProvider(swObjectInfo: SwObjectInfo<Any>) {
-        if (!serviceClassProvidersInfoMap.containsKey(swObjectInfo.instance.javaClass)) throw IllegalArgumentException()
-        val serviceProviderInfo = serviceClassProvidersInfoMap[swObjectInfo.instance.javaClass]!!
+        if (!serviceClassProvidersInfoMap.containsKey(swObjectInfo.instanceClass)) throw IllegalArgumentException()
+        val serviceProviderInfo = serviceClassProvidersInfoMap[swObjectInfo.instanceClass]!!
         serviceProviderInfo.provide.forEach { serviceClass ->
             _serviceProvidersMap[serviceClass].let {
                 it!!.remove(serviceProviderInfo)
                 if (it.isEmpty()) _serviceProvidersMap.remove(serviceClass)
             }
         }
-        _serviceClassProvidersInfoMap.remove(swObjectInfo.instance.javaClass)
+        _serviceClassProvidersInfoMap.remove(swObjectInfo.instanceClass)
     }
 
 

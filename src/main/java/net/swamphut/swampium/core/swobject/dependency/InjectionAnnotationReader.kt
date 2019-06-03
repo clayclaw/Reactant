@@ -10,7 +10,7 @@ import java.lang.reflect.ParameterizedType
 object InjectionAnnotationReader {
     @JvmStatic
     fun read(swObjectInfo: SwObjectInfoImpl<Any>) {
-        FieldsFinder.getAllDeclaredFieldsRecursively(swObjectInfo.instance.javaClass).asSequence()
+        FieldsFinder.getAllDeclaredFieldsRecursively(swObjectInfo.instanceClass).asSequence()
                 .filter { it.isAnnotationPresent(Inject::class.java) }
                 .onEach { it.isAccessible = true }
                 .forEach {

@@ -3,7 +3,7 @@ package net.swamphut.swampium.extra.config
 import io.reactivex.Completable
 import io.reactivex.Single
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.config.ConfigService

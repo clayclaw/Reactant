@@ -59,11 +59,11 @@ class SwObjectListSubcommand(
                 // State filter
                 .filter { states.isEmpty() || states.contains(it.state) }
                 // Class name pattern filter
-                .filter { classNamePattern == null || classNamePattern!!.toRegex().matches(it.instance.javaClass.canonicalName) }
+                .filter { classNamePattern == null || classNamePattern!!.toRegex().matches(it.instanceClass.canonicalName) }
                 // Class name wildcards filter
                 .filter { matchClassNameWildcards(it) }
                 // wrap it with its container
-                .map { Pair(it, containerManager.containers.first { container -> it.instance.javaClass in container.swObjectClasses }) }
+                .map { Pair(it, containerManager.containers.first { container -> it.instanceClass in container.swObjectClasses }) }
                 // Container rawIdentifier filter
                 .filter { matchContainerIdentifierWildcards(it.second.identifier) }
                 .toList()
@@ -73,7 +73,7 @@ class SwObjectListSubcommand(
 
     private fun matchClassNameWildcards(swObjectInfo: SwObjectInfo<Any>) =
             classNameWildcards.isEmpty() || classNameWildcards.any { wildcard ->
-                PatternMatchingUtils.matchWildcard(wildcard, swObjectInfo.instance.javaClass.canonicalName)
+                PatternMatchingUtils.matchWildcard(wildcard, swObjectInfo.instanceClass.canonicalName)
             }
 
     private fun matchContainerIdentifierWildcards(identifier: String) =
@@ -86,7 +86,7 @@ class SwObjectListSubcommand(
         val container = swObjectContainerPair.second;
         listTable.rows.add(listOf<String>(
                 swObject.instance.hashCode().toString(36),
-                swObject.instance.javaClass.let { if (showShortName) it.simpleName else it.canonicalName },
+                swObject.instanceClass.let { if (showShortName) it.simpleName else it.canonicalName },
                 container.identifier,
                 swObject.state.toString(),
                 if (swObject.lifeCycleActionExceptions.size > 0) "${swObject.lifeCycleActionExceptions.size} Error"

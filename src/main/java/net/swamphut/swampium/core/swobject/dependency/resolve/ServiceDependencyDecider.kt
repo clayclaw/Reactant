@@ -2,8 +2,8 @@ package net.swamphut.swampium.core.swobject.dependency.resolve
 
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig.ServiceSpecifyingRule
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.utils.PatternMatchingUtils
 
 class ServiceDependencyDecider(private val serviceSpecifyingConfig: ServiceSpecifyingConfig,
@@ -44,7 +44,7 @@ class ServiceDependencyDecider(private val serviceSpecifyingConfig: ServiceSpeci
         getRulesSpecifiedProviderPatterns(requester, requiring, serviceSpecifyingConfig.specifyRules)
                 .mapNotNull { specifyProviderPattern ->
                     allowedPossibleProviders.firstOrNull {
-                        PatternMatchingUtils.matchWildcardOrRegex(specifyProviderPattern, it.instance::class.java.canonicalName)
+                        PatternMatchingUtils.matchWildcardOrRegex(specifyProviderPattern, it.instanceClass.canonicalName)
                     }
                 }
                 .firstOrNull()// first matched rule and first matched provider
@@ -57,7 +57,7 @@ class ServiceDependencyDecider(private val serviceSpecifyingConfig: ServiceSpeci
         return getRulesSpecifiedProviderPatterns(requester, requiring, serviceSpecifyingConfig.blacklistRules)
                 .map { providerPattern ->
                     PatternMatchingUtils.matchWildcardOrRegex(
-                            providerPattern, filteringServiceProvider.instance::class.java.canonicalName)
+                            providerPattern, filteringServiceProvider.instanceClass.canonicalName)
                 }.fold(false) { sum, next -> sum || next } // if any true = all true
     }
 

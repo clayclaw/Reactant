@@ -3,8 +3,8 @@ package net.swamphut.swampium.core.swobject
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
-import net.swamphut.swampium.core.swobject.dependency.ServiceProviderManager
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjection
 import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjectionImplement
@@ -27,16 +27,16 @@ class SwObjectManager {
     private val swObjectEventListeners = HashSet<SwObjectEventListener>()
 
     fun addSwObject(swObjectInfo: SwObjectInfo<Any>) {
-        if (_swObjectClassMap.containsKey(swObjectInfo.instance.javaClass)) throw IllegalArgumentException()
+        if (_swObjectClassMap.containsKey(swObjectInfo.instanceClass)) throw IllegalArgumentException()
         swObjectEventListeners.forEach { it.beforeAdd(swObjectInfo) }
-        _swObjectClassMap[swObjectInfo.instance.javaClass] = swObjectInfo
+        _swObjectClassMap[swObjectInfo.instanceClass] = swObjectInfo
         swObjectEventListeners.forEach { it.afterAdded(swObjectInfo) }
     }
 
     fun removeSwObject(swObjectInfo: SwObjectInfo<Any>) {
-        if (!_swObjectClassMap.containsKey(swObjectInfo.instance.javaClass)) throw IllegalArgumentException()
+        if (!_swObjectClassMap.containsKey(swObjectInfo.instanceClass)) throw IllegalArgumentException()
         swObjectEventListeners.forEach { it.beforeRemove(swObjectInfo) }
-        _swObjectClassMap.remove(swObjectInfo.instance.javaClass)
+        _swObjectClassMap.remove(swObjectInfo.instanceClass)
         swObjectEventListeners.forEach { it.afterRemoved(swObjectInfo) }
     }
 
@@ -64,7 +64,7 @@ class SwObjectManager {
                 .asSequence()
                 .onEach { swObjectInfo ->
                     swObjectInfo.requiredServices.forEach { requiredService ->
-                        dependencyDecider.getDecided(swObjectInfo.instance::class.java, requiredService)
+                        dependencyDecider.getDecided(swObjectInfo.instanceClass, requiredService)
                                 .let { decided ->
                                     if (decided != null) {
                                         swObjectInfo.requiredServicesResolvedResult[requiredService] = decided

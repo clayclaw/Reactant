@@ -1,7 +1,7 @@
 package net.swamphut.swampium.example
 
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.ServiceProvider
+import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import org.bukkit.ChatColor
 
