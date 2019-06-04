@@ -1,8 +1,8 @@
 package net.swamphut.swampium.repository
 
 import io.reactivex.Single
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import okhttp3.ResponseBody
 import retrofit2.Retrofit

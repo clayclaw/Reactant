@@ -14,7 +14,7 @@ import kotlin.reflect.full.createType
 
 object BukkitPluginContainerLoader {
     fun findAllLoadedPluginContainer() {
-        val containerManager: ContainerManager = Swampium.instance.instanceManager
+        val containerManager: ContainerManager = Swampium.instance.swObjectInstanceManager
                 .getInstance(SwampiumContainerManager::class.createType()) as ContainerManager
 
         val out = PrintStream(FileOutputStream(FileDescriptor.out))

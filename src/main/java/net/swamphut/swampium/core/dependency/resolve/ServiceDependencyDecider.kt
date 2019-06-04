@@ -1,9 +1,9 @@
-package net.swamphut.swampium.core.swobject.dependency.resolve
+package net.swamphut.swampium.core.dependency.resolve
 
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig.ServiceSpecifyingRule
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.utils.PatternMatchingUtils
 
 class ServiceDependencyDecider(private val serviceSpecifyingConfig: ServiceSpecifyingConfig,

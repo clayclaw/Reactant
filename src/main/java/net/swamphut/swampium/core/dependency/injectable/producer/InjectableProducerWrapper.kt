@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency.injectable
+package net.swamphut.swampium.core.dependency.injectable.producer
 
 import kotlin.reflect.KType
 

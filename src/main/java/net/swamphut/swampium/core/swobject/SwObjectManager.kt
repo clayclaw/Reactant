@@ -2,13 +2,13 @@ package net.swamphut.swampium.core.swobject
 
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
+import net.swamphut.swampium.core.dependency.injection.Inject
+import net.swamphut.swampium.core.dependency.injection.LazyInjection
+import net.swamphut.swampium.core.dependency.injection.LazyInjectionImplement
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderManager
+import net.swamphut.swampium.core.dependency.resolve.ServiceDependencyDecider
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
-import net.swamphut.swampium.core.swobject.dependency.injection.Inject
-import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjection
-import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjectionImplement
-import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyDecider
 import net.swamphut.swampium.utils.reflections.FieldsFinder
 
 @SwObject
@@ -57,7 +57,7 @@ class SwObjectManager {
 
     fun injectAllSwObject() {
         val dependencyDecider = ServiceDependencyDecider(ServiceSpecifyingConfig(),
-                Swampium.instance.instanceManager.getInstance(ServiceProviderManager::class.java))
+                Swampium.instance.swObjectInstanceManager.getInstance(ServiceProviderManager::class.java))
 
         swObjectClassMap.values
                 .filter { it.state == SwObjectState.Unsolved }

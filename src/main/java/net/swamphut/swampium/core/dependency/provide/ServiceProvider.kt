@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency.provide
+package net.swamphut.swampium.core.dependency.provide
 
 import kotlin.reflect.KClass
 

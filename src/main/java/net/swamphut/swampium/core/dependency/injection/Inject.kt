@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency.injection
+package net.swamphut.swampium.core.dependency.injection
 
 
 @Retention(AnnotationRetention.RUNTIME)

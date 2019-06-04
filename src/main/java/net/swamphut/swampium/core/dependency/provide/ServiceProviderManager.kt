@@ -1,11 +1,11 @@
-package net.swamphut.swampium.core.swobject.dependency.provide
+package net.swamphut.swampium.core.dependency.provide
 
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.configs.ServiceSpecifyingConfig
+import net.swamphut.swampium.core.dependency.resolve.ServiceDependencyDecider
 import net.swamphut.swampium.core.swobject.SwObjectInfo
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyDecider
 
 @SwObject
 @ServiceProvider
@@ -20,7 +20,7 @@ class ServiceProviderManager() {
 
 
     init {
-        Swampium.instance.instanceManager.getInstance(SwObjectManager::class.java).let { swObjectManager ->
+        Swampium.instance.swObjectInstanceManager.getInstance(SwObjectManager::class.java).let { swObjectManager ->
             swObjectManager.getSwObjectsByAnnotation(ServiceProvider::class.java).forEach { swObjectInfo ->
                 addProvider(swObjectInfo)
             }

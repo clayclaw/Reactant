@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency.provide
+package net.swamphut.swampium.core.dependency.provide
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)

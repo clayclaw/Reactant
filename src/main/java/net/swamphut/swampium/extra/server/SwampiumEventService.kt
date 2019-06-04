@@ -3,8 +3,8 @@ package net.swamphut.swampium.extra.server
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import net.swamphut.swampium.core.Swampium
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.service.spec.server.EventService
 import org.bukkit.event.Event

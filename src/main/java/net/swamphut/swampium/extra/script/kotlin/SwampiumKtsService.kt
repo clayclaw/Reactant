@@ -3,7 +3,7 @@ package net.swamphut.swampium.extra.script.kotlin
 import io.reactivex.Completable
 import io.reactivex.Single
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.swobject.dependency.injection.Inject
+import net.swamphut.swampium.core.dependency.injection.Inject
 import net.swamphut.swampium.extra.file.SwampiumTextFileReaderService
 import net.swamphut.swampium.service.spec.script.kotlin.KtsService
 import net.swamphut.swampium.service.spec.script.kotlin.KtsService.ScriptImporter

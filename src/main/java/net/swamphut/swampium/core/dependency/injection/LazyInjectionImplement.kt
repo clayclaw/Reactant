@@ -1,4 +1,4 @@
-package net.swamphut.swampium.core.swobject.dependency.injection
+package net.swamphut.swampium.core.dependency.injection
 
 import net.swamphut.swampium.core.swobject.SwObjectInfo
 import net.swamphut.swampium.core.swobject.SwObjectState

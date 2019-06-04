@@ -1,8 +1,8 @@
-package net.swamphut.swampium.core.swobject.dependency
+package net.swamphut.swampium.core.dependency
 
+import net.swamphut.swampium.core.dependency.injection.Inject
+import net.swamphut.swampium.core.dependency.injection.LazyInjection
 import net.swamphut.swampium.core.swobject.SwObjectInfoImpl
-import net.swamphut.swampium.core.swobject.dependency.injection.Inject
-import net.swamphut.swampium.core.swobject.dependency.injection.LazyInjection
 import net.swamphut.swampium.utils.reflections.FieldsFinder
 import java.lang.reflect.ParameterizedType
 

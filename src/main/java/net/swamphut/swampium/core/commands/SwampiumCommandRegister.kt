@@ -2,10 +2,10 @@ package net.swamphut.swampium.core.commands
 
 import net.swamphut.swampium.core.commands.swobject.SwObjectCommand
 import net.swamphut.swampium.core.commands.swobject.SwObjectListSubcommand
+import net.swamphut.swampium.core.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.extra.command.PicocliCommandService
 

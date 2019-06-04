@@ -1,10 +1,9 @@
 package net.swamphut.swampium.example
 
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import org.bukkit.ChatColor
-
 import java.util.logging.Level
 import java.util.logging.Logger
 

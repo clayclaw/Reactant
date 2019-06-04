@@ -1,11 +1,11 @@
 package net.swamphut.swampium.core.swobject.container
 
 import net.swamphut.swampium.core.Swampium
+import net.swamphut.swampium.core.dependency.InjectionAnnotationReader
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.SwObjectInfoImpl
 import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.SwObjectState
-import net.swamphut.swampium.core.swobject.dependency.InjectionAnnotationReader
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.instance.factory.SwObjectClassConstructorFactory
 import java.util.*
 import kotlin.reflect.full.createType
@@ -26,7 +26,7 @@ class SwampiumContainerManager : ContainerManager {
             throw IllegalArgumentException("SwObject Container with same rawIdentifier already exist: ${container.identifier}")
         }
         swObjectContainerMap[container.identifier] = container
-        val instanceManager = Swampium.instance.instanceManager
+        val instanceManager = Swampium.instance.swObjectInstanceManager
         val swObjectManager = instanceManager.getInstance(SwObjectManager::class.createType())
         container.swObjectClasses
                 .filter { it.java.isAnnotationPresent(SwObject::class.java) }
@@ -46,7 +46,7 @@ class SwampiumContainerManager : ContainerManager {
             throw IllegalArgumentException("SwObject Container not exist: ${container.identifier}")
         }
         swObjectContainerMap[container.identifier] = container
-        Swampium.instance.instanceManager.let { instanceManager ->
+        Swampium.instance.swObjectInstanceManager.let { instanceManager ->
             val swObjectManager = instanceManager.getInstance(SwObjectManager::class.java)
             container.swObjectClasses
                     .filter { it.isAnnotationPresent(SwObject::class.java) }

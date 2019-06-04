@@ -1,7 +1,7 @@
 package net.swamphut.swampium.core.swobject.container
 
 import net.swamphut.swampium.core.SwampiumPlugin
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import org.bukkit.plugin.Plugin
 import org.reflections.Reflections
 import org.reflections.util.ClasspathHelper

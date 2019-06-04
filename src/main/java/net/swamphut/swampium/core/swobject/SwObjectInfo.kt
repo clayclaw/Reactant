@@ -1,7 +1,7 @@
 package net.swamphut.swampium.core.swobject
 
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfo
 import net.swamphut.swampium.core.exception.lifecycle.LifeCycleActionException
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
 
 interface SwObjectInfo<out T : Any> {
     val instance: T?

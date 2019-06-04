@@ -8,7 +8,7 @@ import net.swamphut.swampium.core.swobject.SwObjectState
 import net.swamphut.swampium.core.swobject.container.BukkitPluginContainer
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
-import net.swamphut.swampium.core.swobject.instance.InstanceManager
+import net.swamphut.swampium.core.swobject.instance.SwObjectInstanceManager
 import net.swamphut.swampium.core.swobject.instance.SwampiumInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManager
@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
 class Swampium : JavaPlugin() {
-    val instanceManager: InstanceManager
+    val swObjectInstanceManager: SwObjectInstanceManager
     private val swObjectManager: SwObjectManager
     private val swObjectLifeCycleManager: SwObjectLifeCycleManager
     private val eventService: SwampiumEventService
@@ -31,11 +31,11 @@ class Swampium : JavaPlugin() {
 
     init {
         instance = this
-        instanceManager = SwampiumInstanceManager()
-        swObjectManager = instanceManager.getInstance(SwObjectManager::class.java)
-        swObjectLifeCycleManager = instanceManager.getInstance(SwObjectLifeCycleManagerImpl::class.java)
-        eventService = instanceManager.getInstance(SwampiumEventService::class.java);
-        containerManager = instanceManager.getInstance(SwampiumContainerManager::class.java);
+        swObjectInstanceManager = SwampiumInstanceManager()
+        swObjectManager = swObjectInstanceManager.getInstance(SwObjectManager::class.java)
+        swObjectLifeCycleManager = swObjectInstanceManager.getInstance(SwObjectLifeCycleManagerImpl::class.java)
+        eventService = swObjectInstanceManager.getInstance(SwampiumEventService::class.java);
+        containerManager = swObjectInstanceManager.getInstance(SwampiumContainerManager::class.java);
     }
 
     override fun onEnable() {

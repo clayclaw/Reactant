@@ -2,6 +2,11 @@ package net.swamphut.swampium.core.swobject.lifecycle
 
 
 import net.swamphut.swampium.core.Swampium
+import net.swamphut.swampium.core.dependency.provide.ServiceProvider
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfoImpl
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderManager
+import net.swamphut.swampium.core.dependency.resolve.ServiceDependencyResolver
 import net.swamphut.swampium.core.exception.lifecycle.LifeCycleActionException
 import net.swamphut.swampium.core.exception.lifecycle.RequiredServiceNotActivedException
 import net.swamphut.swampium.core.swobject.SwObjectInfo
@@ -10,12 +15,7 @@ import net.swamphut.swampium.core.swobject.SwObjectState.*
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProvider
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfoImpl
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
-import net.swamphut.swampium.core.swobject.dependency.resolve.ServiceDependencyResolver
-import net.swamphut.swampium.core.swobject.instance.InstanceManager
+import net.swamphut.swampium.core.swobject.instance.SwObjectInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction.*
 import java.util.logging.Level
 
@@ -23,10 +23,10 @@ import java.util.logging.Level
 @ServiceProvider(provide = [SwObjectLifeCycleManager::class])
 class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
-    private val instanceManager: InstanceManager = Swampium.instance.instanceManager
-    private val containerManager: ContainerManager = instanceManager.getInstance(SwampiumContainerManager::class.java)
-    private val swObjectManager = instanceManager.getInstance(SwObjectManager::class.java);
-    private val serviceProviderManager = instanceManager.getInstance(ServiceProviderManager::class.java);
+    private val swObjectInstanceManager: SwObjectInstanceManager = Swampium.instance.swObjectInstanceManager
+    private val containerManager: ContainerManager = swObjectInstanceManager.getInstance(SwampiumContainerManager::class.java)
+    private val swObjectManager = swObjectInstanceManager.getInstance(SwObjectManager::class.java);
+    private val serviceProviderManager = swObjectInstanceManager.getInstance(ServiceProviderManager::class.java);
 
     override fun invokeAction(swObjectInfo: SwObjectInfo<Any>, action: LifeCycleControlAction): Boolean {
 
@@ -67,7 +67,7 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
                     triggerInspector { inspector -> inspector.afterDisable(swObjectInfo) }
 
                     //reconstruct it
-                    Swampium.instance.instanceManager.destroyInstance(swObjectInfo.instanceClass)
+                    Swampium.instance.swObjectInstanceManager.destroyInstance(swObjectInfo.instanceClass)
                 }
             }
             return true

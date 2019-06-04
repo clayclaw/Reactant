@@ -1,8 +1,8 @@
-package net.swamphut.swampium.core.swobject.dependency.resolve
+package net.swamphut.swampium.core.dependency.resolve
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderInfo
-import net.swamphut.swampium.core.swobject.dependency.provide.ServiceProviderManager
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfo
+import net.swamphut.swampium.core.dependency.provide.ServiceProviderManager
 import net.swamphut.swampium.utils.types.DirectedAcyclicGraph
 
 
@@ -10,7 +10,7 @@ class ServiceDependencyResolver {
     companion object {
         fun resolve(resolvingProviders: Set<ServiceProviderInfo<Any>>): DirectedAcyclicGraph.SolveResult<ServiceProviderInfo<*>> {
             val serviceDAG = DirectedAcyclicGraph<ServiceProviderInfo<*>>()
-            val serviceProviderManager = Swampium.instance.instanceManager.getInstance(ServiceProviderManager::class.java);
+            val serviceProviderManager = Swampium.instance.swObjectInstanceManager.getInstance(ServiceProviderManager::class.java);
 
             resolvingProviders.forEach { resolving ->
                 val resolvingNode = serviceDAG.getNodeOrAdd(resolving)
@@ -28,7 +28,7 @@ class ServiceDependencyResolver {
 
         fun reverseResolve(resolvingProviders: Set<ServiceProviderInfo<Any>>): DirectedAcyclicGraph.SolveResult<ServiceProviderInfo<*>> {
             val serviceDAG = DirectedAcyclicGraph<ServiceProviderInfo<*>>()
-            val serviceProviderManager = Swampium.instance.instanceManager.getInstance(ServiceProviderManager::class.java);
+            val serviceProviderManager = Swampium.instance.swObjectInstanceManager.getInstance(ServiceProviderManager::class.java);
 
             resolvingProviders.forEach { resolving ->
                 val resolvingNode = serviceDAG.getNodeOrAdd(resolving)
