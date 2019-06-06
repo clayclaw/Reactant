@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin
 @SwampiumPlugin(servicePackages = ["net.swamphut.swampium"])
 class Swampium : JavaPlugin() {
     val swObjectInstanceManager: SwObjectInstanceManager
+    internal val swampiumInstanceManager: SwampiumInstanceManager get() = swObjectInstanceManager as SwampiumInstanceManager
     private val swObjectManager: SwObjectManager
     private val swObjectLifeCycleManager: SwObjectLifeCycleManager
     private val eventService: SwampiumEventService

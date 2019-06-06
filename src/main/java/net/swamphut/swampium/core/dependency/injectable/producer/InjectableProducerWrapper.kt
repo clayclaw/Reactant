@@ -7,5 +7,9 @@ import kotlin.reflect.KType
  */
 interface InjectableProducerWrapper {
     val productType: KType;
-    val producer: () -> Any
+    /**
+     * Regex pattern to match name
+     */
+    val namePattern: String;
+    val producer: (requestedType: KType, requestedName: String, requester: Any) -> Any
 }

@@ -6,28 +6,28 @@ import org.bukkit.plugin.Plugin
 import org.reflections.Reflections
 import org.reflections.util.ClasspathHelper
 import org.reflections.util.ConfigurationBuilder
-import java.net.URL
+import kotlin.reflect.KClass
 
 class BukkitPluginContainer(val plugin: Plugin) : Container {
-    override val swObjectClasses: Set<Class<*>>
+    override val swObjectClasses: Set<KClass<out Any>>
 
-    private val servicePackgesUrl: Set<URL>
-        get() {
-            val swampiumPlugin = plugin.javaClass.getAnnotation(SwampiumPlugin::class.java)
-            return swampiumPlugin.servicePackages
-                    .map { urlStr -> ClasspathHelper.forPackage(urlStr, plugin.javaClass.classLoader) }
-                    .flatMap { it }
-                    .toSet()
-        }
+    private val servicePackagesUrl
+        get() = plugin.javaClass.getAnnotation(SwampiumPlugin::class.java)
+                .servicePackages
+                .map { urlStr -> ClasspathHelper.forPackage(urlStr, plugin.javaClass.classLoader) }
+                .flatten()
+                .toSet()
 
     init {
         if (!plugin.javaClass.isAnnotationPresent(SwampiumPlugin::class.java)) {
             throw IllegalArgumentException()
         }
 
-        val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackgesUrl))
+        val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
         swObjectClasses = reflections.getTypesAnnotatedWith(SwObject::class.java)
                 .union(reflections.getTypesAnnotatedWith(ServiceProvider::class.java))
+                .map { it.kotlin }
+                .toSet()
     }
 
     override val displayName: String = plugin.description.name
