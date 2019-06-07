@@ -1,7 +1,6 @@
 package net.swamphut.swampium.core.swobject.container
 
 import net.swamphut.swampium.core.SwampiumPlugin
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import org.bukkit.plugin.Plugin
 import org.reflections.Reflections
 import org.reflections.util.ClasspathHelper
@@ -25,7 +24,6 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
 
         val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
         swObjectClasses = reflections.getTypesAnnotatedWith(SwObject::class.java)
-                .union(reflections.getTypesAnnotatedWith(ServiceProvider::class.java))
                 .map { it.kotlin }
                 .toSet()
     }

@@ -3,7 +3,6 @@ package net.swamphut.swampium.extra.server
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.service.spec.server.EventService
@@ -16,7 +15,6 @@ import kotlin.reflect.KClass
 
 
 @SwObject
-@ServiceProvider([EventService::class])
 class SwampiumEventService : LifeCycleHook, Listener, EventService {
     private val eventPrioritySubjectMap = HashMap<Class<out Event>, HashMap<EventPriority, PublishSubject<Event>>>();
     private val listeners: HashSet<RegisteredListener> = hashSetOf()
@@ -49,8 +47,6 @@ class SwampiumEventService : LifeCycleHook, Listener, EventService {
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass.java, { HashMap() })
                 .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
-                .doOnSubscribe { Swampium.logger.info("on subscribe") }
-                .doOnDispose { Swampium.logger.info("on dispose") }
                 as Observable<T>
     }
 }

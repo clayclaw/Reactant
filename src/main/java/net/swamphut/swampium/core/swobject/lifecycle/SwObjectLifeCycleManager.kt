@@ -1,15 +1,15 @@
 package net.swamphut.swampium.core.swobject.lifecycle
 
-import net.swamphut.swampium.core.swobject.SwObjectInfo
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 
 interface SwObjectLifeCycleManager {
     /**
-     *
+     * invoke action for a single SwObject
      */
-    fun invokeAction(swObjectInfo: SwObjectInfo<Any>, action: LifeCycleControlAction): Boolean
+    fun invokeAction(injectableWrapper: SwObjectInjectableWrapper<Any>, action: LifeCycleControlAction): Boolean
 
     /**
-     * Invoke the action for all service providers
+     * Invoke the action for all SwObject, order will be resolved automatically
      */
-    fun invokeAction(swObjectsInfo: Collection<SwObjectInfo<Any>>, action: LifeCycleControlAction): Boolean
+    fun invokeAction(injectables: Collection<SwObjectInjectableWrapper<Any>>, action: LifeCycleControlAction): Boolean
 }

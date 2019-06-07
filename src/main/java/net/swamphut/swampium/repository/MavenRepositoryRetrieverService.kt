@@ -1,7 +1,6 @@
 package net.swamphut.swampium.repository
 
 import io.reactivex.Single
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import okhttp3.ResponseBody
@@ -12,7 +11,6 @@ import retrofit2.http.Streaming
 import retrofit2.http.Url
 
 @SwObject
-@ServiceProvider([])
 class MavenRepositoryRetrieverService : LifeCycleHook {
     private val httpService = Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

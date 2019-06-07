@@ -2,140 +2,89 @@ package net.swamphut.swampium.core.swobject.lifecycle
 
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
-import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfo
-import net.swamphut.swampium.core.dependency.provide.ServiceProviderInfoImpl
-import net.swamphut.swampium.core.dependency.provide.ServiceProviderManager
-import net.swamphut.swampium.core.dependency.resolve.ServiceDependencyResolver
-import net.swamphut.swampium.core.exception.lifecycle.LifeCycleActionException
-import net.swamphut.swampium.core.exception.lifecycle.RequiredServiceNotActivedException
-import net.swamphut.swampium.core.swobject.SwObjectInfo
-import net.swamphut.swampium.core.swobject.SwObjectManager
-import net.swamphut.swampium.core.swobject.SwObjectState.*
-import net.swamphut.swampium.core.swobject.container.ContainerManager
+import net.swamphut.swampium.core.dependency.DependencyManager
+import net.swamphut.swampium.core.dependency.DependencyRelationManager
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 import net.swamphut.swampium.core.swobject.container.SwObject
-import net.swamphut.swampium.core.swobject.container.SwampiumContainerManager
-import net.swamphut.swampium.core.swobject.instance.SwObjectInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction.*
-import java.util.logging.Level
+import kotlin.reflect.jvm.jvmName
 
 @SwObject
-@ServiceProvider(provide = [SwObjectLifeCycleManager::class])
 class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
+    private val instanceManager = Swampium.instance.swInstanceManager
+    private val relationManager = instanceManager.getOrConstructWithoutInjection(DependencyRelationManager::class)
+    private val dependencyManager = instanceManager.getOrConstructWithoutInjection(DependencyManager::class)
 
-    private val swObjectInstanceManager: SwObjectInstanceManager = Swampium.instance.swObjectInstanceManager
-    private val containerManager: ContainerManager = swObjectInstanceManager.getInstance(SwampiumContainerManager::class.java)
-    private val swObjectManager = swObjectInstanceManager.getInstance(SwObjectManager::class.java);
-    private val serviceProviderManager = swObjectInstanceManager.getInstance(ServiceProviderManager::class.java);
-
-    override fun invokeAction(swObjectInfo: SwObjectInfo<Any>, action: LifeCycleControlAction): Boolean {
-
-        when (swObjectInfo.state) {
-
-            Unsolved -> throw IllegalStateException("Unsolved object cannot invoke any action: ${swObjectInfo.instanceClass}")
-            Inactive -> if (action == Disable || action == Save) throw IllegalStateException()
-            Active -> if (action == Initialize) return true;
-        }
-
+    override fun invokeAction(injectableWrapper: SwObjectInjectableWrapper<Any>, action: LifeCycleControlAction): Boolean {
+        if (!checkState(injectableWrapper, action)) throw IllegalStateException();
         try {
-            swObjectInfo.requiredServicesResolvedResult.values.filter { it.state != Active }.let {
-                if (!it.isEmpty()) throw RequiredServiceNotActivedException(swObjectInfo, action, it)
-            }
-
+            triggerInspectors(true, action, injectableWrapper);
             when (action) {
-                Initialize -> {
-                    triggerInspector { inspector -> inspector.beforeInit(swObjectInfo) }
-                    if (swObjectInfo.instance is LifeCycleHook) {
-                        (swObjectInfo.instance as LifeCycleHook).init()
+                Initialize -> injectableWrapper.runCatching {
+                    constructSwObjectInstance().also {
+                        (it as? LifeCycleHook)?.init()
+                        instanceManager.putInstance(it)
                     }
-                    swObjectInfo.state = Active
-                    triggerInspector { inspector -> inspector.afterInit(swObjectInfo) }
-                }
-                Save -> {
-                    triggerInspector { inspector -> inspector.beforeSave(swObjectInfo) }
-                    if (swObjectInfo.instance is LifeCycleHook) {
-                        (swObjectInfo.instance as LifeCycleHook).save()
-                    }
-                    triggerInspector { inspector -> inspector.afterSave(swObjectInfo) }
-                }
+                }.onFailure { injectableWrapper.catchedThrowable = it; throw it }
+                Save -> (injectableWrapper.getInstance() as? LifeCycleHook)?.save()
                 Disable -> {
-                    triggerInspector { inspector -> inspector.beforeDisable(swObjectInfo) }
-                    if (swObjectInfo.instance is LifeCycleHook) {
-                        (swObjectInfo.instance as LifeCycleHook).disable()
-                    }
-                    swObjectInfo.state = Inactive
-                    triggerInspector { inspector -> inspector.afterDisable(swObjectInfo) }
-
-                    //reconstruct it
-                    Swampium.instance.swObjectInstanceManager.destroyInstance(swObjectInfo.instanceClass)
+                    (injectableWrapper.getInstance() as? LifeCycleHook)?.save()
+                    instanceManager.destroyInstance(injectableWrapper.getInstance())
                 }
             }
-            return true
-        } catch (e: LifeCycleActionException) {
-            if (swObjectInfo is ServiceProviderInfoImpl) {
-                swObjectInfo.lifeCycleActionExceptions.add(e)
-            }
+            triggerInspectors(false, action, injectableWrapper);
         } catch (e: Throwable) {
-            if (swObjectInfo is ServiceProviderInfoImpl) {
-                swObjectInfo.lifeCycleActionExceptions.add(LifeCycleActionException(swObjectInfo, action, e))
+            Swampium.logger.error("${injectableWrapper.swObjectClass.jvmName} cannot be initialized", e)
+            return false;
+        }
+        return true;
+    }
+
+    private fun triggerInspectors(isBefore: Boolean, action: LifeCycleControlAction, swObjectWrapper: SwObjectInjectableWrapper<Any>) {
+        inspectors.forEach {
+            if (isBefore) {
+                when (action) {
+                    Initialize -> it.beforeInit(swObjectWrapper)
+                    Save -> it.beforeSave(swObjectWrapper)
+                    Disable -> it.beforeDisable(swObjectWrapper)
+                }
+            } else {
+                when (action) {
+                    Initialize -> it.afterInit(swObjectWrapper)
+                    Save -> it.afterSave(swObjectWrapper)
+                    Disable -> it.afterDisable(swObjectWrapper)
+                }
             }
         }
-        return false
-
     }
 
-    private fun triggerInspector(action: (HookInspector) -> Unit) {
-        getHookInspectors().forEach {
-            try {
-                it.apply(action)
-            } catch (e: Throwable) {
-                Swampium.instance.logger.log(Level.SEVERE, "Throwable catched when trigger hook inspector", e)
-            }
+    private fun checkState(injectable: SwObjectInjectableWrapper<Any>, action: LifeCycleControlAction): Boolean {
+        return when (action) {
+            Initialize -> !injectable.isInitialized()
+            Save, Disable -> injectable.isInitialized()
         }
     }
 
-    override fun invokeAction(swObjectsInfo: Collection<SwObjectInfo<Any>>, action: LifeCycleControlAction): Boolean {
-        if (action == Initialize) swObjectManager.injectAllSwObject()
+    @Suppress("UNCHECKED_CAST")
+    override fun invokeAction(injectables: Collection<SwObjectInjectableWrapper<Any>>, action: LifeCycleControlAction): Boolean {
+        val executingInjectables = when (action) {
+            Save, Disable -> injectables.flatMap { setOf(it).union(relationManager.getDependencyChildrenRecursively(it)) }
+            else -> injectables
+        }
+        var invokeOrder = relationManager.getDependenciesDepth()
+                .filter { executingInjectables.contains(it.key) }
+                .map { it.toPair() }
+                .sortedBy { it.second }
+                .map { it.first }
+                .mapNotNull { it as? SwObjectInjectableWrapper<Any> }
+                .filter { checkState(it, action) }
+        if (action == Disable || action == Save) invokeOrder = invokeOrder.reversed()
 
-//        val invokingClassesHashSet = swObjectsInfo.map { it.instance::class.java }.toHashSet()
-
-        val serviceProviders = extractServiceProviderInfo(swObjectsInfo)
-        val serviceProvidersClasses = serviceProviders.map { it.instanceClass }
-        val pureSwObjects = swObjectsInfo.filter { !serviceProvidersClasses.contains(it.instanceClass) }
-
-        val resolveResult = ServiceDependencyResolver.resolve(serviceProviders);
-        Swampium.instance.logger.log(Level.INFO, ("Resolved: ${resolveResult.solvedOrder.size}, " +
-                "Cyclic nodes: ${resolveResult.cyclicNodesLists}, Ignored: ${resolveResult.ignoredNodes.size}"))
-        val resolvedOrder = ArrayList(resolveResult.solvedOrder.map {
-            swObjectManager.swObjectClassMap[it.data.instanceClass] ?: throw IllegalStateException()
-        })
-
-        // After provider loaded, load pure swobject
-        resolvedOrder.addAll(pureSwObjects)
-
-        // execute with reversed order
-        if (action == Disable || action == Save) resolvedOrder.reverse()
-
-        return resolvedOrder
-//                .filter { invokingClassesHashSet.contains(it.instance::class.java) }
-                .map { invokeAction(it, action) }
-                .fold(true) { prev, next -> prev && next }
-                .also { triggerInspector { it.afterBulkActionComeplete(action) } }
+        return invokeOrder.map { invokeAction(it, action) }
+                .fold(true) { result, next -> result && next }
     }
 
-    private fun extractServiceProviderInfo(swObjectsInfo: Collection<SwObjectInfo<Any>>): Set<ServiceProviderInfo<Any>> {
-        return swObjectsInfo
-                .filter { it.instanceClass.isAnnotationPresent(ServiceProvider::class.java) }
-                .map { serviceProviderManager.serviceClassProvidersInfoMap.getOrElse(it.instanceClass, { throw java.lang.IllegalStateException() }) }
-                .toSet()
-    }
-
-
-    private fun getHookInspectors(): Set<HookInspector> = swObjectManager.swObjectClassMap.values
-            .asSequence()
-            .filter { it.state == Active }
-            .map { it.instance }
-            .filter { HookInspector::class.java.isAssignableFrom(it.javaClass) }
-            .map { it as HookInspector }
-            .toSet()
+    private val inspectors = dependencyManager.dependencies.mapNotNull { it as? SwObjectInjectableWrapper<*> }
+            .filter { it.isInitialized() }
+            .mapNotNull { it.getInstance() as? HookInspector }
 }

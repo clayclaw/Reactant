@@ -1,8 +1,7 @@
 package net.swamphut.swampium.extra.command
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
-import net.swamphut.swampium.core.swobject.SwObjectInfo
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.HookInspector
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
@@ -14,7 +13,6 @@ import picocli.CommandLine.Model
 import java.util.logging.Level
 
 @SwObject
-@ServiceProvider
 class PicocliCommandService : LifeCycleHook, HookInspector {
     private val commandTreeMap = HashMap<String, CommandTree>()
 
@@ -28,10 +26,9 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
 
     }
 
-    override fun beforeDisable(swObjectInfo: SwObjectInfo<Any>) {
-        // auto unregister when disable
-        registerCommandNameMap[swObjectInfo.instance]?.forEach(this::unregisterCommand)
-        registerCommandNameMap.remove(swObjectInfo.instance)
+    override fun beforeDisable(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {
+        registerCommandNameMap[swObjectInjectableWrapper.getInstance()]?.forEach(this::unregisterCommand)
+        registerCommandNameMap.remove(swObjectInjectableWrapper.getInstance())
     }
 
     fun registerCommand(registerSwObject: Any, commandRunnableProvider: () -> SwCommand): CommandTree {

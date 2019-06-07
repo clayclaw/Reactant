@@ -1,6 +1,7 @@
 package net.swamphut.swampium.service.spec.parser
 
 import io.reactivex.Single
+import kotlin.reflect.KClass
 
 interface ParserService {
     /**
@@ -11,5 +12,5 @@ interface ParserService {
     /**
      * Parse the encoded string to object with model class
      */
-    fun <T> decode(modelClass: Class<T>, encoded: String): Single<T>
+    fun <T : Any> decode(modelClass: KClass<T>, encoded: String): Single<T>
 }

@@ -1,25 +1,25 @@
 package net.swamphut.swampium.core.dependency
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.injectable.producer.InjectableProducerWrapper
-import net.swamphut.swampium.core.dependency.injectable.producer.ProvideInjectableProducerWrapper
-import net.swamphut.swampium.core.dependency.injectable.producer.SwObjectInjectableProducerWrapper
 import net.swamphut.swampium.core.dependency.injection.InjectRequirement
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
+import net.swamphut.swampium.core.dependency.injection.producer.InjectableWrapper
+import net.swamphut.swampium.core.dependency.injection.producer.ProvideInjectableWrapper
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
+import net.swamphut.swampium.core.swobject.container.SwObject
 import kotlin.reflect.jvm.jvmErasure
 
+@SwObject
 class DependencyManager {
-    private val dependencies = HashSet<InjectableProducerWrapper>()
-    val dependencyRelationManager = Swampium.instance.swampiumInstanceManager.getOrConstructWithoutInjection(DependencyRelationManager::class)
+    private val _dependencies = HashSet<InjectableWrapper>()
+    val dependencies: Set<InjectableWrapper> get() = _dependencies
+    val dependencyRelationManager = Swampium.instance.swInstanceManager.getOrConstructWithoutInjection(DependencyRelationManager::class)
 
-    fun addDependency(injectableProducerWrapper: InjectableProducerWrapper) {
-        dependencies.add(injectableProducerWrapper)
+    fun addDependency(injectableWrapper: InjectableWrapper) {
+        _dependencies.add(injectableWrapper)
     }
 
-    fun getDependencyInstance(requestedType: KType, requestedName: String, requester: Any) {
-        // todo
+    fun removeDependency(injectableWrapper: InjectableWrapper) {
+        _dependencies.remove(injectableWrapper)
     }
 
     /**
@@ -27,33 +27,35 @@ class DependencyManager {
      * Once a relation resolved and confirmed, the relation won't change anymore
      */
     fun decideRelation() {
-        val swObjectInjectableMap = dependencies.filter { it is SwObjectInjectableProducerWrapper<*> }
-                .map { it.productType.jvmErasure to it as SwObjectInjectableProducerWrapper<*> }.toMap()
-
-        swObjectInjectableMap.values.forEach(this::decideSwObjectRequirementSolution)
-
         // Injectable provided by @Provide is directly required its' provider
         // ProvidedInjectable will not Inject dependency from outside
-        dependencies.filter { it is ProvideInjectableProducerWrapper<*, *> }
-                .map { it as ProvideInjectableProducerWrapper<*, *> }
+        _dependencies.filter { it is ProvideInjectableWrapper<*, *> }
+                .map { it as ProvideInjectableWrapper<*, *> }
                 .forEach {
-                    dependencyRelationManager.addDependencyRelation(it,
-                            hashSetOf(swObjectInjectableMap[it.providedIn] as InjectableProducerWrapper))
+                    dependencyRelationManager.addDependencyRelation(it, hashSetOf(it.providedInWrapper))
                 }
+
+        val swObjectInjectableMap = _dependencies.filter { it is SwObjectInjectableWrapper<*> }
+                .map { it.productType.jvmErasure to it as SwObjectInjectableWrapper<*> }.toMap()
+
+        swObjectInjectableMap.values.forEach(this::decideSwObjectRequirementSolution)
     }
 
-    private fun decideSwObjectRequirementSolution(swObjectWrapper: SwObjectInjectableProducerWrapper<*>) {
+    /**
+     * Decide and mark in wrapper as resolved
+     */
+    private fun decideSwObjectRequirementSolution(swObjectWrapper: SwObjectInjectableWrapper<*>) {
         if (swObjectWrapper.fulfilled) return;
         swObjectWrapper.notFulfilledRequirements
-                .mapNotNull { fulfillRequirment(it) }
+                .mapNotNull { requirement -> fulfillRequirement(requirement)?.also { swObjectWrapper.resolvedRequirements[requirement] = it } }
                 .toSet()
                 .let { dependencyRelationManager.addDependencyRelation(swObjectWrapper, it) }
     }
 
-    private fun fulfillRequirment(requirement: InjectRequirement): InjectableProducerWrapper? {
-        val fulfillingDependencies = dependencies
+    fun fulfillRequirement(requirement: InjectRequirement): InjectableWrapper? {
+        val fulfillingDependencies = _dependencies
+                .filter { it.canProvideType(requirement.requiredType) } // type match
                 .filter { it.namePattern.toRegex().matches(requirement.name) } // name match
-                .filter { it.productType.isSubtypeOf(requirement.requiredType) } // type match
         // todo: decider
         if (fulfillingDependencies.size > 1)
             Swampium.logger.error("There have more than one injectables providing for ${requirement.requiredType}(name: ${requirement.name})," +

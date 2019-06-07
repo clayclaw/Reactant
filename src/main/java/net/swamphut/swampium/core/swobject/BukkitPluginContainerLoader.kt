@@ -9,13 +9,12 @@ import org.bukkit.Bukkit
 import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.PrintStream
-import kotlin.reflect.full.createType
 
 
 object BukkitPluginContainerLoader {
     fun findAllLoadedPluginContainer() {
-        val containerManager: ContainerManager = Swampium.instance.swObjectInstanceManager
-                .getInstance(SwampiumContainerManager::class.createType()) as ContainerManager
+        val containerManager: ContainerManager = Swampium.instance.swInstanceManager
+                .getOrConstructWithoutInjection(SwampiumContainerManager::class)
 
         val out = PrintStream(FileOutputStream(FileDescriptor.out))
 
@@ -26,7 +25,7 @@ object BukkitPluginContainerLoader {
 
         var maxPrintLength = 0
         foundContainers.forEachIndexed { i, it ->
-            "\rSearching in: ${BukkitPluginContainer.getIdentifier(it)} ...  (${i}/${foundContainers.size})\r".let {
+            "\rSearching in: ${BukkitPluginContainer.getIdentifier(it)} ...  ($i/${foundContainers.size})\r".let {
                 maxPrintLength = Math.max(maxPrintLength, it.length)
                 out.printf("%${maxPrintLength}s", it)
             }

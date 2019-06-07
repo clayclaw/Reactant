@@ -1,21 +1,21 @@
 package net.swamphut.swampium.core.swobject.container
 
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.InjectionAnnotationReader
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
-import net.swamphut.swampium.core.swobject.SwObjectInfoImpl
-import net.swamphut.swampium.core.swobject.SwObjectManager
-import net.swamphut.swampium.core.swobject.SwObjectState
-import net.swamphut.swampium.core.swobject.instance.factory.SwObjectClassConstructorFactory
-import java.util.*
-import kotlin.reflect.full.createType
+import net.swamphut.swampium.core.dependency.DependencyManager
+import net.swamphut.swampium.core.dependency.injection.producer.InjectableWrapper
+import net.swamphut.swampium.core.dependency.injection.producer.ProvideInjectableWrapper
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 
 @SwObject
-@ServiceProvider([ContainerManager::class])
 class SwampiumContainerManager : ContainerManager {
+
     private val swObjectContainerMap = HashMap<String, Container>()
 
+    private val instanceManager = Swampium.instance.instanceManager
+    private val dependencyManager = instanceManager.getInstance(DependencyManager::class)!!
+
     override val containers: Collection<Container> get() = swObjectContainerMap.values
+    private val containerInjectableWrapperMap = HashMap<Container, HashSet<InjectableWrapper>>();
 
     override fun getContainer(identifier: String): Container? {
         return swObjectContainerMap[identifier]
@@ -26,34 +26,29 @@ class SwampiumContainerManager : ContainerManager {
             throw IllegalArgumentException("SwObject Container with same rawIdentifier already exist: ${container.identifier}")
         }
         swObjectContainerMap[container.identifier] = container
-        val instanceManager = Swampium.instance.swObjectInstanceManager
-        val swObjectManager = instanceManager.getInstance(SwObjectManager::class.createType())
+        addAllInjectableWrapper(container)
+    }
+
+    private fun addAllInjectableWrapper(container: Container) {
         container.swObjectClasses
                 .filter { it.java.isAnnotationPresent(SwObject::class.java) }
-                .forEach { swObjectClass ->
-                    instanceManager.addInstanceFactory(SwObjectClassConstructorFactory(swObjectClass, instanceManager))
-                    if (swObjectManager.swObjectClassMap[swObjectClass] != null) {
-                        throw IllegalStateException("Duplicated provider class: ${swObjectClass.canonicalName}")
-                    }
-                    val swObjectInfo = SwObjectInfoImpl(swObjectClass)
-                    InjectionAnnotationReader.read(swObjectInfo)
-                    swObjectManager.addSwObject(swObjectInfo)
-                }
+                .map { SwObjectInjectableWrapper.fromSwObjectClass(it, instanceManager) }
+                .flatMap { listOf(it).union(ProvideInjectableWrapper.findAllFromSwObjectInjectableWrapper(it)) }
+                .onEach { containerInjectableWrapperMap.getOrPut(container) { hashSetOf() }.add(it) }
+                .forEach(dependencyManager::addDependency)
     }
 
     override fun removeContainer(container: Container) {
         if (swObjectContainerMap[container.identifier] == null) {
             throw IllegalArgumentException("SwObject Container not exist: ${container.identifier}")
         }
-        swObjectContainerMap[container.identifier] = container
-        Swampium.instance.swObjectInstanceManager.let { instanceManager ->
-            val swObjectManager = instanceManager.getInstance(SwObjectManager::class.java)
-            container.swObjectClasses
-                    .filter { it.isAnnotationPresent(SwObject::class.java) }
-                    .map { swObjectManager.swObjectClassMap[it] }
-                    .onEach { if (it?.state == SwObjectState.Active) throw IllegalStateException("Service is still active") }
-                    .filter { it != null }
-                    .forEach { swObjectManager.removeSwObject(it!!) }
-        }
+        containerInjectableWrapperMap[container]!!.forEach { dependencyManager.removeDependency(it) }
+        containerInjectableWrapperMap.remove(container)
+        swObjectContainerMap.remove(container.identifier)
     }
+
+    override fun getContainerProvidedInjectableWrapper(container: Container): Set<InjectableWrapper> =
+            containerInjectableWrapperMap[container]!!
+
+
 }

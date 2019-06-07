@@ -3,6 +3,7 @@ package net.swamphut.swampium.service.spec.config
 import io.reactivex.Completable
 import io.reactivex.Single
 import net.swamphut.swampium.service.spec.parser.ParserService
+import kotlin.reflect.KClass
 
 interface ConfigService {
 
@@ -24,7 +25,7 @@ interface ConfigService {
      *  * [IllegalArgumentException]: Not a file
      *
      */
-    fun <T : Any> load(parser: ParserService, modelClass: Class<T>, path: String): Single<Config<T>>
+    fun <T : Any> load(parser: ParserService, modelClass: KClass<T>, path: String): Single<Config<T>>
 
     /**
      * Load a config or return a default value when file not exist
@@ -38,7 +39,7 @@ interface ConfigService {
      * @param defaultContentCallable the callable which return the default value,
      * will only be called while config missing
      */
-    fun <T : Any> loadOrDefault(parser: ParserService, modelClass: Class<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>>
+    fun <T : Any> loadOrDefault(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>>
 
     /**
      * Load the config and replace the content, the content should be a new object.
@@ -47,5 +48,5 @@ interface ConfigService {
 
 }
 
-inline fun <reified T : Any> ConfigService.load(parser: ParserService, path: String) = load(parser, T::class.java, path)
-inline fun <reified T : Any> ConfigService.loadOrDefault(parser: ParserService, path: String, noinline defaultContentCallable: () -> T) = loadOrDefault(parser, T::class.java, path, defaultContentCallable)
+inline fun <reified T : Any> ConfigService.load(parser: ParserService, path: String) = load(parser, T::class, path)
+inline fun <reified T : Any> ConfigService.loadOrDefault(parser: ParserService, path: String, noinline defaultContentCallable: () -> T) = loadOrDefault(parser, T::class, path, defaultContentCallable)

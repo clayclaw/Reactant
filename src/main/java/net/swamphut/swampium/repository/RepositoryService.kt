@@ -4,7 +4,6 @@ import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.dependency.injection.Inject
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.repository.config.RepositoryConfig
@@ -15,7 +14,6 @@ import net.swamphut.swampium.service.spec.parser.JsonParserService
 import java.net.URL
 
 @SwObject
-@ServiceProvider
 class RepositoryService : LifeCycleHook {
     @Inject
     private lateinit var jsonParser: JsonParserService

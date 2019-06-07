@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "net.swamphut"
-version = "0.0.4"
+version = "0.0.5"
 
 val kotlinVersion = "1.3.31"
 
@@ -75,6 +75,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "net.swamphut.swampium.core")
+    relocate("okhttp3", "net.swamphut.swampium.okhttp3")
     archiveClassifier.set("all")
 }
 

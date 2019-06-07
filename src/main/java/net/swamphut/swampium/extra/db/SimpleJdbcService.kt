@@ -5,7 +5,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import net.swamphut.swampium.core.Swampium
-import net.swamphut.swampium.core.dependency.provide.ServiceProvider
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.service.spec.db.JdbcService
@@ -13,17 +12,14 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.util.logging.Level
 
 @SwObject
-@ServiceProvider([JdbcService::class])
 class SimpleJdbcService : LifeCycleHook, JdbcService {
 
     private val connectionsMap = HashMap<ConnectionInfo, Connection>();
 
     class ServiceConnectionImpl(private val connection: Connection) : JdbcService.ServiceConnection {
         override fun close(): Completable = Completable.defer { connection.close();Completable.complete(); }
-                .doOnSubscribe { Swampium.instance.logger.log(Level.WARNING,"dc") }
                 .subscribeOn(Schedulers.io())
 
         override val isClosed: Boolean get() = connection.isClosed

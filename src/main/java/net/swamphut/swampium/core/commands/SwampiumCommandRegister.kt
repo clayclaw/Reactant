@@ -2,8 +2,8 @@ package net.swamphut.swampium.core.commands
 
 import net.swamphut.swampium.core.commands.swobject.SwObjectCommand
 import net.swamphut.swampium.core.commands.swobject.SwObjectListSubcommand
+import net.swamphut.swampium.core.dependency.DependencyManager
 import net.swamphut.swampium.core.dependency.injection.Inject
-import net.swamphut.swampium.core.swobject.SwObjectManager
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
@@ -15,7 +15,7 @@ internal class SwampiumCommandRegister : LifeCycleHook {
     private lateinit var commandService: PicocliCommandService
 
     @Inject
-    private lateinit var swObjectManager: SwObjectManager
+    private lateinit var dependencyManager: DependencyManager
 
     @Inject
     private lateinit var containerManager: ContainerManager
@@ -23,7 +23,7 @@ internal class SwampiumCommandRegister : LifeCycleHook {
     override fun init() {
         commandService.registerBy(this) {
             command(::SwObjectCommand) {
-                subCommand({ SwObjectListSubcommand(swObjectManager, containerManager) })
+                subCommand({ SwObjectListSubcommand(dependencyManager, containerManager) })
             }
         }
     }

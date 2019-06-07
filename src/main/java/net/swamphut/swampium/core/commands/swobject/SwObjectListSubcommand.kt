@@ -1,9 +1,8 @@
 package net.swamphut.swampium.core.commands.swobject
 
 import net.swamphut.swampium.core.commands.SwampiumPermissions.Companion.SWAMPIUM
-import net.swamphut.swampium.core.swobject.SwObjectInfo
-import net.swamphut.swampium.core.swobject.SwObjectManager
-import net.swamphut.swampium.core.swobject.SwObjectState
+import net.swamphut.swampium.core.dependency.DependencyManager
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 import net.swamphut.swampium.core.swobject.container.Container
 import net.swamphut.swampium.core.swobject.container.ContainerManager
 import net.swamphut.swampium.extra.command.SwCommand
@@ -11,6 +10,8 @@ import net.swamphut.swampium.utils.PatternMatchingUtils
 import net.swamphut.swampium.utils.formatting.MultiColumns
 import picocli.CommandLine
 import java.util.regex.Pattern
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.jvm.jvmName
 
 @CommandLine.Command(
         name = "ls",
@@ -19,12 +20,13 @@ import java.util.regex.Pattern
         description = ["Listing all SwObject"]
 )
 class SwObjectListSubcommand(
-        val swObjectManager: SwObjectManager,
+        val dependencyManager: DependencyManager,
         val containerManager: ContainerManager
 ) : SwCommand() {
 
-    @CommandLine.Option(names = ["-s", "--state"], paramLabel = "STATE")
-    var states: ArrayList<SwObjectState> = arrayListOf()
+    @CommandLine.Option(names = ["-r", "--is-running"], paramLabel = "IS_RUNNING",
+            description = ["Filtering SwObject by running state"])
+    var isRunning: Boolean? = null
 
     @CommandLine.Option(names = ["-p", "--pattern"], paramLabel = "REG_EXP",
             description = ["Filtering SwObject class canonical name by RegExp"])
@@ -44,26 +46,27 @@ class SwObjectListSubcommand(
 
     private val listTable = MultiColumns.create {
         column { align = MultiColumns.Alignment.Right }
-        column { maxLength = 30; overflowCutFromRight = false; }
-        column { maxLength = 30 }
+        column { maxLength = 50; overflowCutFromRight = false; }
+        column { maxLength = 40 }
         column { align = MultiColumns.Alignment.Center }
-        column {}
-        column {}
     }
 
     override fun run() {
         requirePermission(SWAMPIUM.SWOBJECT.LIST)
 
-        swObjectManager.swObjectClassMap.values
+        dependencyManager.dependencies.mapNotNull { it as? SwObjectInjectableWrapper<*> }
                 .asSequence()
                 // State filter
-                .filter { states.isEmpty() || states.contains(it.state) }
+                .filter { isRunning == null || it.isInitialized() == isRunning }
                 // Class name pattern filter
-                .filter { classNamePattern == null || classNamePattern!!.toRegex().matches(it.instanceClass.canonicalName) }
+                .filter {
+                    classNamePattern == null
+                            || classNamePattern!!.toRegex().matches(it.productType.jvmErasure.jvmName)
+                }
                 // Class name wildcards filter
                 .filter { matchClassNameWildcards(it) }
                 // wrap it with its container
-                .map { Pair(it, containerManager.containers.first { container -> it.instanceClass in container.swObjectClasses }) }
+                .map { Pair(it, containerManager.containers.first { container -> it.productType.jvmErasure in container.swObjectClasses }) }
                 // Container rawIdentifier filter
                 .filter { matchContainerIdentifierWildcards(it.second.identifier) }
                 .toList()
@@ -71,9 +74,9 @@ class SwObjectListSubcommand(
         listTable.generate().forEach(stdout::out)
     }
 
-    private fun matchClassNameWildcards(swObjectInfo: SwObjectInfo<Any>) =
+    private fun matchClassNameWildcards(swObjectWrapper: SwObjectInjectableWrapper<*>) =
             classNameWildcards.isEmpty() || classNameWildcards.any { wildcard ->
-                PatternMatchingUtils.matchWildcard(wildcard, swObjectInfo.instanceClass.canonicalName)
+                PatternMatchingUtils.matchWildcard(wildcard, swObjectWrapper.productType.jvmErasure.jvmName)
             }
 
     private fun matchContainerIdentifierWildcards(identifier: String) =
@@ -81,17 +84,16 @@ class SwObjectListSubcommand(
                 PatternMatchingUtils.matchWildcard(wildcard, identifier)
             }
 
-    private fun addToListTable(swObjectContainerPair: Pair<SwObjectInfo<Any>, Container>) {
-        val swObject = swObjectContainerPair.first;
-        val container = swObjectContainerPair.second;
+    private fun addToListTable(swObjectWrapperContainerPair: Pair<SwObjectInjectableWrapper<*>, Container>) {
+        val swObjectWrapper = swObjectWrapperContainerPair.first;
+        val container = swObjectWrapperContainerPair.second;
         listTable.rows.add(listOf<String>(
-                swObject.instance.hashCode().toString(36),
-                swObject.instanceClass.let { if (showShortName) it.simpleName else it.canonicalName },
+                swObjectWrapper.hashCode().toString(36),
+                swObjectWrapper.productType.jvmErasure.let { if (showShortName) it.simpleName!! else it.jvmName },
                 container.identifier,
-                swObject.state.toString(),
-                if (swObject.lifeCycleActionExceptions.size > 0) "${swObject.lifeCycleActionExceptions.size} Error"
-                else "",
-                if (swObject.fulfilled) "" else "Not Fulfilled"
+                if (swObjectWrapper.isInitialized()) "Running"
+                else if (swObjectWrapper.catchedThrowable != null) "Error"
+                else if (!swObjectWrapper.fulfilled) "Not Fulfilled" else ""
         ))
     }
 

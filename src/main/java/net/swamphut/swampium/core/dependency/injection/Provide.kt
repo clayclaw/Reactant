@@ -1,12 +1,12 @@
-package net.swamphut.swampium.core.dependency.provide
+package net.swamphut.swampium.core.dependency.injection
 
 import kotlin.reflect.KAnnotatedElement
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class Provide(val namePattern: String = ".*") {
+annotation class Provide(val namePattern: String = ".*", val ignoreGenerics: Boolean = false) {
     companion object {
         fun fromElement(annotatedElement: KAnnotatedElement) =
-                annotatedElement.annotations.filter { it is Provide }.map { (it as Provide) }.first()
+                annotatedElement.annotations.mapNotNull { (it as? Provide) }.first()
     }
 }

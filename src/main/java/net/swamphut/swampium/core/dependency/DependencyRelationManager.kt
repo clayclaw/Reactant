@@ -1,11 +1,9 @@
 package net.swamphut.swampium.core.dependency
 
-import net.swamphut.swampium.core.dependency.injectable.producer.InjectableProducerWrapper
-import net.swamphut.swampium.core.dependency.injectable.producer.ProvideInjectableProducerWrapper
+import net.swamphut.swampium.core.dependency.injection.producer.InjectableWrapper
 import net.swamphut.swampium.core.exception.CyclicDependencyRelationException
-import java.lang.IllegalStateException
 
-private typealias Dependency = InjectableProducerWrapper
+private typealias Dependency = InjectableWrapper
 
 /**
  * The dependencies loading order resolver
@@ -45,5 +43,25 @@ class DependencyRelationManager {
         val removingNode = nodes[dependency] ?: return;
         if (nodes.values.any { it.required.contains(removingNode) }) throw IllegalStateException();
         nodes.values.forEach { it.requiredBy.remove(removingNode) }
+    }
+
+    /**
+     * Get all dependencies which requiring it
+     */
+    fun getDependencyChildrenRecursively(dependency: Dependency): Set<Dependency> = nodes[dependency]?.requiredBy
+            ?.flatMap { setOf(it.dependency).union(getDependencyChildrenRecursively(it.dependency)) }
+            ?.toSet() ?: setOf()
+
+    fun getDependenciesDepth(): Map<Dependency, Int> {
+        val depth = hashMapOf<Dependency, Int>()
+        fun getDependencyDepth(dependency: Dependency): Int {
+            return (depth[dependency] // if cache exist
+                    ?: nodes[dependency]!!.required.map { getDependencyDepth(it.dependency) + 1 }.max() // from max depth + 1
+                    ?: 0) // 0 if no required dependencies
+        }
+        nodes.keys.forEach {
+            depth.set(it, getDependencyDepth(it))
+        }
+        return depth
     }
 }

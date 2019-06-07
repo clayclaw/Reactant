@@ -1,19 +1,19 @@
 package net.swamphut.swampium.core.swobject.lifecycle
 
-import net.swamphut.swampium.core.swobject.SwObjectInfo
+import net.swamphut.swampium.core.dependency.injection.producer.SwObjectInjectableWrapper
 
 interface HookInspector {
-    fun beforeInit(swObjectInfo: SwObjectInfo<Any>) {}
+    fun beforeInit(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun afterInit(swObjectInfo: SwObjectInfo<Any>) {}
+    fun afterInit(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun beforeSave(swObjectInfo: SwObjectInfo<Any>) {}
+    fun beforeSave(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun afterSave(swObjectInfo: SwObjectInfo<Any>) {}
+    fun afterSave(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun beforeDisable(swObjectInfo: SwObjectInfo<Any>) {}
+    fun beforeDisable(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun afterDisable(swObjectInfo: SwObjectInfo<Any>) {}
+    fun afterDisable(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {}
 
-    fun afterBulkActionComeplete(action: LifeCycleControlAction) {}
+    fun afterBulkActionComplete(action: LifeCycleControlAction) {}
 }
