@@ -67,7 +67,7 @@ class Swampium : JavaPlugin() {
 
 
     private fun updateContainers() {
-        logger.info("Searching all containers")
+        Swampium.logger.info("Searching all containers")
         BukkitPluginContainerLoader.findAllLoadedPluginContainer()
 
 

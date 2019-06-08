@@ -1,6 +1,8 @@
 package net.swamphut.swampium.core.swobject.container
 
 import net.swamphut.swampium.core.SwampiumPlugin
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.config.Configurator
 import org.bukkit.plugin.Plugin
 import org.reflections.Reflections
 import org.reflections.util.ClasspathHelper
@@ -23,9 +25,11 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
         }
 
         val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
+        Configurator.setLevel(Reflections::class.java.canonicalName, Level.ERROR)
         swObjectClasses = reflections.getTypesAnnotatedWith(SwObject::class.java)
                 .map { it.kotlin }
                 .toSet()
+        Configurator.setLevel(Reflections::class.java.canonicalName, Level.INFO)
     }
 
     override val displayName: String = plugin.description.name

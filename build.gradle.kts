@@ -48,21 +48,22 @@ dependencies {
     }
 
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
-    api("io.reactivex.rxjava2:rxjava:2.2.0")
+    api("io.reactivex.rxjava2:rxjava:2.+")
+    api("io.reactivex.rxjava2:rxkotlin:2.+")
     api("org.reflections:reflections:0.9.11")
 
     api("com.google.code.gson:gson:2.8.5")
-    api("org.yaml:snakeyaml:1.24")
-    api("com.moandjiezana.toml:toml4j:0.7.2")
+    api("org.yaml:snakeyaml:1.+")
+    api("com.moandjiezana.toml:toml4j:0.7.+")
 
-    api("info.picocli:picocli:4.0.0-alpha-3")
-    api("org.mariadb.jdbc:mariadb-java-client:2.4.1")
+    api("info.picocli:picocli:4.+")
+    api("org.mariadb.jdbc:mariadb-java-client:2.+")
 
-    api("org.apache.logging.log4j:log4j-core:2.11.2")
+    api("org.apache.logging.log4j:log4j-core:2.+")
 
-    api("com.squareup.retrofit2:retrofit:2.5.0")
-    api("com.squareup.retrofit2:adapter-rxjava2:2.5.0")
-    api("com.squareup.retrofit2:converter-gson:2.5.0")
+    api("com.squareup.retrofit2:retrofit:2.+")
+    api("com.squareup.retrofit2:adapter-rxjava2:2.+")
+    api("com.squareup.retrofit2:converter-gson:2.+")
 
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }
