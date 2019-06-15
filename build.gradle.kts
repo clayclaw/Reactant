@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "net.swamphut"
-version = "0.0.5"
+version = "0.0.6"
 
 val kotlinVersion = "1.3.31"
 
@@ -65,8 +65,9 @@ dependencies {
     api("com.squareup.retrofit2:adapter-rxjava2:2.+")
     api("com.squareup.retrofit2:converter-gson:2.+")
 
-    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.14.2-R0.1-SNAPSHOT")
 }
+tasks["jar"].enabled = false
 
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
@@ -77,7 +78,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "net.swamphut.swampium.core")
     relocate("okhttp3", "net.swamphut.swampium.okhttp3")
-    archiveClassifier.set("all")
+    archiveClassifier.set(null as String?)
 }
 
 val deployPlugin by tasks.registering(Copy::class) {

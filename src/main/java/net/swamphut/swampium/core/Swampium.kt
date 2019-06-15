@@ -54,7 +54,6 @@ class Swampium : JavaPlugin() {
     @Suppress("UNCHECKED_CAST")
     fun onPluginDisable(plugin: Plugin) {
         val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(plugin))
-        val dependencyManager = swInstanceManager.getOrConstructWithoutInjection(DependencyManager::class)
         if (container != null) {
             containerManager.getContainerProvidedInjectableWrapper(container)
                     .mapNotNull { it as? SwObjectInjectableWrapper<Any> }

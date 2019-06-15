@@ -7,6 +7,7 @@ import net.swamphut.swampium.extra.command.PicocliCommandService
 import net.swamphut.swampium.repository.MavenRepositoryRetrieverService
 import net.swamphut.swampium.repository.RepositoryService
 import net.swamphut.swampium.repository.commands.RepositoryCommand
+import net.swamphut.swampium.service.spec.dsl.register
 
 @SwObject
 internal class RepositoryCommandRegister : LifeCycleHook {
@@ -18,7 +19,7 @@ internal class RepositoryCommandRegister : LifeCycleHook {
     private lateinit var repositoryRetrieverService: MavenRepositoryRetrieverService
 
     override fun init() {
-        commandService.registerBy(this) {
+        register(commandService) {
             command(::RepositoryCommand) {
                 subCommand({ RepositoryListSubCommand(repositoryService) })
                 subCommand({ RepositoryAddSubCommand(repositoryService) })

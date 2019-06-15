@@ -14,7 +14,6 @@ import javax.script.ScriptEngineManager
 import kotlin.reflect.full.primaryConstructor
 
 //@SwObject
-//@ServiceProvider(provide = [KtsService::class])
 @Deprecated("Kts Jsr223 Implementation cannot resolve class by class loader currently")
 class SwampiumKtsService : KtsService {
 

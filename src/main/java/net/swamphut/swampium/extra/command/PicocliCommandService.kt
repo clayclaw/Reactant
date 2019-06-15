@@ -6,6 +6,7 @@ import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.HookInspector
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.extra.command.exceptions.CommandExecutionPermissionException
+import net.swamphut.swampium.service.spec.dsl.Registrable
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
@@ -13,7 +14,7 @@ import picocli.CommandLine.Model
 import java.util.logging.Level
 
 @SwObject
-class PicocliCommandService : LifeCycleHook, HookInspector {
+class PicocliCommandService : LifeCycleHook, HookInspector, Registrable<PicocliCommandService.CommandRegistering> {
     private val commandTreeMap = HashMap<String, CommandTree>()
 
     private val registerCommandNameMap = HashMap<Any, HashSet<String>>()
@@ -117,7 +118,7 @@ class PicocliCommandService : LifeCycleHook, HookInspector {
         }
     }
 
-    fun registerBy(registerSwObject: Any, registering: CommandRegistering.() -> Unit) {
+    override fun registerBy(registerSwObject: Any, registering: CommandRegistering.() -> Unit) {
         CommandRegistering(registerSwObject).registering()
     }
 }

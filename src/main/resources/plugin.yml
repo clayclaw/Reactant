@@ -1,4 +1,4 @@
 name: Swampium
 main: net.swamphut.swampium.core.Swampium
-version: 0.0.5
-api-version: 1.14
+version: 0.0.6
+api-version: "1.14"
