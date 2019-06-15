@@ -67,7 +67,6 @@ dependencies {
 
     compileOnly("org.spigotmc:spigot-api:1.14.2-R0.1-SNAPSHOT")
 }
-tasks["jar"].enabled = false
 
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
@@ -78,7 +77,6 @@ val sourcesJar by tasks.registering(Jar::class) {
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "net.swamphut.swampium.core")
     relocate("okhttp3", "net.swamphut.swampium.okhttp3")
-    archiveClassifier.set(null as String?)
 }
 
 val deployPlugin by tasks.registering(Copy::class) {
