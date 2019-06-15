@@ -38,7 +38,10 @@ private class InjectableConfigProviderService(
 
         @Suppress("UNCHECKED_CAST")
         val configClass = kType.arguments.first().type!!.jvmErasure as KClass<Any>
+        var exist = true
+
         return configService.loadOrDefault(parserInstance, configClass, path) {
+            exist = false
             when {
                 configClass.constructors.size > 1 ->
                     throw IllegalArgumentException("There have more than one constructor for config ${configClass.jvmName}")
@@ -46,6 +49,6 @@ private class InjectableConfigProviderService(
                     throw IllegalArgumentException("Config constructor is not parameterless ${configClass.jvmName}")
                 else -> return@loadOrDefault configClass.constructors.first().call()
             }
-        }.blockingGet()
+        }.blockingGet().also { if (!exist) it.save().blockingAwait() }
     }
 }
