@@ -11,11 +11,9 @@ interface EventService : Registrable<EventService.Registering> {
                        eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
 
     class Registering(val eventService: EventService, val registerSwObject: Any) {
-        @Deprecated("Use unaryPlus instead")
         inline fun <reified T : Event> KClass<T>.listen(): Observable<T> =
                 eventService.on(registerSwObject, this, EventPriority.NORMAL)
 
-        @Deprecated("Use unaryPlus instead")
         inline infix fun <reified T : Event> KClass<T>.listen(eventPriority: EventPriority): Observable<T> =
                 eventService.on(registerSwObject, this, eventPriority)
 
