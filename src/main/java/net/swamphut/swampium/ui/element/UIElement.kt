@@ -14,6 +14,7 @@ interface UIElement {
     @JvmDefault
     fun matches(selector: String) = ElementSelectorChainPart(selector).matches(this)
 
-    fun closest(selector: String)
-    fun querySelector(selector: String)
+    fun closest(selector: String): UIElement? = TODO()
+    fun querySelector(selector: String): UIElement? = TODO()
+    fun querySelectorAll(selector: String): Set<UIElement> = TODO()
 }

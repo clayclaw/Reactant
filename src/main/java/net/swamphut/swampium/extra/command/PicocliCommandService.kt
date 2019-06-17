@@ -103,19 +103,23 @@ class PicocliCommandService : LifeCycleHook, HookInspector, Registrable<PicocliC
 // DSL
 
     inner class CommandRegistering(private val registerSwObject: Any) {
-        private lateinit var commandTree: CommandTree
+        fun command(commandProvider: () -> SwCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) {
+            val commandTree: CommandTree = registerCommand(registerSwObject, commandProvider)
+            subRegistering?.let { SubCommandRegistering(registerSwObject, commandTree, commandProvider).it() }
+        }
+    }
 
-        fun command(commandRunnableProvider: () -> SwCommand, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
-            commandTree = registerCommand(registerSwObject, commandRunnableProvider)
-            subCommandRegistering?.let { SubCommandRegistering(commandRunnableProvider).it() }
+    inner class SubCommandRegistering(private val registerSwObject: Any,
+                                      private val commandTree: CommandTree,
+                                      private val rootCommandProvider: () -> Runnable) {
+        fun command(commandProvider: () -> SwCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) {
+            commandTree.addSubcommand(rootCommandProvider, commandProvider)
+            subRegistering?.let { SubCommandRegistering(registerSwObject, commandTree, commandProvider).it() }
         }
 
-        inner class SubCommandRegistering(val rootCommandProvider: () -> Runnable)
-
-        fun SubCommandRegistering.subCommand(subCommandRunnableProvider: () -> Runnable, subCommandRegistering: (SubCommandRegistering.() -> Unit)? = null) {
-            commandTree.addSubcommand(rootCommandProvider, subCommandRunnableProvider)
-            subCommandRegistering?.let { SubCommandRegistering(subCommandRunnableProvider).it() }
-        }
+        @Deprecated("Confusing name", ReplaceWith("command(subCommandRunnableProvider, subCommandRegistering)"))
+        fun subCommand(commandProvider: () -> SwCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) =
+                command(commandProvider, subRegistering)
     }
 
     override fun registerBy(registerSwObject: Any, registering: CommandRegistering.() -> Unit) {

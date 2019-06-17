@@ -26,7 +26,7 @@ class CommandTree(
                 this.stdout = stdOut
                 this.stderr = stdErr
             }
-        }).apply {
+        }).setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF)).apply {
             getCommand<Runnable>().let { if (it is SwCommand) it.commandLine = this }
         };
         subCommandMap[commandProvider]?.forEach { subCommandProvider ->
