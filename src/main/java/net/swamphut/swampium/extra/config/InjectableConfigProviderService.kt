@@ -1,7 +1,6 @@
 package net.swamphut.swampium.extra.config
 
 import net.swamphut.swampium.core.dependency.injection.Provide
-import net.swamphut.swampium.core.dependency.injection.lazy.LazyInjection
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.config.ConfigService
@@ -16,9 +15,9 @@ import kotlin.reflect.jvm.jvmName
 
 @SwObject
 private class InjectableConfigProviderService(
-        private val jsonParserService: LazyInjection<JsonParserService>,
-        private val yamlParserService: LazyInjection<YamlParserService>,
-        private val tomlParserService: LazyInjection<TomlParserService>,
+        private val jsonParserService: JsonParserService,
+        private val yamlParserService: YamlParserService,
+        private val tomlParserService: TomlParserService,
         private val configService: ConfigService
 ) {
     @Provide("^.*\\.(ya?ml|json|toml)$", true)
@@ -32,15 +31,12 @@ private class InjectableConfigProviderService(
         return getConfig(parser, kType, name)
     }
 
-    private fun getConfig(parser: LazyInjection<out ParserService>, kType: KType, path: String): Config<Any> {
-        val parserInstance = parser.get()
-                ?: throw IllegalArgumentException("No provider for ${parser.ktype}")
-
+    private fun getConfig(parser: ParserService, kType: KType, path: String): Config<Any> {
         @Suppress("UNCHECKED_CAST")
         val configClass = kType.arguments.first().type!!.jvmErasure as KClass<Any>
         var exist = true
 
-        return configService.loadOrDefault(parserInstance, configClass, path) {
+        return configService.loadOrDefault(parser, configClass, path) {
             exist = false
             when {
                 configClass.constructors.size > 1 ->
