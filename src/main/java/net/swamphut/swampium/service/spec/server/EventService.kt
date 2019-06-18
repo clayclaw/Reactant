@@ -11,12 +11,17 @@ interface EventService : Registrable<EventService.Registering> {
                        eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
 
     class Registering(val eventService: EventService, val registerSwObject: Any) {
-        inline fun <reified T : Event> KClass<T>.listen(): Observable<T> =
-                eventService.on(registerSwObject, this, EventPriority.NORMAL)
+        @Deprecated("confusing name", ReplaceWith("observable()"))
+        inline fun <reified T : Event> KClass<T>.listen() = observable()
 
-        inline infix fun <reified T : Event> KClass<T>.listen(eventPriority: EventPriority): Observable<T> =
+        @Deprecated("confusing name", ReplaceWith("observable(eventPriority)"))
+        inline infix fun <reified T : Event> KClass<T>.listen(eventPriority: EventPriority) = observable(eventPriority)
+
+        inline fun <reified T : Event> KClass<T>.observable(eventPriority: EventPriority = EventPriority.NORMAL) =
                 eventService.on(registerSwObject, this, eventPriority)
 
+
+        // Block registering style
 
         inner class EventRegistering<T : Event>(var eventClass: KClass<T>?,
                                                 var eventPriority: EventPriority?,

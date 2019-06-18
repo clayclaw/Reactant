@@ -102,7 +102,7 @@ class Swampium : JavaPlugin() {
 
         lateinit var mainThreadScheduler: Scheduler
 
-        var logger: Logger = LogManager.getLogger("Swampium")
+        val logger: Logger = LogManager.getLogger("Swampium")
         const val configDirPath = "plugins/swampium";
         const val tmpDirPath = "$configDirPath/tmp";
     }

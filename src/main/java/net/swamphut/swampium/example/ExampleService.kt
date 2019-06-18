@@ -6,10 +6,10 @@ import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.dsl.register
 import net.swamphut.swampium.service.spec.server.EventService
+import net.swamphut.swampium.ui.creation.createUI
+import net.swamphut.swampium.ui.kits.div
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.event.EventPriority
-import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -42,20 +42,18 @@ class ExampleService(
 
 
         register(eventService) {
-
-
-            EntityDamageByEntityEvent::class {
-                filter { it.entity is Player }
-                        .subscribe { /* ... */ }
-            }
-
-            EntityDamageByEntityEvent::class priority EventPriority.LOW {
-                filter { it.entity is Player }
-                        .subscribe { /* ... */ }
-            }
-
+            PlayerJoinEvent::class.observable()
+                    .subscribe {
+                    }
         }
 
     }
+
+    val playerMenu
+        get() = createUI {
+            div {
+
+            }
+        }
 
 }

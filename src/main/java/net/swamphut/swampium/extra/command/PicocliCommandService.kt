@@ -24,7 +24,6 @@ class PicocliCommandService : LifeCycleHook, HookInspector, Registrable<PicocliC
             isAccessible = true
             bukkitCommandMap = get(Bukkit.getServer()) as SimpleCommandMap
         }
-
     }
 
     override fun beforeDisable(swObjectInjectableWrapper: SwObjectInjectableWrapper<Any>) {

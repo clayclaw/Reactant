@@ -1,4 +1,6 @@
-package net.swamphut.swampium.ui.element
+package net.swamphut.swampium.ui.element.selector
+
+import net.swamphut.swampium.ui.element.UIElement
 
 /**
  * Element selector wrapper which will breakdown selector string into multiple node
