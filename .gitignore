@@ -22,3 +22,5 @@ build/
 *.class
 *.log
 hs_err_pid*
+
+out/
