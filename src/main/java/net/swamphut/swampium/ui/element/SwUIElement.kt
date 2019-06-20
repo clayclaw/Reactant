@@ -4,12 +4,13 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import net.swamphut.swampium.ui.element.collection.SwUIElementChildrenSet
 import net.swamphut.swampium.ui.element.collection.SwUIElementClassSet
-import net.swamphut.swampium.ui.element.type.sizing.ClickableElement
+import net.swamphut.swampium.ui.event.UIElementEvent
 import net.swamphut.swampium.ui.event.UIEvent
 import kotlin.reflect.KClass
 
 
-abstract class SwUIElement(override val elementIdentifier: String) : UIElement, ClickableElement {
+abstract class SwUIElement(override val elementIdentifier: String) : UIElement{
+    override val event = PublishSubject.create<UIElementEvent>()
     private var _parent: UIElement? = null
     override var parent: UIElement?
         get() = _parent

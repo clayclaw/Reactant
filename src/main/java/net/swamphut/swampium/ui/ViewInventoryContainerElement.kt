@@ -9,7 +9,9 @@ import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-class InventoryContainerElement(val inventory: Inventory) : SwUIContainerElement("inventory") {
+class ViewInventoryContainerElement(val swUIView: SwUIView) : SwUIContainerElement("inventory") {
+    override val view: UIView get() = swUIView
+
     override val width: Int = 9
-    override val height: Int = inventory.size
+    override val height: Int = swUIView.inventory.size
 }

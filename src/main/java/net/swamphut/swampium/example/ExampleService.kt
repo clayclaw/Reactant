@@ -6,9 +6,14 @@ import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.dsl.register
 import net.swamphut.swampium.service.spec.server.EventService
+import net.swamphut.swampium.ui.SwUIService
 import net.swamphut.swampium.ui.creation.createUI
+import net.swamphut.swampium.ui.element.ElementDisplay
 import net.swamphut.swampium.ui.kits.div
+import net.swamphut.swampium.ui.kits.item
+import net.swamphut.swampium.utils.content.item.createItemStack
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.event.player.PlayerJoinEvent
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -17,7 +22,8 @@ import java.util.logging.Logger
 class ExampleService(
         private val helloService: HelloService,
         @Inject("plugins/SwampiumExample/testers.json") private val testersConfig: Config<TesterList>,
-        private val eventService: EventService
+        private val eventService: EventService,
+        private val uiService: SwUIService
 ) : LifeCycleHook {
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -44,15 +50,27 @@ class ExampleService(
         register(eventService) {
             PlayerJoinEvent::class.observable()
                     .subscribe {
+                        uiService.showUI(it.player, playerMenu)
                     }
         }
 
     }
 
-    val playerMenu
+    private val playerMenu
         get() = createUI {
             div {
-
+                click.subscribe { it.isCancelled = true }
+                item { displayItem = createItemStack { type = Material.WOODEN_AXE } }
+                item { displayItem = createItemStack { type = Material.DIAMOND_SWORD } }
+                div { height = 2; width = 2; display = ElementDisplay.INLINE_BLOCK }
+                item {
+                    displayItem = createItemStack { type = Material.APPLE }
+                    click.subscribe { it.stopPropagation() }
+                }
+                item {
+                    displayItem = createItemStack { type = Material.BOOK }
+                    click.subscribe { it.player.sendMessage("you clicked a book");it.isCancelled = true }
+                }
             }
         }
 

@@ -1,10 +1,10 @@
 package net.swamphut.swampium.ui.creation
 
-import net.swamphut.swampium.ui.InventoryContainerElement
-import net.swamphut.swampium.ui.SwUIContainer
+import net.swamphut.swampium.ui.ViewInventoryContainerElement
+import net.swamphut.swampium.ui.SwUIView
 
-class SwUICreation(private val swUIContainer: SwUIContainer) : SwUIElementCreation<InventoryContainerElement>(swUIContainer.rootElement)
+class SwUICreation(val view: SwUIView) : SwUIElementCreation<ViewInventoryContainerElement>(view.rootElement)
 
-fun createUI(creating: SwUICreation.() -> Unit) {
-    SwUICreation(SwUIContainer()).apply(creating)
+fun createUI(creating: SwUICreation.() -> Unit): SwUIView {
+    return SwUICreation(SwUIView()).apply(creating).view
 }
