@@ -20,10 +20,11 @@ build:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
-  only:
-    - master
 
 deploy:
   stage: deploy
   script:
     - ./gradlew bintrayUpload
+  only:
+    refs:
+      - master

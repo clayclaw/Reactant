@@ -10,7 +10,8 @@ class SwCommandHelpTopic(val swCommand: SwCommand) : HelpTopic() {
         val commandSpec = CommandLine.Model.CommandSpec.forAnnotatedObject(swCommand)
         this.name = "/${commandSpec.name()}"
         this.shortText = commandSpec.usageMessage().description().joinToString("\n")
-        this.fullText = CommandLine(swCommand).usageMessage;
+        this.fullText = CommandLine(swCommand)
+                .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF)).usageMessage;
     }
 
     override fun canSee(player: CommandSender): Boolean = swCommand.canSeeHelpTopic(player)

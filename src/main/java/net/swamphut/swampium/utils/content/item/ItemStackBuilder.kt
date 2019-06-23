@@ -12,7 +12,7 @@ private typealias ItemMetaModifier = ItemMeta.() -> Unit
 
 class ItemStackBuilder {
     lateinit var type: Material
-    var amount: Int = 0
+    var amount: Int = 1
     var data: MaterialData? = null
     private var metaModifier: ItemMetaModifier = {}
     private var enchantments = hashMapOf<Enchantment, Int>()
@@ -42,5 +42,10 @@ class ItemStackBuilder {
     }
 }
 
-fun createItemStack(builderConfig: ItemStackBuilder.() -> Unit) = ItemStackBuilder().apply(builderConfig).build()
+fun createItemStack(type: Material = Material.AIR, amount: Int = 1, builderConfig: ItemStackBuilder.() -> Unit = {}): ItemStack {
+    return ItemStackBuilder().also {
+        it.type = type;
+        it.amount = amount
+    }.apply(builderConfig).build()
+}
 
