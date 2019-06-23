@@ -1,6 +1,6 @@
 package net.swamphut.swampium.ui.element.type.sizing
 
-import net.swamphut.swampium.ui.creation.UIElementCreation
+import net.swamphut.swampium.ui.editing.UIElementEditing
 import net.swamphut.swampium.ui.element.UIElement
 
 /**
@@ -10,7 +10,7 @@ interface HeightResizableElement : UIElement {
     override var height: Int
 }
 
-interface HeightResizableElementCreation<T : HeightResizableElement> : UIElementCreation<T> {
+interface HeightResizableElementEditing<T : HeightResizableElement> : UIElementEditing<T> {
     @JvmDefault
     var height: Int
         get() = element.height

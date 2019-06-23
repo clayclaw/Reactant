@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "net.swamphut"
-version = "0.0.6"
+version = "0.0.7"
 
 val kotlinVersion = "1.3.31"
 

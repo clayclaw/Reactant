@@ -1,4 +1,4 @@
-package net.swamphut.swampium.ui.creation
+package net.swamphut.swampium.ui.editing
 
 import io.reactivex.Observable
 import net.swamphut.swampium.ui.element.ElementDisplay
@@ -7,7 +7,7 @@ import net.swamphut.swampium.ui.element.UIElementAttributes
 import net.swamphut.swampium.ui.element.UIElementClassList
 import net.swamphut.swampium.ui.event.interact.element.UIElementClickEvent
 
-interface UIElementCreation<out T : UIElement> {
+interface UIElementEditing<out T : UIElement> {
     val element: T;
     var id: String?
     var classList: UIElementClassList

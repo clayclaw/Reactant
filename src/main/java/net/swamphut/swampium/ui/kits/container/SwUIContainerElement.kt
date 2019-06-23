@@ -1,9 +1,9 @@
 package net.swamphut.swampium.ui.kits.container
 
-import net.swamphut.swampium.ui.creation.SwUIElementCreation
+import net.swamphut.swampium.ui.editing.SwUIElementEditing
 import net.swamphut.swampium.ui.element.SwUIElement
 import net.swamphut.swampium.ui.element.type.spacing.PaddingElement
-import net.swamphut.swampium.ui.element.type.spacing.PaddingElementCreation
+import net.swamphut.swampium.ui.element.type.spacing.PaddingElementEditing
 import net.swamphut.swampium.ui.rendering.RenderedItems
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -32,5 +32,5 @@ abstract class SwUIContainerElement(elementIdentifier: String) : SwUIElement(ele
     }
 }
 
-abstract class SwUIContainerElementCreation<T : SwUIContainerElement>(element: T)
-    : SwUIElementCreation<T>(element), PaddingElementCreation<T>
+abstract class SwUIContainerElementEditing<T : SwUIContainerElement>(element: T)
+    : SwUIElementEditing<T>(element), PaddingElementEditing<T>

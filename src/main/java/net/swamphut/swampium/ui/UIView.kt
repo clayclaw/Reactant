@@ -2,11 +2,12 @@ package net.swamphut.swampium.ui
 
 import net.swamphut.swampium.service.spec.server.SchedulerService
 import net.swamphut.swampium.ui.element.UIElement
+import net.swamphut.swampium.ui.eventtarget.UIViewEventTarget
 import net.swamphut.swampium.ui.query.UIQueryable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
-interface UIView : UIEventTrigger, UIQueryable {
+interface UIView : UIViewEventTarget, UIQueryable {
     val inventory: Inventory
     val rootElement: UIElement
 

@@ -1,6 +1,6 @@
 package net.swamphut.swampium.ui.kits
 
-import net.swamphut.swampium.ui.creation.SwUIElementCreation
+import net.swamphut.swampium.ui.editing.SwUIElementEditing
 import net.swamphut.swampium.ui.element.SwUIElement
 import net.swamphut.swampium.ui.element.UIElement
 import net.swamphut.swampium.ui.rendering.ElementSlot
@@ -20,16 +20,16 @@ class SwUIItemElement : SwUIElement("item") {
     override val height: Int = 1
 }
 
-open class SwUIItemElementCreation(element: SwUIItemElement)
-    : SwUIElementCreation<SwUIItemElement>(element) {
+open class SwUIItemElementEditing(element: SwUIItemElement)
+    : SwUIElementEditing<SwUIItemElement>(element) {
     var displayItem: ItemStack by MutablePropertyDelegate(element::displayItem)
 }
 
-fun SwUIElementCreation<out UIElement>.item(displayItem: ItemStack = createItemStack(),
-                                            creation: SwUIItemElementCreation.() -> Unit = {}) {
+fun SwUIElementEditing<out UIElement>.item(displayItem: ItemStack = createItemStack(),
+                                           creation: SwUIItemElementEditing.() -> Unit = {}) {
     element.children.add(SwUIItemElement()
             .also {
-                SwUIItemElementCreation(it).also { creation ->
+                SwUIItemElementEditing(it).also { creation ->
                     creation.displayItem = displayItem
                 }.apply(creation)
             })

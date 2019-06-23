@@ -3,11 +3,12 @@ package net.swamphut.swampium.ui.element
 import io.reactivex.subjects.Subject
 import net.swamphut.swampium.ui.UIView
 import net.swamphut.swampium.ui.event.UIEvent
+import net.swamphut.swampium.ui.eventtarget.UIElementEventTarget
 import net.swamphut.swampium.ui.query.UIQueryable
 import net.swamphut.swampium.ui.rendering.RenderedItems
 import kotlin.reflect.KClass
 
-interface UIElement : UIElementEventTrigger, UIQueryable {
+interface UIElement : UIElementEventTarget, UIQueryable {
     val view: UIView? get() = parent?.view
     val elementIdentifier: String
     var parent: UIElement?

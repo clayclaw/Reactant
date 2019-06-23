@@ -1,9 +1,9 @@
 package net.swamphut.swampium.ui.event
 
-import net.swamphut.swampium.ui.UIEventTrigger
+import net.swamphut.swampium.ui.eventtarget.UIEventTarget
 
 interface UIEvent {
-    fun propagateTo(uiEventTrigger: UIEventTrigger) {
-        uiEventTrigger.event.onNext(this)
+    fun propagateTo(eventTarget: UIEventTarget<UIEvent>) {
+        eventTarget.event.onNext(this)
     }
 }

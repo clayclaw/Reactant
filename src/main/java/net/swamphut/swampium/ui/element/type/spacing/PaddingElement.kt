@@ -1,6 +1,6 @@
 package net.swamphut.swampium.ui.element.type.spacing
 
-import net.swamphut.swampium.ui.creation.UIElementCreation
+import net.swamphut.swampium.ui.editing.UIElementEditing
 import net.swamphut.swampium.ui.element.UIElement
 import net.swamphut.swampium.ui.element.UIElement.Companion.expandDirectionalAttributes
 
@@ -22,7 +22,7 @@ interface PaddingElement : UIElement {
     override val minimumFreeSpaceHeight: Int get() = super.minimumFreeSpaceHeight + paddingTop + paddingBottom
 }
 
-interface PaddingElementCreation<T : PaddingElement> : UIElementCreation<T> {
+interface PaddingElementEditing<T : PaddingElement> : UIElementEditing<T> {
     var paddingTop: Int
         get() = element.paddingTop
         set(value) {
