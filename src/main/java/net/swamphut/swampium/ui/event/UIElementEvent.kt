@@ -6,17 +6,20 @@ import net.swamphut.swampium.ui.element.UIElement
 /**
  * The event which is happening on an element
  */
-interface UIElementEvent : UIEvent {
-    val target: UIElement
+abstract class UIElementEvent(val target: UIElement) : UIEvent {
 
-    val isPropagating: Boolean
-    fun stopPropagation()
+    var isPropagating: Boolean = true
+        private set
+
+    fun stopPropagation() {
+        isPropagating = false
+    }
 
     fun propagateTo(uiElement: UIElement) {
         uiElement.event.onNext(this)
         if (!isPropagating) return
         when {
-            uiElement is ViewInventoryContainerElement -> propagateTo(uiElement.swUIView)
+            uiElement is ViewInventoryContainerElement -> propagateTo(uiElement.view)
             uiElement.parent != null -> propagateTo(uiElement.parent!!)
         }
     }

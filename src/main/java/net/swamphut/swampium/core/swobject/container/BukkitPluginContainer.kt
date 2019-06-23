@@ -24,8 +24,8 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
             throw IllegalArgumentException()
         }
 
-        val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
         Configurator.setLevel(Reflections::class.java.canonicalName, Level.ERROR)
+        val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
         swObjectClasses = reflections.getTypesAnnotatedWith(SwObject::class.java)
                 .map { it.kotlin }
                 .toSet()

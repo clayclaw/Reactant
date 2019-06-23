@@ -13,8 +13,6 @@ import net.swamphut.swampium.core.swobject.instance.SwampiumInstanceManager
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleControlAction
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManager
 import net.swamphut.swampium.core.swobject.lifecycle.SwObjectLifeCycleManagerImpl
-import net.swamphut.swampium.extra.server.SwampiumEventService
-import net.swamphut.swampium.service.spec.server.EventService
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bstats.bukkit.Metrics
@@ -28,14 +26,12 @@ class Swampium : JavaPlugin() {
     val instanceManager: SwObjectInstanceManager = SwampiumInstanceManager()
     internal val swInstanceManager: SwampiumInstanceManager get() = instanceManager as SwampiumInstanceManager
     private val swObjectLifeCycleManager: SwObjectLifeCycleManager
-    private val eventService: EventService
     private val containerManager: ContainerManager
     private val dependencyManager: DependencyManager
 
     init {
         instance = this
         swObjectLifeCycleManager = swInstanceManager.getOrConstructWithoutInjection(SwObjectLifeCycleManagerImpl::class)
-        eventService = swInstanceManager.getOrConstructWithoutInjection(SwampiumEventService::class)
         containerManager = swInstanceManager.getOrConstructWithoutInjection(SwampiumContainerManager::class)
         dependencyManager = swInstanceManager.getOrConstructWithoutInjection(DependencyManager::class)
     }

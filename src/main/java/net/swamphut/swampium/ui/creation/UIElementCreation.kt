@@ -5,7 +5,6 @@ import net.swamphut.swampium.ui.element.ElementDisplay
 import net.swamphut.swampium.ui.element.UIElement
 import net.swamphut.swampium.ui.element.UIElementAttributes
 import net.swamphut.swampium.ui.element.UIElementClassList
-import net.swamphut.swampium.ui.event.UIElementEvent
 import net.swamphut.swampium.ui.event.interact.element.UIElementClickEvent
 
 interface UIElementCreation<out T : UIElement> {

@@ -4,7 +4,7 @@ import net.swamphut.swampium.ui.element.UIElement
 
 class SwUIElementChildrenSet private constructor(
         private val parent: UIElement,
-        private val childrenList: MutableSet<UIElement>
+        private val childrenList: LinkedHashSet<UIElement>
 ) : MutableSet<UIElement> by childrenList {
     constructor(parent: UIElement) : this(parent, LinkedHashSet())
 

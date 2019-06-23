@@ -1,17 +1,15 @@
 package net.swamphut.swampium.ui
 
-import net.swamphut.swampium.ui.element.ElementDisplay
-import net.swamphut.swampium.ui.element.SwUIElement
-import net.swamphut.swampium.ui.kits.SwUIContainerElement
-import net.swamphut.swampium.ui.rendering.ElementSlot
-import net.swamphut.swampium.ui.rendering.RenderedItems
-import org.bukkit.Material
-import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemStack
+import net.swamphut.swampium.ui.kits.container.SwUIContainerElement
+import org.bukkit.event.inventory.InventoryType.*
 
-class ViewInventoryContainerElement(val swUIView: SwUIView) : SwUIContainerElement("inventory") {
+class ViewInventoryContainerElement(private val swUIView: SwUIView) : SwUIContainerElement("inventory") {
     override val view: UIView get() = swUIView
 
-    override val width: Int = 9
-    override val height: Int = swUIView.inventory.size
+    override val width: Int = when (view.inventory.type) {
+        CHEST -> 9
+        DISPENSER, DROPPER, CRAFTING -> 3
+        else -> throw UnsupportedOperationException("Unknown inventory type: ${view.inventory.type}")
+    }
+    override val height: Int = swUIView.inventory.size / width
 }

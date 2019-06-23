@@ -4,11 +4,7 @@ import net.swamphut.swampium.ui.creation.UIElementCreation
 import net.swamphut.swampium.ui.element.UIElement
 
 interface WidthResizableElement : UIElement {
-    var width: Int
-
-    companion object {
-        const val MATCH_PARENT = -1
-    }
+    override var width: Int
 }
 
 interface WidthResizableElementCreation<T : WidthResizableElement> : UIElementCreation<T> {
