@@ -82,9 +82,10 @@ class SwObjectLifeCycleManagerImpl : SwObjectLifeCycleManager {
 
         return invokeOrder.map { invokeAction(it, action) }
                 .fold(true) { result, next -> result && next }
+                .also { inspectors.forEach { it.afterBulkActionComplete(action) } }
     }
 
-    private val inspectors = dependencyManager.dependencies.mapNotNull { it as? SwObjectInjectableWrapper<*> }
+    private val inspectors get()= dependencyManager.dependencies.mapNotNull { it as? SwObjectInjectableWrapper<*> }
             .filter { it.isInitialized() }
             .mapNotNull { it.getInstance() as? HookInspector }
 }
