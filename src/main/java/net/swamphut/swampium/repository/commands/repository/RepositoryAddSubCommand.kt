@@ -20,6 +20,7 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
     lateinit var url: String
 
     override fun run() {
+        repositoryService.consoleOnlyValidate(sender)
         requirePermission(SWAMPIUM.REPOSITORY.MODIFY)
         if (!overwrite && repositoryService.getRepository(name) != null)
             stderr.out("Repository $name already exist, you can overwrite it with option '-o'");

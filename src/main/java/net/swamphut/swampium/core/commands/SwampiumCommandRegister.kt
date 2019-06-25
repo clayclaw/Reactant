@@ -24,7 +24,7 @@ internal class SwampiumCommandRegister : LifeCycleHook {
     override fun init() {
         register(commandService) {
             command(::SwObjectCommand) {
-                subCommand({ SwObjectListSubcommand(dependencyManager, containerManager) })
+                command({ SwObjectListSubcommand(dependencyManager, containerManager) } )
             }
         }
     }

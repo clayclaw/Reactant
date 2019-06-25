@@ -9,6 +9,7 @@ import picocli.CommandLine
 @CommandLine.Command(name = "list", aliases = ["ls"], mixinStandardHelpOptions = true)
 class RepositoryListSubCommand(private val repositoryService: RepositoryService) : SwCommand() {
     override fun run() {
+        repositoryService.consoleOnlyValidate(sender)
         requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.LIST)
         MultiColumns.create {
             column { }

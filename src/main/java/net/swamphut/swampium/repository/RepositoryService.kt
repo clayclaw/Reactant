@@ -6,26 +6,21 @@ import net.swamphut.swampium.core.Swampium
 import net.swamphut.swampium.core.dependency.injection.Inject
 import net.swamphut.swampium.core.swobject.container.SwObject
 import net.swamphut.swampium.core.swobject.lifecycle.LifeCycleHook
+import net.swamphut.swampium.extra.command.exceptions.CommandExecutionPermissionException
 import net.swamphut.swampium.repository.config.RepositoryConfig
 import net.swamphut.swampium.service.spec.config.Config
 import net.swamphut.swampium.service.spec.config.ConfigService
 import net.swamphut.swampium.service.spec.config.loadOrDefault
 import net.swamphut.swampium.service.spec.parser.JsonParserService
+import org.bukkit.command.CommandSender
+import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.entity.Player
 import java.net.URL
 
 @SwObject
-class RepositoryService : LifeCycleHook {
-    @Inject
-    private lateinit var jsonParser: JsonParserService
-    @Inject
-    private lateinit var configService: ConfigService
-
-    private lateinit var repositoryConfig: Config<RepositoryConfig>
-
-    override fun init() {
-        repositoryConfig = configService.loadOrDefault(jsonParser, Swampium.configDirPath + "/repository.json", ::RepositoryConfig)
-                .blockingGet().also { it.save().blockingAwait() }
-    }
+class RepositoryService(
+        @Inject(Swampium.configDirPath + "/repository.json") private val repositoryConfig: Config<RepositoryConfig>
+) {
 
     fun getRepository(name: String): String? {
         return repositoryConfig.content.repositories[name]
@@ -47,5 +42,13 @@ class RepositoryService : LifeCycleHook {
         repositoryConfig.content.repositories.remove(name)
         return Completable.fromCallable { repositoryConfig.save() }
                 .subscribeOn(Schedulers.io())
+    }
+
+    /**
+     * Based on the config decide allow player to execute or not
+     */
+    fun consoleOnlyValidate(sender: CommandSender) {
+        if (repositoryConfig.content.consoleOnly && sender !is ConsoleCommandSender)
+            throw CommandExecutionPermissionException(sender, "CONSOLE", "Repository action")
     }
 }

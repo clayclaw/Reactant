@@ -41,6 +41,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
     var ignoreMainClassNotMatch: Boolean = false
 
     override fun run() {
+        repositoryService.consoleOnlyValidate(sender)
         requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.RETRIEVE)
         stdout.out("Retrieving ${identifiers.size} plugin from repositories...")
         Observable.fromIterable(identifiers)

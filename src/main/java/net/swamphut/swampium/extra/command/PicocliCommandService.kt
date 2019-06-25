@@ -116,7 +116,7 @@ class PicocliCommandService : LifeCycleHook, HookInspector, Registrable<PicocliC
             subRegistering?.let { SubCommandRegistering(registerSwObject, commandTree, commandProvider).it() }
         }
 
-        @Deprecated("Confusing name", ReplaceWith("command(subCommandRunnableProvider, subCommandRegistering)"))
+        @Deprecated("Confusing name", ReplaceWith("command(commandProvider, subRegistering)"))
         fun subCommand(commandProvider: () -> SwCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) =
                 command(commandProvider, subRegistering)
     }

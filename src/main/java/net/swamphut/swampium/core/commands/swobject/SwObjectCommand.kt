@@ -1,6 +1,7 @@
 package net.swamphut.swampium.core.commands.swobject
 
 import net.swamphut.swampium.extra.command.SwCommand
+import org.bukkit.entity.Player
 import picocli.CommandLine
 
 @CommandLine.Command(
@@ -9,7 +10,7 @@ import picocli.CommandLine
         mixinStandardHelpOptions = true,
         description = ["SwObjects related commands"]
 )
-class SwObjectCommand : Runnable, SwCommand() {
+class SwObjectCommand : SwCommand() {
     override fun run() {
         showUsage()
     }

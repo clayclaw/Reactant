@@ -12,6 +12,7 @@ class RepositoryRemoveSubCommand(private val repositoryService: RepositoryServic
     lateinit var nameWildcards: ArrayList<String>
 
     override fun run() {
+        repositoryService.consoleOnlyValidate(sender)
         requirePermission(RepositoryPermission.Companion.SWAMPIUM.REPOSITORY.MODIFY)
         repositoryService.repositoriesMap.keys
                 .filter { nameWildcards.any { wildcard -> PatternMatchingUtils.matchWildcard(wildcard, it) } }
