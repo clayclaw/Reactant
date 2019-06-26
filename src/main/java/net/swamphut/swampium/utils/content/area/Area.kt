@@ -13,9 +13,9 @@ interface Area : Cloneable {
     operator fun contains(entity: Entity) = contains(entity.location)
     operator fun contains(block: Block) = contains(block.location.apply { snapToBlockCenter() })
 
-    operator fun plus(vector: Vector) = clone().move(vector)
+    operator fun plus(vector: Vector): Area = clone().move(vector)
 
-    fun move(vector: Vector)
+    fun move(vector: Vector): Area
 
     fun toWorldArea(world: World) = WorldArea(world, this)
     public override fun clone(): Area
