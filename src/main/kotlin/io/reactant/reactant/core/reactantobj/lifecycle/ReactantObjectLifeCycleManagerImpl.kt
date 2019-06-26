@@ -22,13 +22,13 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
             when (action) {
                 Initialize -> injectableWrapper.runCatching {
                     constructReactantObjectInstance().also {
-                        (it as? LifeCycleHook)?.init()
+                        (it as? LifeCycleHook)?.onEnable()
                         instanceManager.putInstance(it)
                     }
                 }.onFailure { injectableWrapper.catchedThrowable = it; throw it }
-                Save -> (injectableWrapper.getInstance() as? LifeCycleHook)?.save()
+                Save -> (injectableWrapper.getInstance() as? LifeCycleHook)?.onSave()
                 Disable -> {
-                    (injectableWrapper.getInstance() as? LifeCycleHook)?.save()
+                    (injectableWrapper.getInstance() as? LifeCycleHook)?.onSave()
                     instanceManager.destroyInstance(injectableWrapper.getInstance())
                 }
             }
@@ -44,13 +44,13 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
         inspectors.forEach {
             if (isBefore) {
                 when (action) {
-                    Initialize -> it.beforeInit(reactantObjectWrapper)
+                    Initialize -> it.beforeEnable(reactantObjectWrapper)
                     Save -> it.beforeSave(reactantObjectWrapper)
                     Disable -> it.beforeDisable(reactantObjectWrapper)
                 }
             } else {
                 when (action) {
-                    Initialize -> it.afterInit(reactantObjectWrapper)
+                    Initialize -> it.afterEnable(reactantObjectWrapper)
                     Save -> it.afterSave(reactantObjectWrapper)
                     Disable -> it.afterDisable(reactantObjectWrapper)
                 }
@@ -88,5 +88,5 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
     private val inspectors
         get() = dependencyManager.dependencies.mapNotNull { it as? ReactantObjectInjectableWrapper<*> }
                 .filter { it.isInitialized() }
-                .mapNotNull { it.getInstance() as? HookInspector }
+                .mapNotNull { it.getInstance() as? LifeCycleInspector }
 }

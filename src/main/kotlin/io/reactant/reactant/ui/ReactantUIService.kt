@@ -28,7 +28,7 @@ class ReactantUIService(
 
     val pendingDestroy = HashMap<UIView, Disposable>()
 
-    override fun init() {
+    override fun onEnable() {
         register(event) {
 
             InventoryOpenEvent::class.observable(EventPriority.LOWEST)

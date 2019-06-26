@@ -21,7 +21,7 @@ internal class ReactantCommandRegister : LifeCycleHook {
     @Inject
     private lateinit var containerManager: ContainerManager
 
-    override fun init() {
+    override fun onEnable() {
         register(commandService) {
             command(::ReactantCommand) {
                 command(::ReactantObjectCommand) {

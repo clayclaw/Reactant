@@ -19,7 +19,7 @@ internal class RepositoryCommandRegister(
         private val repositoryRetrieverService: MavenRepositoryRetrieverService,
         @Inject(configDirPath + "/repository.json") private val repositoryConfig: Config<RepositoryConfig>
 ) : LifeCycleHook {
-    override fun init() {
+    override fun onEnable() {
         register(commandService) {
             command(::RepositoryCommand) {
                 command({ RepositoryListSubCommand(repositoryService) })

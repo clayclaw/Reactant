@@ -28,7 +28,7 @@ class ExampleService(
 ) : LifeCycleHook {
     private val logger = Logger.getLogger(this.javaClass.name)
 
-    override fun init() {
+    override fun onEnable() {
         val testers = testersConfig.content.testers
         testers.map {
             """

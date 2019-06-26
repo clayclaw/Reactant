@@ -10,7 +10,7 @@ import java.util.logging.Logger
 class ReactantHelloService : LifeCycleHook, HelloService {
     private val logger = Logger.getLogger(this.javaClass.name)
 
-    override fun init() {}
+    override fun onEnable() {}
 
 
     override fun sayHello(toWho: String) {

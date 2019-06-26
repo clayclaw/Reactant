@@ -17,7 +17,7 @@ class ReactantUIEventDistributor(
         val reactantUIService: ReactantUIService,
         val eventService: EventService
 ) : LifeCycleHook {
-    override fun init() {
+    override fun onEnable() {
         register(eventService) {
             InventoryClickEvent::class.observable()
                     .filter { it.whoClicked is Player }

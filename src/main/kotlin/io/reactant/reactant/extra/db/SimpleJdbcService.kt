@@ -69,11 +69,11 @@ class SimpleJdbcService : LifeCycleHook, JdbcService {
                 .doAfterTerminate { }
     }
 
-    override fun init() {
+    override fun onEnable() {
         Class.forName("org.mariadb.jdbc.Driver")
     }
 
-    override fun disable() {
+    override fun onDisable() {
         connectionsMap.values.filter { !it.isClosed }.forEach { it.close() }
     }
 

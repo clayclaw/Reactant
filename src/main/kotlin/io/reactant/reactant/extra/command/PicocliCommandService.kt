@@ -3,8 +3,8 @@ package io.reactant.reactant.extra.command
 import io.reactant.reactant.core.ReactantCore
 import io.reactant.reactant.core.dependency.injection.producer.ReactantObjectInjectableWrapper
 import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.HookInspector
 import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleInspector
 import io.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import io.reactant.reactant.service.spec.dsl.Registrable
 import org.bukkit.Bukkit
@@ -14,12 +14,12 @@ import picocli.CommandLine.Model
 import java.util.logging.Level
 
 @Reactant
-class PicocliCommandService : LifeCycleHook, HookInspector, Registrable<PicocliCommandService.CommandRegistering> {
+class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<PicocliCommandService.CommandRegistering> {
     private val commandTreeMap = HashMap<String, CommandTree>()
 
     private val registerCommandNameMap = HashMap<Any, HashSet<String>>()
     private lateinit var bukkitCommandMap: SimpleCommandMap
-    override fun init() {
+    override fun onEnable() {
         Bukkit.getServer()::class.java.getDeclaredField("commandMap").apply {
             isAccessible = true
             bukkitCommandMap = get(Bukkit.getServer()) as SimpleCommandMap

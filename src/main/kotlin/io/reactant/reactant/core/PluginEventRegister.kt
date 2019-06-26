@@ -12,7 +12,7 @@ class PluginEventRegister : LifeCycleHook {
     @Inject
     private lateinit var eventService: EventService
 
-    override fun init() {
+    override fun onEnable() {
         register(eventService) {
             PluginDisableEvent::class{ map { it.plugin }.subscribe(ReactantCore.instance::onPluginDisable) }
         }

@@ -19,7 +19,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
     private val eventPrioritySubjectMap = HashMap<Class<out Event>, HashMap<EventPriority, PublishSubject<Event>>>();
     private val listeners: HashSet<RegisteredListener> = hashSetOf()
 
-    override fun init() {
+    override fun onEnable() {
         EventPriority.values().forEach { priority ->
             val listener = RegisteredListener(this, { _, event -> onEvent(event, priority) },
                     priority, ReactantCore.instance, false);
@@ -28,7 +28,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
-    override fun disable() {
+    override fun onDisable() {
         HandlerList.unregisterAll(this)
         eventPrioritySubjectMap.flatMap { it.value.map { it.value } }.map { it.onComplete() }
     }

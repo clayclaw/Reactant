@@ -3,14 +3,14 @@ package io.reactant.reactant.core.reactantobj.lifecycle
 
 interface LifeCycleHook {
     @JvmDefault
-    fun init() {
+    fun onEnable() {
     }
 
     @JvmDefault
-    fun disable() {
+    fun onDisable() {
     }
 
     @JvmDefault
-    fun save() {
+    fun onSave() {
     }
 }
