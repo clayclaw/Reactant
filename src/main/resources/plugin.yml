@@ -1,4 +1,4 @@
-name: Swampium
-main: net.swamphut.swampium.core.Swampium
-version: 0.0.7
+name: Reactant
+main: io.reactant.reactant.core.ReactantCore
+version: 0.1.0
 api-version: "1.14"

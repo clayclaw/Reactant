@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-group = "net.swamphut"
-version = "0.0.7"
+group = "io.reactant"
+version = "0.1.0"
 
 val kotlinVersion = "1.3.31"
 
@@ -29,7 +29,7 @@ repositories {
     mavenCentral()
     maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
-    maven { url = URI.create("https://dl.bintray.com/setako/swamphut") }
+    maven { url = URI.create("https://dl.bintray.com/reactant/reactant") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
 }
 
@@ -75,8 +75,8 @@ val sourcesJar by tasks.registering(Jar::class) {
 }
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
-    relocate("org.bstats", "net.swamphut.swampium.core")
-    relocate("okhttp3", "net.swamphut.swampium.okhttp3")
+    relocate("org.bstats", "io.reactant.reactant.core")
+    relocate("okhttp3", "io.reactant.reactant.okhttp3")
 }
 
 val deployPlugin by tasks.registering(Copy::class) {
@@ -116,9 +116,9 @@ bintray {
     publish = true
     override = true
     pkg.apply {
-        repo = "swamphut"
+        repo = "reactant"
         name = project.name
         setLicenses("GPL-3.0")
-        vcsUrl = "https://github.com/SwampHut/Swampium.git"
+        vcsUrl = "https://gitlab.com/reactant/reactant"
     }
 }

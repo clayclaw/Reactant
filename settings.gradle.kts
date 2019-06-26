@@ -1,1 +1,1 @@
-rootProject.name = "swampium"
+rootProject.name = "reactant"
