@@ -118,6 +118,7 @@ bintray {
     pkg.apply {
         repo = "reactant"
         name = project.name
+        userOrg = "reactant"
         setLicenses("GPL-3.0")
         vcsUrl = "https://gitlab.com/reactant/reactant"
     }
