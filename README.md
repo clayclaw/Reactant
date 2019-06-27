@@ -1,5 +1,5 @@
-# Reactant
-
+![Reactant logo](doc/res/reactant_logo_banner.png)
+#Reactant
 Reactant core is a spigot plugin framework which provide a better way for developing spigot plugins.
 
 ## Build
