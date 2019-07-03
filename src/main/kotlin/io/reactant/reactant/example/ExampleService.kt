@@ -1,8 +1,8 @@
 package io.reactant.reactant.example
 
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.core.dependency.injection.Inject
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.config.Config
 import io.reactant.reactant.service.spec.dsl.register
 import io.reactant.reactant.service.spec.server.EventService
@@ -19,7 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import java.util.logging.Level
 import java.util.logging.Logger
 
-@Reactant
+@Component
 class ExampleService(
         private val helloService: io.reactant.reactant.example.HelloService,
         @Inject("plugins/ReactantExample/testers.json") private val testersConfig: Config<io.reactant.reactant.example.TesterList>,

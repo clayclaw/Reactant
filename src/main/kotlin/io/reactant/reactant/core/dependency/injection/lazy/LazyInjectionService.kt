@@ -1,19 +1,19 @@
 package io.reactant.reactant.core.dependency.injection.lazy
 
-import io.reactant.reactant.core.dependency.DependencyManager
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.dependency.ProviderManager
 import io.reactant.reactant.core.dependency.injection.Inject
 import io.reactant.reactant.core.dependency.injection.Provide
-import io.reactant.reactant.core.dependency.injection.producer.InjectableWrapper
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.dependency.injection.producer.Provider
 import kotlin.reflect.KType
 
-@Reactant
+@Component
 class LazyInjectionService {
     @Inject
-    private lateinit var dependencyManager: DependencyManager
+    private lateinit var providerManager: ProviderManager
 
     @Provide(ignoreGenerics = true)
-    private fun lazyInjection(ktype: KType, name: String, requester: InjectableWrapper): LazyInjection<Any> {
-        return LazyInjectionImplement(dependencyManager, ktype.arguments.first().type!!, name, requester)
+    private fun lazyInjection(ktype: KType, name: String, requester: Provider): LazyInjection<Any> {
+        return LazyInjectionImplement(providerManager, ktype.arguments.first().type!!, name, requester)
     }
 }

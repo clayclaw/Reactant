@@ -1,8 +1,8 @@
 package io.reactant.reactant.extra.db
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.db.JdbcService
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -13,7 +13,7 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-@Reactant
+@Component
 class SimpleJdbcService : LifeCycleHook, JdbcService {
 
     private val connectionsMap = HashMap<ConnectionInfo, Connection>();

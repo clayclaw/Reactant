@@ -1,25 +1,25 @@
 package io.reactant.reactant.core.dependency
 
-import io.reactant.reactant.core.dependency.injection.producer.InjectableWrapper
+import io.reactant.reactant.core.dependency.injection.producer.Provider
 import io.reactant.reactant.core.exception.CyclicDependencyRelationException
 
-private typealias Dependency = InjectableWrapper
+private typealias Dependency = Provider
 
 /**
- * The dependencies loading order resolver
+ * The providers loading order resolver
  */
-class DependencyRelationManager {
-    private val nodes = HashMap<Dependency, DependencyRelationManager.Node>()
+class ProviderRelationManager {
+    private val nodes = HashMap<Dependency, Node>()
 
     inner class Node(val dependency: Dependency) {
-        val requiredBy: HashSet<DependencyRelationManager.Node> = HashSet();
-        val required: HashSet<DependencyRelationManager.Node> = HashSet();
+        val requiredBy: HashSet<Node> = HashSet();
+        val required: HashSet<Node> = HashSet();
 
         val isCyclic: Boolean get() = kotlin.runCatching { roots }.isFailure
 
-        val roots: Set<DependencyRelationManager.Node> get() = findRoot(setOf())
+        val roots: Set<Node> get() = findRoot(setOf())
 
-        private fun findRoot(walkedNodes: Set<DependencyRelationManager.Node>): Set<DependencyRelationManager.Node> {
+        private fun findRoot(walkedNodes: Set<Node>): Set<Node> {
             val walkedBefore = walkedNodes.indexOf(this);
             if (walkedBefore != -1)
                 throw CyclicDependencyRelationException(walkedNodes.drop(walkedBefore).map { it.dependency })
@@ -46,7 +46,7 @@ class DependencyRelationManager {
     }
 
     /**
-     * Get all dependencies which requiring it
+     * Get all providers which requiring it
      */
     fun getDependencyChildrenRecursively(dependency: Dependency): Set<Dependency> = nodes[dependency]?.requiredBy
             ?.flatMap { setOf(it.dependency).union(getDependencyChildrenRecursively(it.dependency)) }
@@ -57,7 +57,7 @@ class DependencyRelationManager {
         fun getDependencyDepth(dependency: Dependency): Int {
             return (depth[dependency] // if cache exist
                     ?: nodes[dependency]!!.required.map { getDependencyDepth(it.dependency) + 1 }.max() // from max depth + 1
-                    ?: 0) // 0 if no required dependencies
+                    ?: 0) // 0 if no required providers
         }
         nodes.keys.forEach {
             depth.set(it, getDependencyDepth(it))

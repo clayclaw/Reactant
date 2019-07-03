@@ -13,16 +13,16 @@ import kotlin.reflect.jvm.jvmErasure
 /**
  * A injectable which is provided by a class function/getter
  */
-class ProvideInjectableWrapper<T : Any, R : Any>(
-        val providedInWrapper: ReactantObjectInjectableWrapper<T>,
+class DynamicProvider<T : Any, R : Any>(
+        val providedInWrapper: ComponentProvider<T>,
         val callableFactory: KCallable<R>,
         override val ignoreGenerics: Boolean = false
-) : InjectableWrapper {
+) : Provider {
     override val disabledReason: Throwable? = null
     override val productType get() = this.callableFactory.returnType
     override val namePattern get() = Provide.fromElement(callableFactory).namePattern
 
-    override val producer: (requestedType: KType, requestedName: String, requester: InjectableWrapper) -> Any = { requestedType, requestedName, requester ->
+    override val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any = { requestedType, requestedName, requester ->
         val provider = providedInWrapper.getInstance()
         val puttingArgs = arrayListOf(provider, requestedType, requestedName, requester)
         if (callableFactory.parameters.size > puttingArgs.size)
@@ -37,16 +37,16 @@ class ProvideInjectableWrapper<T : Any, R : Any>(
     }
 
     companion object {
-        fun <T : Any, R : Any> fromCallable(providedInWrapper: ReactantObjectInjectableWrapper<T>,
+        fun <T : Any, R : Any> fromCallable(providedInWrapper: ComponentProvider<T>,
                                             callable: KCallable<R>) =
-                ProvideInjectableWrapper(providedInWrapper, callable,
+                DynamicProvider(providedInWrapper, callable,
                         callable.findAnnotation<Provide>()?.ignoreGenerics
                                 ?: false)
 
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> findAllFromReactantObjectInjectableWrapper(injectableWrapper: ReactantObjectInjectableWrapper<T>) =
-                (FieldsFinder.getAllDeclaredFunctionRecursively(injectableWrapper.reactantObjectClass))
+        fun <T : Any> findAllFromComponentInjectableWrapper(injectableWrapper: ComponentProvider<T>) =
+                (FieldsFinder.getAllDeclaredFunctionRecursively(injectableWrapper.componentClass))
                         .filter { func -> func.annotations.any { it is Provide } }
-                        .map { ProvideInjectableWrapper.fromCallable(injectableWrapper, it as KCallable<Any>) }
+                        .map { DynamicProvider.fromCallable(injectableWrapper, it as KCallable<Any>) }
     }
 }

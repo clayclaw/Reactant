@@ -1,6 +1,5 @@
 package io.reactant.reactant.extra.command
 
-import io.reactant.reactant.core.commands.reactantobj.ReactantCommandHelpTopic
 import io.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import io.reactant.reactant.extra.command.io.StdOut
 import org.bukkit.command.CommandSender

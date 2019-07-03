@@ -1,12 +1,12 @@
 package io.reactant.reactant.extra.parser
 
 import com.google.gson.GsonBuilder
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.parser.JsonParserService
 import io.reactivex.Single
 import kotlin.reflect.KClass
 
-@Reactant
+@Component
 class GsonJsonParserService : JsonParserService {
     private val gson = GsonBuilder().setPrettyPrinting().create()!!
 

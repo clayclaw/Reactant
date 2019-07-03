@@ -1,7 +1,7 @@
 package io.reactant.reactant.extra.server
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.server.SchedulerService
 import io.reactivex.Completable
 import io.reactivex.Completable.defer
@@ -10,7 +10,7 @@ import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 
 
-@Reactant
+@Component
 class ReactantSchedulerService : Listener, SchedulerService {
 
     override fun next(): Completable = defer {

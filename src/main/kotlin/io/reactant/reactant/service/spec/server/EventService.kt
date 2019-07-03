@@ -7,10 +7,10 @@ import org.bukkit.event.EventPriority
 import kotlin.reflect.KClass
 
 interface EventService : Registrable<EventService.Registering> {
-    fun <T : Event> on(registerReactantObject: Any, eventClass: KClass<T>,
+    fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
                        eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
 
-    class Registering(val eventService: EventService, val registerReactantObject: Any) {
+    class Registering(val eventService: EventService, val componentRegistrant: Any) {
         @Deprecated("confusing name", ReplaceWith("observable()"))
         inline fun <reified T : Event> KClass<T>.listen() = observable()
 
@@ -18,7 +18,7 @@ interface EventService : Registrable<EventService.Registering> {
         inline infix fun <reified T : Event> KClass<T>.listen(eventPriority: EventPriority) = observable(eventPriority)
 
         inline fun <reified T : Event> KClass<T>.observable(eventPriority: EventPriority = EventPriority.NORMAL) =
-                eventService.on(registerReactantObject, this, eventPriority)
+                eventService.on(componentRegistrant, this, eventPriority)
 
 
         // Block registering style
@@ -27,7 +27,7 @@ interface EventService : Registrable<EventService.Registering> {
                                                 var eventPriority: EventPriority?,
                                                 val consumer: (Observable<T>.() -> Unit)?) {
             fun execute() {
-                eventService.on(registerReactantObject, eventClass!!, eventPriority!!).apply(consumer!!)
+                eventService.on(componentRegistrant, eventClass!!, eventPriority!!).apply(consumer!!)
             }
         }
 
@@ -43,8 +43,8 @@ interface EventService : Registrable<EventService.Registering> {
                 EventRegistering(null, this, func)
     }
 
-    override fun registerBy(registerReactantObject: Any, registering: Registering.() -> Unit) {
-        Registering(this, registerReactantObject).apply(registering)
+    override fun registerBy(componentRegistrant: Any, registering: Registering.() -> Unit) {
+        Registering(this, componentRegistrant).apply(registering)
     }
 
 }

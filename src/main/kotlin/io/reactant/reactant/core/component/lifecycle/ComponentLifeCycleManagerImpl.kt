@@ -1,27 +1,27 @@
-package io.reactant.reactant.core.reactantobj.lifecycle
+package io.reactant.reactant.core.component.lifecycle
 
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.dependency.DependencyManager
-import io.reactant.reactant.core.dependency.DependencyRelationManager
-import io.reactant.reactant.core.dependency.injection.producer.ReactantObjectInjectableWrapper
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleControlAction.*
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleControlAction.*
+import io.reactant.reactant.core.dependency.ProviderManager
+import io.reactant.reactant.core.dependency.ProviderRelationManager
+import io.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import kotlin.reflect.jvm.jvmName
 
-@Reactant
-class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
+@Component
+class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
     private val instanceManager = ReactantCore.instance.reactantInstanceManager
-    private val relationManager = instanceManager.getOrConstructWithoutInjection(DependencyRelationManager::class)
-    private val dependencyManager = instanceManager.getOrConstructWithoutInjection(DependencyManager::class)
+    private val relationManager = instanceManager.getOrConstructWithoutInjection(ProviderRelationManager::class)
+    private val dependencyManager = instanceManager.getOrConstructWithoutInjection(ProviderManager::class)
 
-    override fun invokeAction(injectableWrapper: ReactantObjectInjectableWrapper<Any>, action: LifeCycleControlAction): Boolean {
+    override fun invokeAction(injectableWrapper: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean {
         if (!checkState(injectableWrapper, action)) throw IllegalStateException();
         try {
             triggerInspectors(true, action, injectableWrapper);
             when (action) {
                 Initialize -> injectableWrapper.runCatching {
-                    constructReactantObjectInstance().also {
+                    constructComponentInstance().also {
                         (it as? LifeCycleHook)?.onEnable()
                         instanceManager.putInstance(it)
                     }
@@ -34,31 +34,31 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
             }
             triggerInspectors(false, action, injectableWrapper);
         } catch (e: Throwable) {
-            ReactantCore.logger.error("${injectableWrapper.reactantObjectClass.jvmName} cannot be initialized", e)
+            ReactantCore.logger.error("${injectableWrapper.componentClass.jvmName} cannot be initialized", e)
             return false;
         }
         return true;
     }
 
-    private fun triggerInspectors(isBefore: Boolean, action: LifeCycleControlAction, reactantObjectWrapper: ReactantObjectInjectableWrapper<Any>) {
+    private fun triggerInspectors(isBefore: Boolean, action: LifeCycleControlAction, componentWrapper: ComponentProvider<Any>) {
         inspectors.forEach {
             if (isBefore) {
                 when (action) {
-                    Initialize -> it.beforeEnable(reactantObjectWrapper)
-                    Save -> it.beforeSave(reactantObjectWrapper)
-                    Disable -> it.beforeDisable(reactantObjectWrapper)
+                    Initialize -> it.beforeEnable(componentWrapper)
+                    Save -> it.beforeSave(componentWrapper)
+                    Disable -> it.beforeDisable(componentWrapper)
                 }
             } else {
                 when (action) {
-                    Initialize -> it.afterEnable(reactantObjectWrapper)
-                    Save -> it.afterSave(reactantObjectWrapper)
-                    Disable -> it.afterDisable(reactantObjectWrapper)
+                    Initialize -> it.afterEnable(componentWrapper)
+                    Save -> it.afterSave(componentWrapper)
+                    Disable -> it.afterDisable(componentWrapper)
                 }
             }
         }
     }
 
-    private fun checkState(injectable: ReactantObjectInjectableWrapper<Any>, action: LifeCycleControlAction): Boolean {
+    private fun checkState(injectable: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean {
         return when (action) {
             Initialize -> !injectable.isInitialized()
             Save, Disable -> injectable.isInitialized()
@@ -66,7 +66,7 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun invokeAction(injectables: Collection<ReactantObjectInjectableWrapper<Any>>, action: LifeCycleControlAction): Boolean {
+    override fun invokeAction(injectables: Collection<ComponentProvider<Any>>, action: LifeCycleControlAction): Boolean {
         val executingInjectables = when (action) {
             Save, Disable -> injectables.flatMap { setOf(it).union(relationManager.getDependencyChildrenRecursively(it)) }
             else -> injectables
@@ -76,7 +76,7 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
                 .map { it.toPair() }
                 .sortedBy { it.second }
                 .map { it.first }
-                .mapNotNull { it as? ReactantObjectInjectableWrapper<Any> }
+                .mapNotNull { it as? ComponentProvider<Any> }
                 .filter { checkState(it, action) }
         if (action == Disable || action == Save) invokeOrder = invokeOrder.reversed()
 
@@ -86,7 +86,7 @@ class ReactantObjectLifeCycleManagerImpl : ReactantObjectLifeCycleManager {
     }
 
     private val inspectors
-        get() = dependencyManager.dependencies.mapNotNull { it as? ReactantObjectInjectableWrapper<*> }
+        get() = dependencyManager.providers.mapNotNull { it as? ComponentProvider<*> }
                 .filter { it.isInitialized() }
                 .mapNotNull { it.getInstance() as? LifeCycleInspector }
 }

@@ -1,10 +1,10 @@
 package io.reactant.reactant.extra.command
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.dependency.injection.producer.ReactantObjectInjectableWrapper
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleInspector
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.lifecycle.LifeCycleInspector
+import io.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import io.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import io.reactant.reactant.service.spec.dsl.Registrable
 import org.bukkit.Bukkit
@@ -13,7 +13,7 @@ import org.bukkit.command.SimpleCommandMap
 import picocli.CommandLine.Model
 import java.util.logging.Level
 
-@Reactant
+@Component
 class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<PicocliCommandService.CommandRegistering> {
     private val commandTreeMap = HashMap<String, CommandTree>()
 
@@ -26,22 +26,22 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
         }
     }
 
-    override fun beforeDisable(reactantObjectInjectableWrapper: ReactantObjectInjectableWrapper<Any>) {
-        registerCommandNameMap[reactantObjectInjectableWrapper.getInstance()]?.forEach(this::unregisterCommand)
-        registerCommandNameMap.remove(reactantObjectInjectableWrapper.getInstance())
+    override fun beforeDisable(componentProvider: ComponentProvider<Any>) {
+        registerCommandNameMap[componentProvider.getInstance()]?.forEach(this::unregisterCommand)
+        registerCommandNameMap.remove(componentProvider.getInstance())
     }
 
-    fun registerCommand(registerReactantObject: Any, commandRunnableProvider: () -> ReactantCommand): CommandTree {
+    fun registerCommand(componentRegistrant: Any, commandRunnableProvider: () -> ReactantCommand): CommandTree {
         val reactantCommand = commandRunnableProvider();
         val commandSpec = Model.CommandSpec.forAnnotatedObject(reactantCommand)
         var name = commandSpec.name();
-        name = reviseConflictCommand(registerReactantObject, name)
+        name = reviseConflictCommand(componentRegistrant, name)
 
-        registerCommandNameMap.getOrPut(registerReactantObject) { hashSetOf() }.add(name)
+        registerCommandNameMap.getOrPut(componentRegistrant) { hashSetOf() }.add(name)
         commandTreeMap[name] = CommandTree(name, commandRunnableProvider)
         Bukkit.getHelpMap().addTopic(reactantCommand.getHelpTopic())
 
-        bukkitCommandMap.register(registerReactantObject.javaClass.canonicalName, object : org.bukkit.command.Command(
+        bukkitCommandMap.register(componentRegistrant.javaClass.canonicalName, object : org.bukkit.command.Command(
                 name,
                 commandSpec.usageMessage().description().joinToString(" "),
                 commandSpec.usageMessage().customSynopsis().joinToString(""),
@@ -68,14 +68,14 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
     /**
      * Revise the command with "command$number" if it have a same name with other command
      */
-    private fun reviseConflictCommand(registerReactantObject: Any, name: String): String {
+    private fun reviseConflictCommand(componentRegistrant: Any, name: String): String {
         var result = name;
         val existingCommand = bukkitCommandMap.commands.map { it.name }
         if (existingCommand.contains(result)) {
             val revisedNumber = (2..Int.MAX_VALUE).first { !existingCommand.contains("$result$it") }
             result = "$result$revisedNumber"
             ReactantCore.instance.logger.log(Level.WARNING, "Command result conflict: $result " +
-                    "(register by ${registerReactantObject::class.java.canonicalName}), " +
+                    "(register by ${componentRegistrant::class.java.canonicalName}), " +
                     "revised to $result")
         }
         return result;
@@ -101,19 +101,19 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
 
 // DSL
 
-    inner class CommandRegistering(private val registerReactantObject: Any) {
+    inner class CommandRegistering(private val componentRegistrant: Any) {
         fun command(commandProvider: () -> ReactantCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) {
-            val commandTree: CommandTree = registerCommand(registerReactantObject, commandProvider)
-            subRegistering?.let { SubCommandRegistering(registerReactantObject, commandTree, commandProvider).it() }
+            val commandTree: CommandTree = registerCommand(componentRegistrant, commandProvider)
+            subRegistering?.let { SubCommandRegistering(componentRegistrant, commandTree, commandProvider).it() }
         }
     }
 
-    inner class SubCommandRegistering(private val registerReactantObject: Any,
+    inner class SubCommandRegistering(private val componentRegistrant: Any,
                                       private val commandTree: CommandTree,
                                       private val rootCommandProvider: () -> Runnable) {
         fun command(commandProvider: () -> ReactantCommand, subRegistering: (SubCommandRegistering.() -> Unit)? = null) {
             commandTree.addSubcommand(rootCommandProvider, commandProvider)
-            subRegistering?.let { SubCommandRegistering(registerReactantObject, commandTree, commandProvider).it() }
+            subRegistering?.let { SubCommandRegistering(componentRegistrant, commandTree, commandProvider).it() }
         }
 
         @Deprecated("Confusing name", ReplaceWith("command(commandProvider, subRegistering)"))
@@ -121,7 +121,7 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
                 command(commandProvider, subRegistering)
     }
 
-    override fun registerBy(registerReactantObject: Any, registering: CommandRegistering.() -> Unit) {
-        CommandRegistering(registerReactantObject).registering()
+    override fun registerBy(componentRegistrant: Any, registering: CommandRegistering.() -> Unit) {
+        CommandRegistering(componentRegistrant).registering()
     }
 }

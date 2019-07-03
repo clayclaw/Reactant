@@ -8,7 +8,7 @@ import kotlin.reflect.jvm.jvmErasure
 /**
  * The producer info for resolve loading order
  */
-interface InjectableWrapper {
+interface Provider {
     val productType: KType;
     /**
      * Regex pattern to match name
@@ -21,7 +21,7 @@ interface InjectableWrapper {
      */
     val disabledReason: Throwable?;
 
-    val producer: (requestedType: KType, requestedName: String, requester: InjectableWrapper) -> Any
+    val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any
 
     /**
      * Skip generic check when determining can it provide as a type.

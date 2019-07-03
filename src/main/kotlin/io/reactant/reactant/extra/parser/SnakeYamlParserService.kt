@@ -1,6 +1,6 @@
 package io.reactant.reactant.extra.parser
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.parser.YamlParserService
 import io.reactivex.Single
 import org.yaml.snakeyaml.Yaml
@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.nodes.Tag
 import org.yaml.snakeyaml.representer.Representer
 import kotlin.reflect.KClass
 
-@Reactant
+@Component
 class SnakeYamlParserService : YamlParserService {
     private val representer = Representer()
     private val yaml = Yaml(CustomClassLoaderConstructor(this.javaClass.classLoader), representer)

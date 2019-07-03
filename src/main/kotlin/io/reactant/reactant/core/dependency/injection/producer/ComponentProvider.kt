@@ -1,12 +1,12 @@
 package io.reactant.reactant.core.dependency.injection.producer
 
 import io.reactant.reactant.core.ReactantCore
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.instance.ComponentInstanceManager
 import io.reactant.reactant.core.dependency.injection.Inject
 import io.reactant.reactant.core.dependency.injection.InjectRequirement
 import io.reactant.reactant.core.exception.InjectRequirementNotFulfilledException
 import io.reactant.reactant.core.exception.RequiredInjectableCannotBeActiveException
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.instance.ReactantObjectInstanceManager
 import io.reactant.reactant.utils.reflections.FieldsFinder
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -17,13 +17,13 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
 /**
- * ProducerWrapper of ReactantObject class constructor
+ * ProducerWrapper of Component class constructor
  */
-class ReactantObjectInjectableWrapper<T : Any>(
-        val reactantObjectClass: KClass<T>,
+class ComponentProvider<T : Any>(
+        val componentClass: KClass<T>,
         override val namePattern: String,
-        private val reactantObjectInstanceManager: ReactantObjectInstanceManager
-) : InjectableWrapper {
+        private val componentInstanceManager: ComponentInstanceManager
+) : Provider {
     var catchedThrowable: Throwable? = null
     override val disabledReason: Throwable?
         get() = when {
@@ -31,30 +31,30 @@ class ReactantObjectInjectableWrapper<T : Any>(
             else -> catchedThrowable
         }
 
-    override val producer: (requestedType: KType, requestedName: String, requester: InjectableWrapper) -> Any = { _, _, _ -> getInstance() }
+    override val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any = { _, _, _ -> getInstance() }
 
-    fun getInstance() = reactantObjectInstanceManager.getInstance(reactantObjectClass)
-            ?: throw IllegalStateException("${reactantObjectClass.qualifiedName} not yet initialized")
+    fun getInstance() = componentInstanceManager.getInstance(componentClass)
+            ?: throw IllegalStateException("${componentClass.qualifiedName} not yet initialized")
 
-    fun isInitialized() = reactantObjectInstanceManager.getInstance(reactantObjectClass) != null
+    fun isInitialized() = componentInstanceManager.getInstance(componentClass) != null
 
-    val resolvedRequirements = HashMap<InjectRequirement, InjectableWrapper>()
+    val resolvedRequirements = HashMap<InjectRequirement, Provider>()
 
 
     /**
      * The required injectable of the constructor parameters
      */
-    private val constructorInjectRequirements = reactantObjectClass.constructors.first().parameters
+    private val constructorInjectRequirements = componentClass.constructors.first().parameters
             .map(InjectRequirement.Companion::fromParameter)
 
     /**
      * The required injectable of the properties
      */
     @Suppress("UNCHECKED_CAST")
-    private val propertiesInjectRequirements = FieldsFinder.getAllDeclaredPropertyRecursively(reactantObjectClass)
+    private val propertiesInjectRequirements = FieldsFinder.getAllDeclaredPropertyRecursively(componentClass)
             .asSequence()
             // filter out constructor declared properties
-            .filter { property -> !reactantObjectClass.constructors.first().parameters.any { it.name == property.name } }
+            .filter { property -> !componentClass.constructors.first().parameters.any { it.name == property.name } }
             .filter { it.javaField?.isAnnotationPresent(Inject::class.java) ?: false }
             .onEach { if (it !is KMutableProperty<*>) ReactantCore.logger.error("$productType::${it.name} is annotated with @Inject but is not mutable") }
             .mapNotNull { it as? KMutableProperty1<T, Any> }
@@ -69,25 +69,25 @@ class ReactantObjectInjectableWrapper<T : Any>(
 
     override val productType: KType
         get() {
-            return reactantObjectClass.createType()
+            return componentClass.createType()
         }
 
     /**
-     * Construct the ReactantObject instance
+     * Construct the Component instance
      * @throws RequiredInjectableCannotBeActiveException
      */
-    fun constructReactantObjectInstance(): T {
+    fun constructComponentInstance(): T {
         // Check fulfilled
         if (notFulfilledRequirements.isNotEmpty())
-            throw IllegalStateException("ReactantObject inject requirements not fulfilled")
+            throw IllegalStateException("Component inject requirements not fulfilled")
 
         val requiredInjectables = resolvedRequirements.runCatching {
-            map { it.key to it.value.producer(it.key.requiredType, it.key.name, this@ReactantObjectInjectableWrapper) }
+            map { it.key to it.value.producer(it.key.requiredType, it.key.name, this@ComponentProvider) }
                     .toMap()
         }.getOrElse { throw RequiredInjectableCannotBeActiveException(this, it).also { e -> catchedThrowable = e } }
 
 
-        val instance: T = reactantObjectClass.constructors.first().runCatching {
+        val instance: T = componentClass.constructors.first().runCatching {
             isAccessible = true
             call(*constructorInjectRequirements.map { requiredInjectables[it] }.toTypedArray())
         }.getOrElse { throw RequiredInjectableCannotBeActiveException(this, it).also { e -> catchedThrowable = e } }
@@ -97,7 +97,7 @@ class ReactantObjectInjectableWrapper<T : Any>(
             it.key.set(instance, requiredInjectables[it.value] ?: error(""))
         }
 
-        reactantObjectInstanceManager.putInstance(instance)
+        componentInstanceManager.putInstance(instance)
         return instance
     }
 
@@ -111,8 +111,8 @@ class ReactantObjectInjectableWrapper<T : Any>(
     val fulfilled get() = notFulfilledRequirements.isEmpty()
 
     companion object {
-        fun <T : Any> fromReactantObjectClass(reactantObjectClass: KClass<T>, instanceManager: ReactantObjectInstanceManager) =
-                ReactantObjectInjectableWrapper(reactantObjectClass,
-                        Reactant.fromElement(reactantObjectClass).name, instanceManager)
+        fun <T : Any> fromComponentClass(componentClass: KClass<T>, instanceManager: ComponentInstanceManager) =
+                ComponentProvider(componentClass,
+                        Component.fromElement(componentClass).name, instanceManager)
     }
 }

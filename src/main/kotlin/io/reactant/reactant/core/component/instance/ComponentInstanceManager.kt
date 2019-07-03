@@ -1,13 +1,13 @@
-package io.reactant.reactant.core.reactantobj.instance
+package io.reactant.reactant.core.component.instance
 
 import kotlin.reflect.KClass
 
-interface ReactantObjectInstanceManager {
+interface ComponentInstanceManager {
     /**
      * Get existing reactantobj instance
      * Return null if not yet created
      */
-    fun <T : Any> getInstance(reactantObjectClass: KClass<T>): T?
+    fun <T : Any> getInstance(componentClass: KClass<T>): T?
 
     fun putInstance(instance: Any)
 

@@ -1,6 +1,6 @@
-package io.reactant.reactant.core.reactantobj.container
+package io.reactant.reactant.core.component.container
 
-import io.reactant.reactant.core.dependency.injection.producer.InjectableWrapper
+import io.reactant.reactant.core.dependency.injection.producer.Provider
 
 interface ContainerManager {
     val containers: Collection<Container>
@@ -13,5 +13,5 @@ interface ContainerManager {
     fun addContainer(container: Container)
 
     fun removeContainer(container: Container)
-    fun getContainerProvidedInjectableWrapper(container: Container): Set<InjectableWrapper>
+    fun getContainerProvidedInjectableWrapper(container: Container): Set<Provider>
 }

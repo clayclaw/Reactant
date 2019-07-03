@@ -1,8 +1,8 @@
 package io.reactant.reactant.ui.event
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.dsl.register
 import io.reactant.reactant.service.spec.server.EventService
 import io.reactant.reactant.ui.ReactantUIService
@@ -12,7 +12,7 @@ import io.reactant.reactant.ui.event.inventory.UICloseEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.*
 
-@Reactant
+@Component
 class ReactantUIEventDistributor(
         val reactantUIService: ReactantUIService,
         val eventService: EventService

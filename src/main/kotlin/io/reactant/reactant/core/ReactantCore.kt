@@ -1,16 +1,16 @@
 package io.reactant.reactant.core
 
-import io.reactant.reactant.core.dependency.DependencyManager
-import io.reactant.reactant.core.dependency.injection.producer.ReactantObjectInjectableWrapper
-import io.reactant.reactant.core.reactantobj.BukkitPluginContainerLoader.findAllLoadedPluginContainer
-import io.reactant.reactant.core.reactantobj.container.BukkitPluginContainer
-import io.reactant.reactant.core.reactantobj.container.ContainerManager
-import io.reactant.reactant.core.reactantobj.container.ReactantContainerManager
-import io.reactant.reactant.core.reactantobj.instance.ReactantInstanceManager
-import io.reactant.reactant.core.reactantobj.instance.ReactantObjectInstanceManager
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleControlAction
-import io.reactant.reactant.core.reactantobj.lifecycle.ReactantObjectLifeCycleManager
-import io.reactant.reactant.core.reactantobj.lifecycle.ReactantObjectLifeCycleManagerImpl
+import io.reactant.reactant.core.component.BukkitPluginContainerLoader.findAllLoadedPluginContainer
+import io.reactant.reactant.core.component.container.BukkitPluginContainer
+import io.reactant.reactant.core.component.container.ContainerManager
+import io.reactant.reactant.core.component.container.ReactantContainerManager
+import io.reactant.reactant.core.component.instance.ComponentInstanceManager
+import io.reactant.reactant.core.component.instance.ReactantInstanceManager
+import io.reactant.reactant.core.component.lifecycle.ComponentLifeCycleManager
+import io.reactant.reactant.core.component.lifecycle.ComponentLifeCycleManagerImpl
+import io.reactant.reactant.core.component.lifecycle.LifeCycleControlAction
+import io.reactant.reactant.core.dependency.ProviderManager
+import io.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.apache.logging.log4j.LogManager
@@ -23,17 +23,17 @@ import kotlin.reflect.jvm.jvmName
 
 @ReactantPlugin(servicePackages = ["io.reactant.reactant"])
 class ReactantCore : JavaPlugin() {
-    val instanceManager: ReactantObjectInstanceManager = ReactantInstanceManager()
+    val instanceManager: ComponentInstanceManager = ReactantInstanceManager()
     internal val reactantInstanceManager: ReactantInstanceManager get() = instanceManager as ReactantInstanceManager
-    private val reactantObjectLifeCycleManager: ReactantObjectLifeCycleManager
+    private val componentLifeCycleManager: ComponentLifeCycleManager
     private val containerManager: ContainerManager
-    private val dependencyManager: DependencyManager
+    private val providerManager: ProviderManager
 
     init {
         instance = this
-        reactantObjectLifeCycleManager = reactantInstanceManager.getOrConstructWithoutInjection(ReactantObjectLifeCycleManagerImpl::class)
+        componentLifeCycleManager = reactantInstanceManager.getOrConstructWithoutInjection(ComponentLifeCycleManagerImpl::class)
         containerManager = reactantInstanceManager.getOrConstructWithoutInjection(ReactantContainerManager::class)
-        dependencyManager = reactantInstanceManager.getOrConstructWithoutInjection(DependencyManager::class)
+        providerManager = reactantInstanceManager.getOrConstructWithoutInjection(ProviderManager::class)
     }
 
     override fun onEnable() {
@@ -52,10 +52,10 @@ class ReactantCore : JavaPlugin() {
         val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(plugin))
         if (container != null) {
             containerManager.getContainerProvidedInjectableWrapper(container)
-                    .mapNotNull { it as? ReactantObjectInjectableWrapper<Any> }
+                    .mapNotNull { it as? ComponentProvider<Any> }
                     .let {
-                        reactantObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
-                        reactantObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
+                        componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
+                        componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
                     }
         }
     }
@@ -66,15 +66,15 @@ class ReactantCore : JavaPlugin() {
         findAllLoadedPluginContainer()
 
 
-        ReactantCore.logger.info("Resolving service dependencies")
-        dependencyManager.decideRelation()
+        ReactantCore.logger.info("Resolving service providers")
+        providerManager.decideRelation()
 
         ReactantCore.logger.info("Initializing services")
         @Suppress("UNCHECKED_CAST")
-        reactantObjectLifeCycleManager.invokeAction(
-                dependencyManager.dependencies
-                        .mapNotNull { it as? ReactantObjectInjectableWrapper<Any> }
-                        .onEach { if (!it.fulfilled) ReactantCore.logger.error("${it.reactantObjectClass.jvmName} missing dependencies: ${it.notFulfilledRequirements}") }
+        componentLifeCycleManager.invokeAction(
+                providerManager.providers
+                        .mapNotNull { it as? ComponentProvider<Any> }
+                        .onEach { if (!it.fulfilled) ReactantCore.logger.error("${it.componentClass.jvmName} missing providers: ${it.notFulfilledRequirements}") }
                         .filter { it.fulfilled },
                 LifeCycleControlAction.Initialize)
 
@@ -85,9 +85,9 @@ class ReactantCore : JavaPlugin() {
     @Suppress("UNCHECKED_CAST")
     override fun onDisable() {
         ReactantCore.logger.info("Disabling services")
-        dependencyManager.dependencies.mapNotNull { it as? ReactantObjectInjectableWrapper<Any> }.also {
-            reactantObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
-            reactantObjectLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
+        providerManager.providers.mapNotNull { it as? ComponentProvider<Any> }.also {
+            componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
+            componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
         }
     }
 

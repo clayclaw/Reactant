@@ -1,7 +1,7 @@
 package io.reactant.reactant.extra.config
 
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.core.dependency.injection.Provide
-import io.reactant.reactant.core.reactantobj.container.Reactant
 import io.reactant.reactant.service.spec.config.Config
 import io.reactant.reactant.service.spec.config.ConfigService
 import io.reactant.reactant.service.spec.parser.JsonParserService
@@ -13,7 +13,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.jvm.jvmErasure
 import kotlin.reflect.jvm.jvmName
 
-@Reactant
+@Component
 private class InjectableConfigProviderService(
         private val jsonParserService: JsonParserService,
         private val yamlParserService: YamlParserService,

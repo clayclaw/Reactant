@@ -1,8 +1,8 @@
 package io.reactant.reactant.extra.server
 
 import io.reactant.reactant.core.ReactantCore
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.server.EventService
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -14,7 +14,7 @@ import org.bukkit.plugin.RegisteredListener
 import kotlin.reflect.KClass
 
 
-@Reactant
+@Component
 class ReactantEventService : LifeCycleHook, Listener, EventService {
     private val eventPrioritySubjectMap = HashMap<Class<out Event>, HashMap<EventPriority, PublishSubject<Event>>>();
     private val listeners: HashSet<RegisteredListener> = hashSetOf()
@@ -42,7 +42,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
-    override fun <T : Event> on(registerReactantObject: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
+    override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
         @Suppress("UNCHECKED_CAST")
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass.java, { HashMap() })

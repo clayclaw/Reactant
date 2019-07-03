@@ -1,6 +1,6 @@
 package io.reactant.reactant.extra.config
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.config.Config
 import io.reactant.reactant.service.spec.config.ConfigService
 import io.reactant.reactant.service.spec.file.text.TextFileReaderService
@@ -11,7 +11,7 @@ import io.reactivex.Single
 import java.io.File
 import kotlin.reflect.KClass
 
-@Reactant
+@Component
 class ReactantConfigService(
         private val fileReader: TextFileReaderService,
         private val fileWriter: TextFileWriterService

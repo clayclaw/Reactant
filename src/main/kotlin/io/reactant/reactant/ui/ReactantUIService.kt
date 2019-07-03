@@ -1,7 +1,7 @@
 package io.reactant.reactant.ui
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.dsl.register
 import io.reactant.reactant.service.spec.server.EventService
 import io.reactant.reactant.service.spec.server.SchedulerService
@@ -16,7 +16,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.inventory.Inventory
 
-@Reactant
+@Component
 class ReactantUIService(
         val event: EventService,
         val schedulerService: SchedulerService

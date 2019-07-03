@@ -1,13 +1,13 @@
 package io.reactant.reactant.extra.file
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.file.text.TextFileWriterService
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import java.io.File
 import java.io.FileWriter
 
-@Reactant
+@Component
 class ReactantTextFileWriterService : TextFileWriterService {
     override fun append(file: File, string: String): Completable {
         return write(file, string, true)

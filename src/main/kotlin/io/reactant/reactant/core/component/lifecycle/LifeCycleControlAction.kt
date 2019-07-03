@@ -1,4 +1,4 @@
-package io.reactant.reactant.core.reactantobj.lifecycle
+package io.reactant.reactant.core.component.lifecycle
 
 enum class LifeCycleControlAction {
     Initialize,

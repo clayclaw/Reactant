@@ -1,9 +1,9 @@
 package io.reactant.reactant.repository.commands.repository
 
 import io.reactant.reactant.core.ReactantCore.Companion.configDirPath
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.core.dependency.injection.Inject
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
 import io.reactant.reactant.extra.command.PicocliCommandService
 import io.reactant.reactant.repository.MavenRepositoryRetrieverService
 import io.reactant.reactant.repository.RepositoryService
@@ -12,7 +12,7 @@ import io.reactant.reactant.repository.config.RepositoryConfig
 import io.reactant.reactant.service.spec.config.Config
 import io.reactant.reactant.service.spec.dsl.register
 
-@Reactant
+@Component
 internal class RepositoryCommandRegister(
         private val commandService: PicocliCommandService,
         private val repositoryService: RepositoryService,

@@ -1,6 +1,7 @@
-package io.reactant.reactant.core.reactantobj.container
+package io.reactant.reactant.core.component.container
 
 import io.reactant.reactant.core.ReactantPlugin
+import io.reactant.reactant.core.component.Component
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 import org.bukkit.plugin.Plugin
@@ -10,7 +11,7 @@ import org.reflections.util.ConfigurationBuilder
 import kotlin.reflect.KClass
 
 class BukkitPluginContainer(val plugin: Plugin) : Container {
-    override val reactantObjectClasses: Set<KClass<out Any>>
+    override val componentClasses: Set<KClass<out Any>>
 
     private val servicePackagesUrl
         get() = plugin.javaClass.getAnnotation(ReactantPlugin::class.java)
@@ -26,7 +27,7 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
 
         Configurator.setLevel(Reflections::class.java.canonicalName, Level.ERROR)
         val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
-        reactantObjectClasses = reflections.getTypesAnnotatedWith(Reactant::class.java)
+        componentClasses = reflections.getTypesAnnotatedWith(Component::class.java)
                 .map { it.kotlin }
                 .toSet()
         Configurator.setLevel(Reflections::class.java.canonicalName, Level.INFO)

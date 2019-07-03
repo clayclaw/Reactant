@@ -1,8 +1,8 @@
 package io.reactant.reactant.repository
 
 import io.reactant.reactant.core.ReactantCore.Companion.configDirPath
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.core.dependency.injection.Inject
-import io.reactant.reactant.core.reactantobj.container.Reactant
 import io.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import io.reactant.reactant.repository.config.RepositoryConfig
 import io.reactant.reactant.service.spec.config.Config
@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 import java.net.URL
 
-@Reactant
+@Component
 class RepositoryService(
         @Inject(configDirPath + "/repository.json") private val repositoryConfig: Config<RepositoryConfig>
 ) {

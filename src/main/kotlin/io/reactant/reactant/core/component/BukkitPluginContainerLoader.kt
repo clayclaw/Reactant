@@ -1,10 +1,10 @@
-package io.reactant.reactant.core.reactantobj
+package io.reactant.reactant.core.component
 
 import io.reactant.reactant.core.ReactantCore
 import io.reactant.reactant.core.ReactantPlugin
-import io.reactant.reactant.core.reactantobj.container.BukkitPluginContainer
-import io.reactant.reactant.core.reactantobj.container.ContainerManager
-import io.reactant.reactant.core.reactantobj.container.ReactantContainerManager
+import io.reactant.reactant.core.component.container.BukkitPluginContainer
+import io.reactant.reactant.core.component.container.ContainerManager
+import io.reactant.reactant.core.component.container.ReactantContainerManager
 import org.bukkit.Bukkit
 import java.io.FileDescriptor
 import java.io.FileOutputStream

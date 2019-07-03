@@ -1,13 +1,13 @@
 package io.reactant.reactant.extra.file
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
+import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.service.spec.file.text.TextFileReaderService
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.*
 
-@Reactant
+@Component
 class ReactantTextFileReaderService : TextFileReaderService {
 
     override fun readAll(file: File): Single<List<String>> = read(file).toList()

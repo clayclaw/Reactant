@@ -1,7 +1,7 @@
 package io.reactant.reactant.repository
 
-import io.reactant.reactant.core.reactantobj.container.Reactant
-import io.reactant.reactant.core.reactantobj.lifecycle.LifeCycleHook
+import io.reactant.reactant.core.component.Component
+import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactivex.Single
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
@@ -10,7 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Streaming
 import retrofit2.http.Url
 
-@Reactant
+@Component
 class MavenRepositoryRetrieverService : LifeCycleHook {
     private val httpService = Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

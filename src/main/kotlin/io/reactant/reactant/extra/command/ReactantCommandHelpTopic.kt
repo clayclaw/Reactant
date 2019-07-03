@@ -1,6 +1,5 @@
-package io.reactant.reactant.core.commands.reactantobj
+package io.reactant.reactant.extra.command
 
-import io.reactant.reactant.extra.command.ReactantCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.help.HelpTopic
 import picocli.CommandLine
