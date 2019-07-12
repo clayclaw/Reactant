@@ -8,7 +8,7 @@ interface Registrable<T> {
 }
 
 fun <T> LifeCycleHook.register(registrable: Registrable<T>, registering: T.() -> Unit) = when {
-    !registering::class.java.isAnnotationPresent(Component::class.java) ->
+    !this.javaClass.isAnnotationPresent(Component::class.java) ->
         throw UnsupportedOperationException("Only component can use register() function.")
     else -> registrable.registerBy(this, registering)
 }
