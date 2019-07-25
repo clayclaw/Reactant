@@ -7,15 +7,7 @@ import io.reactant.reactant.service.spec.config.Config
 import io.reactant.reactant.service.spec.dsl.register
 import io.reactant.reactant.service.spec.server.EventService
 import io.reactant.reactant.ui.ReactantUIService
-import io.reactant.reactant.ui.element.UIElement.Companion.MATCH_PARENT
-import io.reactant.reactant.ui.kits.ReactantUIDivElement
-import io.reactant.reactant.ui.kits.div
-import io.reactant.reactant.ui.query.getElementById
-import io.reactant.reactant.utils.content.item.createItemStack
 import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.event.player.PlayerJoinEvent
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -46,52 +38,52 @@ class ExampleService(
         helloService.sayHello(Bukkit.getServer().name)
 
         register(eventService) {
-            PlayerJoinEvent::class.observable().subscribe { showWelcome(it.player) }
+            //            PlayerJoinEvent::class.observable().subscribe { showWelcome(it.player) }
         }
 
     }
 
-    fun showWelcome(player: Player) {
-        val colors = setOf(
-                createItemStack(Material.BLUE_STAINED_GLASS_PANE), createItemStack(Material.RED_STAINED_GLASS_PANE),
-                createItemStack(Material.GRAY_STAINED_GLASS_PANE), createItemStack(Material.GREEN_STAINED_GLASS_PANE)
-        )
-        uiService.createUI(player) {
-            view {
-                scheduler.interval(10).subscribe {
-                    val choose = colors.random()
-                    getElementById<ReactantUIDivElement>("main")?.fillPattern = { _, _ -> choose.clone() }
-                    render()
-                }
-            }
-            click.subscribe { it.isCancelled = true }
-            div {
-                id = "main"
-                margin(1)
-                padding(1)
-                height = MATCH_PARENT
-                fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
-                div {
-                    id = "wool"
-                    height = MATCH_PARENT
-                    fill(createItemStack(Material.GREEN_WOOL))
-                }
-            }
-        }
-    }
-
-    fun showAnotherView(player: Player) {
-        uiService.createUI(player) {
-            div {
-                click.subscribe { it.isCancelled = true }
-                padding = listOf(1)
-                height = MATCH_PARENT
-                fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
-                div {
-                    height = MATCH_PARENT
-                    fill(createItemStack(Material.GREEN_WOOL))
-                }
-            }
-        }
-    }
+//    fun showWelcome(player: Player) {
+//        val colors = setOf(
+//                createItemStack(Material.BLUE_STAINED_GLASS_PANE), createItemStack(Material.RED_STAINED_GLASS_PANE),
+//                createItemStack(Material.GRAY_STAINED_GLASS_PANE), createItemStack(Material.GREEN_STAINED_GLASS_PANE)
+//        )
+//        uiService.createUI(player) {
+//            view {
+//                scheduler.interval(10).subscribe {
+//                    val choose = colors.random()
+//                    getElementById<ReactantUIDivElement>("main")?.fillPattern = { _, _ -> choose.clone() }
+//                    render()
+//                }
+//            }
+//            click.subscribe { it.isCancelled = true }
+//            div {
+//                id = "main"
+//                margin(1)
+//                padding(1)
+//                height = MATCH_PARENT
+//                fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
+//                div {
+//                    id = "wool"
+//                    height = MATCH_PARENT
+//                    fill(createItemStack(Material.GREEN_WOOL))
+//                }
+//            }
+//        }
+//    }
+//
+//    fun showAnotherView(player: Player) {
+//        uiService.createUI(player) {
+//            div {
+//                click.subscribe { it.isCancelled = true }
+//                padding = listOf(1)
+//                height = MATCH_PARENT
+//                fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
+//                div {
+//                    height = MATCH_PARENT
+//                    fill(createItemStack(Material.GREEN_WOOL))
+//                }
+//            }
+//        }
+//    }
 }

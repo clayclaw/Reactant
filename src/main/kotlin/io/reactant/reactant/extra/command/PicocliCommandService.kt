@@ -88,7 +88,7 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
                 bukkitCommandMap::class.java.getDeclaredField("knownCommands").apply {
                     isAccessible = true
                     @Suppress("UNCHECKED_CAST")
-                    (get(Bukkit.getServer()) as HashMap<String, org.bukkit.command.Command>)
+                    (get(bukkitCommandMap) as HashMap<String, org.bukkit.command.Command>)
                             .remove(commandName)
                 }
             } catch (e: NoSuchFieldException) {
