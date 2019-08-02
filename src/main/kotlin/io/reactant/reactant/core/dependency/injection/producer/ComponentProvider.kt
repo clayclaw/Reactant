@@ -3,6 +3,7 @@ package io.reactant.reactant.core.dependency.injection.producer
 import io.reactant.reactant.core.ReactantCore
 import io.reactant.reactant.core.component.Component
 import io.reactant.reactant.core.component.instance.ComponentInstanceManager
+import io.reactant.reactant.core.dependency.implied.ImpliedDependRelationHelper
 import io.reactant.reactant.core.dependency.injection.Inject
 import io.reactant.reactant.core.dependency.injection.InjectRequirement
 import io.reactant.reactant.core.exception.InjectRequirementNotFulfilledException
@@ -64,7 +65,13 @@ class ComponentProvider<T : Any>(
     /**
      * All required injectable
      */
-    val injectRequirements get() = constructorInjectRequirements.union(propertiesInjectRequirements.values)
+    val injectRequirements: Set<InjectRequirement>
+        get() {
+            val variableRequirement = constructorInjectRequirements.union(propertiesInjectRequirements.values)
+            val impliedRequirement = variableRequirement.map { requirement -> ImpliedDependRelationHelper.getImpliedDependRequirementsRecursively(requirement) }
+                    .flatten()
+            return variableRequirement.union(impliedRequirement);
+        }
 
 
     override val productType: KType

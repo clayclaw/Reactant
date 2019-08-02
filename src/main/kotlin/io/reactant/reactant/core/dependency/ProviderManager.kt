@@ -44,12 +44,12 @@ class ProviderManager {
     /**
      * Decide and mark in wrapper as resolved
      */
-    private fun decideComponentRequirementSolution(componentWrapper: ComponentProvider<*>) {
-        if (componentWrapper.fulfilled) return;
-        componentWrapper.notFulfilledRequirements
-                .mapNotNull { requirement -> fulfillRequirement(requirement)?.also { componentWrapper.resolvedRequirements[requirement] = it } }
+    private fun decideComponentRequirementSolution(componentProvider: ComponentProvider<*>) {
+        if (componentProvider.fulfilled) return;
+        componentProvider.notFulfilledRequirements
+                .mapNotNull { requirement -> fulfillRequirement(requirement)?.also { componentProvider.resolvedRequirements[requirement] = it } }
                 .toSet()
-                .let { providerRelationManager.addDependencyRelation(componentWrapper, it) }
+                .let { providerRelationManager.addDependencyRelation(componentProvider, it) }
     }
 
     fun fulfillRequirement(requirement: InjectRequirement): Provider? {

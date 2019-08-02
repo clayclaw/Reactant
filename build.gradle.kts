@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "io.reactant"
-version = "0.1.0"
+version = "0.1.1"
 
 val kotlinVersion = "1.3.31"
 

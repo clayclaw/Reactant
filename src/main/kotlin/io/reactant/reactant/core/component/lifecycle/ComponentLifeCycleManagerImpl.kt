@@ -7,6 +7,9 @@ import io.reactant.reactant.core.component.lifecycle.LifeCycleControlAction.*
 import io.reactant.reactant.core.dependency.ProviderManager
 import io.reactant.reactant.core.dependency.ProviderRelationManager
 import io.reactant.reactant.core.dependency.injection.producer.ComponentProvider
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.jvm.jvmErasure
 import kotlin.reflect.jvm.jvmName
 
 @Component
@@ -77,10 +80,16 @@ class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
                 .sortedBy { it.second }
                 .map { it.first }
                 .mapNotNull { it as? ComponentProvider<Any> }
-                .filter { checkState(it, action) }
+
+
+        invokeOrder = invokeOrder.union(injectables.filter { it.productType.isSubtypeOf(LifeCycleHook::class.createType()) } // All life cycle hook
+                .minus(invokeOrder)).toList();
+
         if (action == Disable || action == Save) invokeOrder = invokeOrder.reversed()
 
-        return invokeOrder.map { invokeAction(it, action) }
+        return invokeOrder
+                .filter { checkState(it, action) }
+                .map { invokeAction(it, action) }
                 .fold(true) { result, next -> result && next }
                 .also { inspectors.forEach { it.afterBulkActionComplete(action) } }
     }
