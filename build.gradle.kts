@@ -77,6 +77,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "io.reactant.reactant.core")
     relocate("okhttp3", "io.reactant.reactant.okhttp3")
+    relocate("okio", "io.reactant.reactant.okio")
 }
 
 val deployPlugin by tasks.registering(Copy::class) {
