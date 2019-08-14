@@ -9,14 +9,24 @@ import io.reactant.reactant.ui.rendering.RenderedItems
 import io.reactivex.subjects.PublishSubject
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
 
-class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit) : UIView {
+class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit, val height: Int) : UIView {
 
     override fun show(player: Player) = showPlayerFunc(this, player)
 
     override val event = PublishSubject.create<UIEvent>()
 
-    override val inventory = Bukkit.createInventory(null, 9 * 6, "Test")
+    var width = 9
+
+    private var _inventory: Inventory? = null;
+    override val inventory: Inventory
+        get() {
+            if (_inventory == null) {
+                _inventory = Bukkit.createInventory(null, width * height, "Test")
+            }
+            return _inventory!!
+        }
 
     override val rootElement = ViewInventoryContainerElement(this)
 
@@ -37,9 +47,6 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
 
     private fun scheduleUpdate() {
         scheduler.next().subscribe(this::updateView)
-    }
-
-    init {
     }
 
     private fun updateView() {

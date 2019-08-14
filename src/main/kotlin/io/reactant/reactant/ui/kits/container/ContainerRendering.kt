@@ -70,8 +70,9 @@ class ContainerRendering(private val element: ReactantUIContainerElement,
 
     private fun renderChildren(children: UIElement) {
         val displayBlockCuaseLineBreak = children.display == ElementDisplay.BLOCK && nextChildPosX != 0
+
         val needLineWrap = nextChildPosX != 0 // not start of line
-                && children.minimumFreeSpaceWidth + element.paddingLeft + element.paddingRight + nextChildPosX >= 9
+                && children.minimumFreeSpaceWidth + element.paddingLeft + element.paddingRight + nextChildPosX > freeSpaceWidth
         if (displayBlockCuaseLineBreak || needLineWrap) lineBreak()
 
         val childPossibleWidth = freeSpaceWidth - nextChildPosX

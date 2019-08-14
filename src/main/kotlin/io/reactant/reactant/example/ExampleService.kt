@@ -67,21 +67,43 @@ class ExampleService(
 //                    id = "wool"
 //                    height = MATCH_PARENT
 //                    fill(createItemStack(Material.GREEN_WOOL))
+//                    click.subscribe { showAnotherView(it.player) }
 //                }
 //            }
 //        }
 //    }
 //
 //    fun showAnotherView(player: Player) {
-//        uiService.createUI(player) {
+//        uiService.createUI(player, 3) {
 //            div {
-//                click.subscribe { it.isCancelled = true }
-//                padding = listOf(1)
+//                click.subscribe {
+//                    it.isCancelled = true
+//
+//                    val headItem = ReactantUIItemElement().also { itemEl ->
+//                        ReactantUIItemElementEditing(itemEl).apply {
+//                            displayItem = createItemStack(Material.PLAYER_HEAD)
+//                        }
+//                    }
+//                    view.getElementById<ReactantUIDivElement>("headContainer")?.children?.add(headItem)
+//                    view.render()
+//                }
 //                height = MATCH_PARENT
-//                fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
+//
 //                div {
-//                    height = MATCH_PARENT
-//                    fill(createItemStack(Material.GREEN_WOOL))
+//                    width = 3
+//                    height = 2
+//                    display = ElementDisplay.INLINE_BLOCK
+//                    // wfc what u put there
+//                }
+//                div {
+//                    id = "headContainer"
+//                    width = 3
+//                    height = 2
+//                    display = ElementDisplay.INLINE_BLOCK
+//                    fill(createItemStack(Material.RED_STAINED_GLASS_PANE))
+//                    item {
+//                        displayItem = createItemStack(Material.PLAYER_HEAD)
+//                    }
 //                }
 //            }
 //        }
