@@ -6,27 +6,18 @@ import io.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import io.reactant.reactant.service.spec.server.EventService
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
-import org.bukkit.plugin.RegisteredListener
 import kotlin.reflect.KClass
 
 
 @Component
 class ReactantEventService : LifeCycleHook, Listener, EventService {
     private val eventPrioritySubjectMap = HashMap<Class<out Event>, HashMap<EventPriority, PublishSubject<Event>>>();
-    private val listeners: HashSet<RegisteredListener> = hashSetOf()
-
-    override fun onEnable() {
-        EventPriority.values().forEach { priority ->
-            val listener = RegisteredListener(this, { _, event -> onEvent(event, priority) },
-                    priority, ReactantCore.instance, false);
-            HandlerList.getHandlerLists().forEach { it.register(listener) }
-            listeners.add(listener)
-        }
-    }
+    private val listeningEventClasses = HashSet<Class<out Event>>();
 
     override fun onDisable() {
         HandlerList.unregisterAll(this)
@@ -42,7 +33,16 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
+    private fun listen(eventClass: Class<out Event>) {
+        EventPriority.values().forEach { priority ->
+            Bukkit.getPluginManager().registerEvent(eventClass, this, priority, { _, event -> onEvent(event, priority) }, ReactantCore.instance)
+        }
+    }
+
     override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
+        if (!listeningEventClasses.contains(eventClass.java)) {
+            listen(eventClass.java)
+        }
         @Suppress("UNCHECKED_CAST")
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass.java, { HashMap() })

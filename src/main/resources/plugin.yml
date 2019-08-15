@@ -1,4 +1,4 @@
 name: Reactant
 main: io.reactant.reactant.core.ReactantCore
-version: 0.1.1
+version: 0.1.2
 api-version: "1.14"
