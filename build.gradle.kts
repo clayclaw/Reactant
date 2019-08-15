@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "io.reactant"
