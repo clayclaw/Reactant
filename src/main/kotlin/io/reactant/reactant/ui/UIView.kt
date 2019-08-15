@@ -2,12 +2,13 @@ package io.reactant.reactant.ui
 
 import io.reactant.reactant.service.spec.server.SchedulerService
 import io.reactant.reactant.ui.element.UIElement
-import io.reactant.reactant.ui.eventtarget.UIViewEventTarget
+import io.reactant.reactant.ui.event.UIEvent
+import io.reactant.reactant.ui.eventtarget.UIEventTarget
 import io.reactant.reactant.ui.query.UIQueryable
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
-interface UIView : UIViewEventTarget, UIQueryable {
+interface UIView : UIEventTarget<UIEvent>, UIQueryable {
     val inventory: Inventory
     val rootElement: UIElement
 
