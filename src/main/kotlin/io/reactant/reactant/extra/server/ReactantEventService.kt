@@ -37,6 +37,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         EventPriority.values().forEach { priority ->
             Bukkit.getPluginManager().registerEvent(eventClass, this, priority, { _, event -> onEvent(event, priority) }, ReactantCore.instance)
         }
+        listeningEventClasses.add(eventClass)
     }
 
     override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
