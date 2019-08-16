@@ -11,4 +11,4 @@ You can find the compiled jars in `./build/libs`.
 Use `Reactant-*-all.jar` which including the dependencies if you would like to load as spigot plugin.
 
 ## Where should I start?
-[Click here to check our cookbook guide](https://reactant.gitlab.io/cookbook-dev/)
+[Click here to check our cookbook guide](https://docs.reactant.dev)

@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-group = "io.reactant"
-version = "0.1.2"
+group = "dev.reactant"
+version = "0.1.3"
 
 val kotlinVersion = "1.3.31"
 
@@ -75,9 +75,9 @@ val sourcesJar by tasks.registering(Jar::class) {
 }
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
-    relocate("org.bstats", "io.reactant.reactant.core")
-    relocate("okhttp3", "io.reactant.reactant.okhttp3")
-    relocate("okio", "io.reactant.reactant.okio")
+    relocate("org.bstats", "dev.reactant.reactant.core")
+    relocate("okhttp3", "dev.reactant.reactant.okhttp3")
+    relocate("okio", "dev.reactant.reactant.okio")
 }
 
 val deployPlugin by tasks.registering(Copy::class) {
