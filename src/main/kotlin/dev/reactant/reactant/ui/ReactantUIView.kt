@@ -11,7 +11,8 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
-class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit, val height: Int) : UIView {
+class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit,
+                     val title: String, val height: Int) : UIView {
 
     override fun show(player: Player) = showPlayerFunc(this, player)
 
@@ -23,7 +24,7 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
     override val inventory: Inventory
         get() {
             if (_inventory == null) {
-                _inventory = Bukkit.createInventory(null, width * height, "Test")
+                _inventory = Bukkit.createInventory(null, width * height, title)
             }
             return _inventory!!
         }

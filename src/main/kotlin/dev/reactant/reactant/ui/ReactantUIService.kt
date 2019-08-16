@@ -57,9 +57,9 @@ class ReactantUIService(
 //        player.updateInventory()
     }
 
-    fun createUI(initialViewer: Player, height: Int = 6, destroyUIOnNoViewer: Boolean = true, creating: ReactantUIEditing.() -> Unit): ReactantUIView {
+    fun createUI(initialViewer: Player, title: String, height: Int = 6, destroyUIOnNoViewer: Boolean = true, creating: ReactantUIEditing.() -> Unit): ReactantUIView {
         val allocatedScheduler = UIScheduler(schedulerService)
-        val ui = ReactantUIView(allocatedScheduler, this::showUI, height)
+        val ui = ReactantUIView(allocatedScheduler, this::showUI, title, height)
         uiScheduler[ui] = allocatedScheduler
         if (destroyUIOnNoViewer) autoDestroy += ui
         ReactantUIEditing(ui).apply(creating)
