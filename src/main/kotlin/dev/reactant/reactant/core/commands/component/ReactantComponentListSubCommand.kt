@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.jvmName
         mixinStandardHelpOptions = true,
         description = ["Listing all Component"]
 )
-class ComponentListSubCommand(
+internal class ComponentListSubCommand(
         val providerManager: ProviderManager,
         val containerManager: ContainerManager
 ) : ReactantCommand() {
