@@ -11,7 +11,9 @@ import dev.reactant.reactant.utils.content.item.createItemStack
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
-class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableElement {
+open class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableElement {
+    override fun edit() = ReactantUIDivElementEditing(this)
+
     override var height: Int = UIElement.WRAP_CONTENT
     override var width: Int = UIElement.MATCH_PARENT
     override var display = ElementDisplay.BLOCK

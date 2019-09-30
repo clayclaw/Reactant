@@ -10,7 +10,8 @@ import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
-class ReactantUIItemElement : ReactantUIElement("item") {
+open class ReactantUIItemElement : ReactantUIElement("item") {
+    override fun edit() = ReactantUIElementEditing(this)
     var displayItem: ItemStack = ItemStack(Material.AIR)
 
     override fun render(parentFreeSpaceWidth: Int, parentFreeSpaceHeight: Int): RenderedItems =

@@ -1,6 +1,7 @@
 package dev.reactant.reactant.ui.element
 
 import dev.reactant.reactant.ui.UIView
+import dev.reactant.reactant.ui.editing.UIElementEditing
 import dev.reactant.reactant.ui.event.UIEvent
 import dev.reactant.reactant.ui.eventtarget.UIElementEventTarget
 import dev.reactant.reactant.ui.query.UIQueryable
@@ -80,4 +81,6 @@ interface UIElement : UIElementEventTarget, UIQueryable {
      * You could having size larger than the free space, while it is also representing WRAP_CONTENT
      */
     fun render(parentFreeSpaceWidth: Int, parentFreeSpaceHeight: Int): RenderedItems
+
+    fun edit(): UIElementEditing<UIElement>;
 }

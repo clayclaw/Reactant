@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui.element
 
+import dev.reactant.reactant.ui.editing.UIElementEditing
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementChildrenSet
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementClassSet
 import dev.reactant.reactant.ui.event.UIElementEvent
@@ -44,4 +45,5 @@ abstract class ReactantUIElement(override val elementIdentifier: String) : UIEle
     override fun <T : UIEvent> getEventSubject(clazz: KClass<T>): Subject<T> =
             eventSubjects.getOrPut(clazz) { PublishSubject.create<T>() } as Subject<T>
 
+    abstract override fun edit(): UIElementEditing<ReactantUIElement>
 }
