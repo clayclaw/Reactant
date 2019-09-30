@@ -2,9 +2,12 @@ package dev.reactant.reactant.ui
 
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
+import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
 import org.bukkit.event.inventory.InventoryType.*
 
 class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView) : ReactantUIContainerElement("inventory") {
+    override fun edit() = object : ReactantUIContainerElementEditing<ViewInventoryContainerElement>(this) {}
+
     override val view: UIView get() = reactantUIView
 
     override var parent: UIElement?
@@ -18,3 +21,4 @@ class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView) 
     }
     override val height: Int = reactantUIView.inventory.size / width
 }
+
