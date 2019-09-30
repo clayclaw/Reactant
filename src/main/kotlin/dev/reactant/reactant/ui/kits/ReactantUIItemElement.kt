@@ -21,13 +21,13 @@ open class ReactantUIItemElement : ReactantUIElement("item") {
     override val height: Int = 1
 }
 
-open class ReactantUIItemElementEditing(element: ReactantUIItemElement)
+open class ReactantUIItemElementEditing<T : ReactantUIItemElement>(element: T)
     : ReactantUIElementEditing<ReactantUIItemElement>(element) {
     var displayItem: ItemStack by MutablePropertyDelegate(element::displayItem)
 }
 
 fun ReactantUIElementEditing<out UIElement>.item(displayItem: ItemStack = createItemStack(),
-                                                 creation: ReactantUIItemElementEditing.() -> Unit = {}) {
+                                                 creation: ReactantUIItemElementEditing<in ReactantUIItemElement>.() -> Unit = {}) {
     element.children.add(ReactantUIItemElement()
             .also {
                 ReactantUIItemElementEditing(it).also { creation ->
