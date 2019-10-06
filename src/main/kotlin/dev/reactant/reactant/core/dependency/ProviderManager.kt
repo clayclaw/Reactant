@@ -11,8 +11,14 @@ import kotlin.reflect.jvm.jvmErasure
 @Component
 class ProviderManager {
     private val _providers = HashSet<Provider>()
+    private val _blacklistedProviders = HashSet<Provider>()
+    val blacklistedProviders get() = _blacklistedProviders
     val providers: Set<Provider> get() = _providers
     val providerRelationManager = ReactantCore.instance.reactantInstanceManager.getOrConstructWithoutInjection(ProviderRelationManager::class)
+
+    fun addBlacklistedProvider(provider: Provider) {
+        _blacklistedProviders.add(provider)
+    }
 
     fun addProvider(provider: Provider) {
         _providers.add(provider)

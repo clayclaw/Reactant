@@ -54,7 +54,7 @@ internal class ComponentListSubCommand(
     override fun run() {
         requirePermission(Reactant.REACTANT_OBJ.LIST)
 
-        providerManager.providers.mapNotNull { it as? ComponentProvider<*> }
+        providerManager.providers.union(providerManager.blacklistedProviders).mapNotNull { it as? ComponentProvider<*> }
                 .asSequence()
                 // State filter
                 .filter { isRunning == null || it.isInitialized() == isRunning }
@@ -92,6 +92,7 @@ internal class ComponentListSubCommand(
                 componentWrapper.productType.jvmErasure.let { if (showShortName) it.simpleName!! else it.jvmName },
                 container.identifier,
                 if (componentWrapper.isInitialized()) "Running"
+                else if (providerManager.blacklistedProviders.contains(componentWrapperContainerPair.first)) "Blacklisted"
                 else if (componentWrapper.catchedThrowable != null) "Error"
                 else if (!componentWrapper.fulfilled) "Not Fulfilled" else ""
         ))

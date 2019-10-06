@@ -1,14 +1,25 @@
 package dev.reactant.reactant.core.component.container
 
+import com.google.gson.Gson
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.configs.ServiceMatchingConfig
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.DynamicProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
+import dev.reactant.reactant.utils.PatternMatchingUtils
+import java.io.File
+import java.io.FileReader
+import kotlin.reflect.jvm.jvmName
 
 @Component
 class ReactantContainerManager : ContainerManager {
+    private var matchingConfig: ServiceMatchingConfig = File("${ReactantCore.configDirPath}/services.json")
+            .let { file ->
+                if (file.exists()) FileReader(file).use { reader -> Gson().fromJson(reader, ServiceMatchingConfig::class.java) }
+                else ServiceMatchingConfig()
+            }
 
     private val componentContainerMap = HashMap<String, Container>()
 
@@ -23,9 +34,7 @@ class ReactantContainerManager : ContainerManager {
     }
 
     override fun addContainer(container: Container) {
-        if (componentContainerMap[container.identifier] != null) {
-            throw IllegalArgumentException("Component Container with same rawIdentifier already exist: ${container.identifier}")
-        }
+        require(componentContainerMap[container.identifier] == null) { "Component Container with same rawIdentifier already exist: ${container.identifier}" }
         componentContainerMap[container.identifier] = container
         addAllInjectableWrapper(container)
     }
@@ -33,16 +42,23 @@ class ReactantContainerManager : ContainerManager {
     private fun addAllInjectableWrapper(container: Container) {
         container.componentClasses
                 .filter { it.java.isAnnotationPresent(Component::class.java) }
-                .map { ComponentProvider.fromComponentClass(it, instanceManager) }
-                .flatMap { listOf(it).union(DynamicProvider.findAllFromComponentInjectableWrapper(it)) }
-                .onEach { containerInjectableWrapperMap.getOrPut(container) { hashSetOf() }.add(it) }
-                .forEach(dependencyManager::addProvider)
+                .map { ComponentProvider.fromComponentClass(it, instanceManager) }.forEach {
+                    // providers including component and @Provide
+                    listOf(it).union(DynamicProvider.findAllFromComponentInjectableWrapper(it))
+                            .onEach { provider -> containerInjectableWrapperMap.getOrPut(container) { hashSetOf() }.add(provider) }
+                            .forEach { provider ->
+                                val providerName = it.componentClass.jvmName;
+                                val isBlacklisted = matchingConfig.blacklistServicePatterns
+                                        .any { pattern -> PatternMatchingUtils.matchWildcardOrRegex(pattern, providerName) }
+                                if (isBlacklisted) dependencyManager.addBlacklistedProvider(provider)
+                                else dependencyManager.addProvider(provider)
+                            }
+                }
     }
 
     override fun removeContainer(container: Container) {
-        if (componentContainerMap[container.identifier] == null) {
-            throw IllegalArgumentException("Component Container not exist: ${container.identifier}")
-        }
+        requireNotNull(componentContainerMap[container.identifier]) { "Component Container not exist: ${container.identifier}" }
+
         containerInjectableWrapperMap[container]!!.forEach { dependencyManager.removeProvider(it) }
         containerInjectableWrapperMap.remove(container)
         componentContainerMap.remove(container.identifier)
