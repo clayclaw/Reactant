@@ -23,7 +23,7 @@ open class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableEl
     override fun getBackgroundItemStack(x: Int, y: Int): ItemStack = fillPattern(x, y)
 }
 
-open class ReactantUIDivElementEditing<T : ReactantUIDivElement>(element: T)
+open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
     : ReactantUIContainerElementEditing<ReactantUIDivElement>(element), ResizableElementsEditing<ReactantUIDivElement> {
     var overflowHidden by MutablePropertyDelegate(element::overflowHidden)
     var fillPattern by MutablePropertyDelegate(element::fillPattern)
@@ -32,6 +32,6 @@ open class ReactantUIDivElementEditing<T : ReactantUIDivElement>(element: T)
     }
 }
 
-fun ReactantUIElementEditing<out UIElement>.div(creation: ReactantUIDivElementEditing<in ReactantUIDivElement>.() -> Unit) {
+fun ReactantUIElementEditing<out UIElement>.div(creation: ReactantUIDivElementEditing<ReactantUIDivElement>.() -> Unit) {
     element.children.add(ReactantUIDivElement().also { ReactantUIDivElementEditing(it).apply(creation) })
 }

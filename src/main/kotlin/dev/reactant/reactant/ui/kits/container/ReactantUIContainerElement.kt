@@ -25,6 +25,7 @@ abstract class ReactantUIContainerElement(elementIdentifier: String) : ReactantU
 
     open fun getBackgroundItemStack(x: Int, y: Int): ItemStack = ItemStack(Material.AIR)
 
+    abstract override fun edit(): ReactantUIContainerElementEditing<out ReactantUIContainerElement>
 
     override fun render(parentFreeSpaceWidth: Int, parentFreeSpaceHeight: Int): RenderedItems {
         return ContainerRendering(this, parentFreeSpaceWidth, parentFreeSpaceHeight).result
