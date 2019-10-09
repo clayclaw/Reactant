@@ -11,7 +11,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 open class ReactantUIItemElement : ReactantUIElement("item") {
-    override fun edit() = ReactantUIElementEditing(this)
+    override fun edit() = ReactantUIItemElementEditing(this)
     var displayItem: ItemStack = ItemStack(Material.AIR)
 
     override fun render(parentFreeSpaceWidth: Int, parentFreeSpaceHeight: Int): RenderedItems =
@@ -21,10 +21,11 @@ open class ReactantUIItemElement : ReactantUIElement("item") {
     override val height: Int = 1
 }
 
-open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: T)
-    : ReactantUIElementEditing<ReactantUIItemElement>(element) {
+open class ReactantUIItemElementEditing<T : ReactantUIItemElement>(element: T)
+    : ReactantUIElementEditing<T>(element) {
     var displayItem: ItemStack by MutablePropertyDelegate(element::displayItem)
 }
+
 
 fun ReactantUIElementEditing<out UIElement>.item(displayItem: ItemStack = createItemStack(),
                                                  creation: ReactantUIItemElementEditing<ReactantUIItemElement>.() -> Unit = {}) {
