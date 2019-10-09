@@ -2,7 +2,6 @@ image: java:8-jdk
 
 stages:
   - build
-  - deploy
 
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
@@ -15,16 +14,8 @@ cache:
 build:
   stage: build
   script:
-    - ./gradlew build
+    - ./gradlew publish
   artifacts:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
-
-deploy:
-  stage: deploy
-  script:
-    - ./gradlew bintrayUpload
-  only:
-    refs:
-      - master

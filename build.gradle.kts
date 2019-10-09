@@ -11,7 +11,6 @@ plugins {
     java
     `maven-publish`
     kotlin("jvm") version "1.3.31"
-    id("com.jfrog.bintray") version "1.8.4"
     id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
@@ -29,7 +28,6 @@ repositories {
     mavenCentral()
     maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
-    maven { url = URI.create("https://dl.bintray.com/reactant/reactant") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
 }
 
@@ -108,19 +106,18 @@ publishing {
             version = version
         }
     }
-}
 
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_KEY")
-    setPublications("maven")
-    publish = true
-    override = true
-    pkg.apply {
-        repo = "reactant"
-        name = project.name
-        userOrg = "reactant"
-        setLicenses("GPL-3.0")
-        vcsUrl = "https://gitlab.com/reactant/reactant"
+    repositories {
+        maven {
+            url = uri("https://gitlab.com/api/v4/groups/${System.getenv("CI_PROJECT_NAMESPACE")}/-/packages/maven")
+            credentials(HttpHeaderCredentials::class) {
+                name = "Private-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
     }
 }
+
