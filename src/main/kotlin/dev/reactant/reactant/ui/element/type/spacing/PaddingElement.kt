@@ -22,7 +22,7 @@ interface PaddingElement : UIElement {
     override val minimumFreeSpaceHeight: Int get() = super.minimumFreeSpaceHeight + paddingTop + paddingBottom
 }
 
-interface PaddingElementEditing<T : PaddingElement> : UIElementEditing<T> {
+interface PaddingElementEditing<out T : PaddingElement> : UIElementEditing<T> {
     var paddingTop: Int
         get() = element.paddingTop
         set(value) {

@@ -2,9 +2,10 @@ package dev.reactant.reactant.ui.editing
 
 import dev.reactant.reactant.ui.element.ElementDisplay
 import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.UIElementClassList
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 
-open class ReactantUIElementEditing<T : UIElement>(final override val element: T) : UIElementEditing<T> {
+open class ReactantUIElementEditing<out T : UIElement>(final override val element: T) : UIElementEditing<T> {
     override var display: ElementDisplay by MutablePropertyDelegate(element::display)
     override var id by MutablePropertyDelegate(element::id)
 
@@ -18,7 +19,7 @@ open class ReactantUIElementEditing<T : UIElement>(final override val element: T
         this.margin = margin.toList()
     }
 
-    override var classList
+    override var classList: UIElementClassList
         get() = element.classList
         set(value) {
             element.classList.clear()

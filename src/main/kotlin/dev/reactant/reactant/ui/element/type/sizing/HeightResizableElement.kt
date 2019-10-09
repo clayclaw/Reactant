@@ -10,7 +10,7 @@ interface HeightResizableElement : UIElement {
     override var height: Int
 }
 
-interface HeightResizableElementEditing<T : HeightResizableElement> : UIElementEditing<T> {
+interface HeightResizableElementEditing<out T : HeightResizableElement> : UIElementEditing<T> {
     @JvmDefault
     var height: Int
         get() = element.height

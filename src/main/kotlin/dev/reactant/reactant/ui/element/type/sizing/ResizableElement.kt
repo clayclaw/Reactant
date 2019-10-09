@@ -4,5 +4,5 @@ import dev.reactant.reactant.ui.editing.UIElementEditing
 
 interface ResizableElement : HeightResizableElement, WidthResizableElement
 
-interface ResizableElementsEditing<T : ResizableElement>
+interface ResizableElementsEditing<out T : ResizableElement>
     : UIElementEditing<T>, HeightResizableElementEditing<T>, WidthResizableElementEditing<T>

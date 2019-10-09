@@ -7,7 +7,7 @@ interface WidthResizableElement : UIElement {
     override var width: Int
 }
 
-interface WidthResizableElementEditing<T : WidthResizableElement> : UIElementEditing<T> {
+interface WidthResizableElementEditing<out T : WidthResizableElement> : UIElementEditing<T> {
     @JvmDefault
     var width: Int
         get() = element.width

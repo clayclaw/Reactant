@@ -33,5 +33,5 @@ abstract class ReactantUIContainerElement(elementIdentifier: String) : ReactantU
     }
 }
 
-abstract class ReactantUIContainerElementEditing<T : ReactantUIContainerElement>(element: T)
+abstract class ReactantUIContainerElementEditing<out T : ReactantUIContainerElement>(element: T)
     : ReactantUIElementEditing<T>(element), PaddingElementEditing<T>
