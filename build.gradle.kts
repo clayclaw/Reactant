@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 group = "dev.reactant"
-version = "0.1.4"
+version = "0.1.5-SNAPSHOT"
 
 val kotlinVersion = "1.3.31"
 
@@ -109,7 +109,7 @@ publishing {
 
     repositories {
         maven {
-            url = uri("https://gitlab.com/api/v4/groups/${System.getenv("CI_PROJECT_NAMESPACE")}/-/packages/maven")
+            url = uri("https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven")
             credentials(HttpHeaderCredentials::class) {
                 name = "Private-Token"
                 value = System.getenv("CI_JOB_TOKEN")
