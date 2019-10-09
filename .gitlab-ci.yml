@@ -14,8 +14,9 @@ cache:
 build:
   stage: build
   script:
-    - ./gradlew publish
+    - ./gradlew bintrayUpload
   artifacts:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
+
