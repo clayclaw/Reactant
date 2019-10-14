@@ -29,7 +29,7 @@ repositories {
     mavenCentral()
     maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
-    maven { url = URI.create("https://dl.bintray.com/reactant/reactant") }
+    maven { url = URI.create("https://oss.sonatype.org/content/repositories/releases/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
 }
 
@@ -106,6 +106,16 @@ publishing {
             groupId = group.toString()
             artifactId = project.name
             version = version
+        }
+    }
+    repositories {
+        maven {
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) "https://oss.sonatype.org/content/repositories/snapshots/"
+            else "https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials{
+                username  = System.getenv("NEXUS_USERNAME")
+                password  = System.getenv("NEXUS_PASSWORD")
+            }
         }
     }
 }
