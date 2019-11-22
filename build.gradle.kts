@@ -34,6 +34,7 @@ repositories {
     mavenCentral()
     maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
+    maven { url = URI.create("https://oss.sonatype.org/content/repositories/releases/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
 }
 
@@ -174,7 +175,7 @@ publishing {
     repositories {
         maven {
 
-            val releasesRepoUrl = " https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
             val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
             url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
             credentials {
