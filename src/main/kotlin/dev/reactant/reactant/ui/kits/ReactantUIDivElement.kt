@@ -25,8 +25,8 @@ open class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableEl
 
 open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
     : ReactantUIContainerElementEditing<T>(element), ResizableElementsEditing<T> {
-    var overflowHidden by MutablePropertyDelegate(element::overflowHidden)
-    var fillPattern by MutablePropertyDelegate(element::fillPattern)
+    var overflowHidden by MutablePropertyDelegate(this.element::overflowHidden)
+    var fillPattern by MutablePropertyDelegate(this.element::fillPattern)
     fun fill(itemStack: ItemStack) {
         fillPattern = { _, _ -> itemStack.clone() }
     }

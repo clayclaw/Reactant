@@ -23,7 +23,7 @@ open class ReactantUIItemElement : ReactantUIElement("item") {
 
 open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: T)
     : ReactantUIElementEditing<T>(element) {
-    var displayItem: ItemStack by MutablePropertyDelegate(element::displayItem)
+    var displayItem: ItemStack by MutablePropertyDelegate(this.element::displayItem)
 }
 
 
