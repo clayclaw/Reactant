@@ -142,9 +142,9 @@ publishing {
             artifactId = project.name
             version = version
 
-            description = "An elegant plugin framework for spigot"
-
             pom {
+                name.set("Reactant")
+                description.set("An elegant plugin framework for spigot")
                 url.set("https://reactant.dev")
                 licenses {
                     license {
