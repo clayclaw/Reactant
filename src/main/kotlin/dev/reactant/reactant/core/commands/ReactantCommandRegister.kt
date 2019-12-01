@@ -27,6 +27,7 @@ internal class ReactantCommandRegister : LifeCycleHook {
                 command(::ComponentCommand) {
                     command({ ComponentListSubCommand(providerManager, containerManager) })
                 }
+                command(::ReactantEchoCommand)
             }
         }
     }

@@ -15,6 +15,7 @@ import java.util.logging.Level
 
 @Component
 class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<PicocliCommandService.CommandRegistering> {
+    private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)");
     private val commandTreeMap = HashMap<String, CommandTree>()
 
     private val registerCommandNameMap = HashMap<Any, HashSet<String>>()
@@ -57,7 +58,7 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
                             ReactantCore.logger.error("Error occured while executing the command \"$name ${args.joinToString(" ")}\"", ex);
                             1
                         }
-                        .execute(*args)
+                        .execute(*(argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList().toTypedArray()))
                 return true;
             }
         })

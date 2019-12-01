@@ -26,9 +26,10 @@ class CommandTree(
                 this.stdout = stdOut
                 this.stderr = stdErr
             }
-        }).setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF)).apply {
-            getCommand<Runnable>().let { if (it is ReactantCommand) it.commandLine = this }
-        };
+        }).setTrimQuotes(true)
+                .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF)).apply {
+                    getCommand<Runnable>().let { if (it is ReactantCommand) it.commandLine = this }
+                };
         subCommandMap[commandProvider]?.forEach { subCommandProvider ->
             constructCommandLineRecursively(subCommandProvider,
                     sender, stdOut, stdErr).let {
