@@ -3,6 +3,7 @@ package dev.reactant.reactant.ui.kits
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ElementDisplay
 import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.type.sizing.ResizableElement
 import dev.reactant.reactant.ui.element.type.sizing.ResizableElementsEditing
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
@@ -11,6 +12,7 @@ import dev.reactant.reactant.utils.content.item.createItemStack
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
+@UIElementName("div")
 open class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableElement {
     override fun edit() = ReactantUIDivElementEditing(this)
 

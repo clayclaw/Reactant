@@ -7,13 +7,14 @@ import dev.reactant.reactant.ui.eventtarget.UIElementEventTarget
 import dev.reactant.reactant.ui.query.UIQueryable
 import dev.reactant.reactant.ui.rendering.RenderedItems
 import io.reactivex.subjects.Subject
+import kotlin.math.max
 import kotlin.reflect.KClass
 
 interface UIElement : UIElementEventTarget, UIQueryable {
     val view: UIView? get() = parent?.view
     val elementIdentifier: String
-    var parent: UIElement?
-    var id: String?
+    override var parent: UIElement?
+    override var id: String?
     val classList: UIElementClassList
     val attributes: UIElementAttributes
 
@@ -30,8 +31,8 @@ interface UIElement : UIElementEventTarget, UIQueryable {
     /**
      * For container element considering wrapping
      */
-    val minimumFreeSpaceWidth get() = Math.max(0, width) + marginLeft + marginRight
-    val minimumFreeSpaceHeight get() = Math.max(0, height) + marginTop + marginBottom
+    val minimumFreeSpaceWidth get() = max(0, width) + marginLeft + marginRight
+    val minimumFreeSpaceHeight get() = max(0, height) + marginTop + marginBottom
 
     var marginTop: Int
     var marginRight: Int
@@ -45,16 +46,7 @@ interface UIElement : UIElementEventTarget, UIQueryable {
 
 
     @JvmDefault
-    fun matches(selector: String): Boolean = TODO()
-
-    @JvmDefault
-    fun closest(selector: String): UIElement? = TODO()
-
-    @JvmDefault
-    fun querySelector(selector: String): UIElement? = TODO()
-
-    @JvmDefault
-    fun querySelectorAll(selector: String): Set<UIElement> = TODO()
+    fun matches(selector: String): Boolean = this.parent!!.querySelectorAll(selector).contains(this)
 
     fun <T : UIEvent> getEventSubject(clazz: KClass<T>): Subject<T>
 

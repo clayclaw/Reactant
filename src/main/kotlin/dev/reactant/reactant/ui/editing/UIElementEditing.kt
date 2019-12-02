@@ -4,6 +4,7 @@ import dev.reactant.reactant.ui.element.ElementDisplay
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementAttributes
 import dev.reactant.reactant.ui.element.UIElementClassList
+import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementClickEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementDragEvent
 import io.reactivex.Observable
@@ -27,4 +28,8 @@ interface UIElementEditing<out T : UIElement> {
     val drag: Observable<UIElementDragEvent>
         get() = event.filter { it is UIElementDragEvent }.map { it as UIElementDragEvent }
 
+}
+
+inline fun <reified T : UIElementEvent> UIElementEditing<UIElement>.event(): Observable<T> {
+    return event.map { it as? T }
 }

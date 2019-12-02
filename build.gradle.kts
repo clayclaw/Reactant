@@ -70,6 +70,8 @@ dependencies {
     api("com.squareup.retrofit2:adapter-rxjava2:2.6.2")
     api("com.squareup.retrofit2:converter-gson:2.6.2")
 
+    api("net.sourceforge.cssparser:cssparser:0.9.27")
+
     compileOnly("org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
@@ -105,6 +107,7 @@ val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "dev.reactant.reactant.core")
     relocate("okhttp3", "dev.reactant.reactant.okhttp3")
     relocate("okio", "dev.reactant.reactant.okio")
+    relocate("cssparser", "dev.reactant.reactant.cssparser")
 }
 
 val dokkaJar by tasks.registering(Jar::class) {

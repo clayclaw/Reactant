@@ -10,7 +10,7 @@ import org.bukkit.inventory.Inventory
 
 interface UIView : UIEventTarget<UIEvent>, UIQueryable {
     val inventory: Inventory
-    val rootElement: UIElement
+    override val rootElement: UIElement
 
     /**
      * The scheduler which will automatically dispose all observable when view be destroyed

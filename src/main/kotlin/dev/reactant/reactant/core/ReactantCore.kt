@@ -49,6 +49,7 @@ class ReactantCore : JavaPlugin() {
 
     @Suppress("UNCHECKED_CAST")
     fun onPluginDisable(plugin: Plugin) {
+        ReactantCore.logger.info("Disabling services")
         val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(plugin))
         if (container != null) {
             containerManager.getContainerProvidedInjectableWrapper(container)
@@ -84,11 +85,6 @@ class ReactantCore : JavaPlugin() {
 
     @Suppress("UNCHECKED_CAST")
     override fun onDisable() {
-        ReactantCore.logger.info("Disabling services")
-        providerManager.providers.mapNotNull { it as? ComponentProvider<Any> }.also {
-            componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)
-            componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Disable)
-        }
     }
 
     companion object {

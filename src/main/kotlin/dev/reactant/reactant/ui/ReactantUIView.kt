@@ -4,12 +4,16 @@ import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementChildren
 import dev.reactant.reactant.ui.event.UIEvent
+import dev.reactant.reactant.ui.query.UIQueryable
+import dev.reactant.reactant.ui.query.selectElements
 import dev.reactant.reactant.ui.rendering.ElementSlot
 import dev.reactant.reactant.ui.rendering.RenderedItems
 import io.reactivex.subjects.PublishSubject
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
+import org.w3c.css.sac.InputSource
+import java.io.StringReader
 
 class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit,
                      val title: String, val height: Int) : UIView {
@@ -31,7 +35,10 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
 
     override val rootElement = ViewInventoryContainerElement(this)
 
+    override fun querySelectorAll(selector: String): Set<UIElement> = selectElements(rootElement, UIQueryable.parser.parseSelectors(InputSource(StringReader(selector))))
+
     override val children: UIElementChildren = LinkedHashSet<UIElement>(setOf(rootElement))
+    override val parent: UIElement? = null
 
     private var lastRenderResult: RenderedItems? = null
         private set

@@ -1,0 +1,88 @@
+package dev.reactant.reactant.ui.query
+
+import com.google.common.collect.ImmutableSet
+import com.steadystate.css.parser.CSSOMParser
+import com.steadystate.css.parser.SACParserCSS3
+import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.UIElementChildren
+import dev.reactant.reactant.ui.element.UIElementName
+import org.w3c.css.sac.InputSource
+import java.io.StringReader
+
+
+interface UIQueryable {
+    val children: UIElementChildren
+    val rootElement: UIElement?
+    val parent: UIElement?
+
+    val id: String? get() = null;
+
+    val name: String
+        get() = javaClass.run {
+            (if (isAnnotationPresent(UIElementName::class.java)) getAnnotation(UIElementName::class.java)
+                    .run { "$namespace:$name" } else "no-name-el") + (id?.let { "#$it" } ?: "")
+        }
+
+    val path: String get() = (parent?.path?.let { "$it>" } ?: "") + name
+
+    /**
+     * @return 0 if it is this itself, positive value if it is a child of this, negative value if it is a parent of it, nothing if they do not have parent/child relation.
+     */
+    @JvmDefault
+    fun distanceTo(queryable: UIQueryable): Int? {
+        if (queryable == this) return 0
+        else {
+            fun checkChildrenDistance(parent: UIQueryable, children: UIQueryable): Int? {
+                var result = 0;
+                var checking = children.parent
+                while (checking != null) {
+                    if (checking == parent) return result
+                    checking = checking.parent
+                    result++;
+                }
+                return null;
+            }
+
+            val childrenDistance = checkChildrenDistance(this, queryable);
+            return childrenDistance ?: checkChildrenDistance(queryable, this)?.let { -it };
+        }
+    }
+
+    val recursiveChildren: ImmutableSet<UIElement>
+        get() {
+            fun walkChildren(el: UIQueryable): Set<UIElement> {
+                return el.children.union(el.children.flatMap { walkChildren(it) }).toSet();
+            }
+            return ImmutableSet.copyOf(walkChildren(this));
+        }
+
+    /**
+     * Find by predicate, return first or null
+     */
+    fun UIQueryable.firstElement(predicate: (UIElement) -> Boolean): UIElement? =
+            children.firstOrNull(predicate) ?: children.mapNotNull { it.firstElement(predicate) }.firstOrNull()
+
+    fun getUIElementById(id: String): UIElement? = firstElement { it.id == id }
+
+    /**
+     * Find closest children, not including this itself
+     */
+    @JvmDefault
+    fun closest(selector: String): UIElement? = querySelectorAll(selector).map { it to this.distanceTo(it) }
+            .filter { it.second != null && it.second!! > 0 }
+            .sortedByDescending { it.second }
+            .map { it.first }.firstOrNull()
+
+    @JvmDefault
+    fun querySelector(selector: String): UIElement? = this.querySelectorAll(selector).firstOrNull()
+
+    @JvmDefault
+    fun querySelectorAll(selector: String): Set<UIElement> = selectElements(this, parser.parseSelectors(InputSource(StringReader(selector))))
+
+    companion object {
+        var parser = CSSOMParser(SACParserCSS3());
+    }
+}
+
+inline fun <reified T : UIElement> UIQueryable.getElementById(id: String): T? = getUIElementById(id) as T?
+

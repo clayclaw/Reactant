@@ -11,7 +11,6 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import picocli.CommandLine.Model
-import java.util.logging.Level
 
 @Component
 class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<PicocliCommandService.CommandRegistering> {
@@ -75,7 +74,7 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
         if (existingCommand.contains(result)) {
             val revisedNumber = (2..Int.MAX_VALUE).first { !existingCommand.contains("$result$it") }
             result = "$result$revisedNumber"
-            ReactantCore.instance.logger.log(Level.WARNING, "Command result conflict: $result " +
+            ReactantCore.logger.warn("Command result conflict: $result " +
                     "(register by ${componentRegistrant::class.java.canonicalName}), " +
                     "revised to $result")
         }

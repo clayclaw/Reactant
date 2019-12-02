@@ -24,7 +24,7 @@ abstract class ReactantUIElement(override val elementIdentifier: String) : UIEle
             newParent?.children?.add(this)
         }
 
-
+    override val rootElement: UIElement? get() = parent?.rootElement ?: this
     @Suppress("LeakingThis")
     override val children = ReactantUIElementChildrenSet(this)
 
