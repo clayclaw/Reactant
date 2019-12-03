@@ -3,12 +3,13 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
+val versionNumber = "0.1.5"
 val isSnapshot = true
+val kotlinVersion = "1.3.61"
 
 group = "dev.reactant"
-version = "0.1.5${if (isSnapshot) "-SNAPSHOT" else ""}"
+version = "$versionNumber${if (isSnapshot) "-SNAPSHOT" else ""}"
 
-val kotlinVersion = "1.3.31"
 
 plugins {
     java
