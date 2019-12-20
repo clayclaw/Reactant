@@ -9,11 +9,9 @@ import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
 import io.reactivex.Observable
 
 class ReactantUIEditing(val view: ReactantUIView) : ReactantUIContainerElementEditing<ViewInventoryContainerElement>(view.rootElement) {
-    fun view(action: ReactantUIView.() -> Unit) {
-        view.apply(action)
-    }
-
     val uiClose: Observable<UICloseEvent> get() = view.event.filter { it is UICloseEvent }.map { it as UICloseEvent }
+
+    val scheduler get() = view.scheduler
 
     /**
      * Click event observable including both element event and ui event

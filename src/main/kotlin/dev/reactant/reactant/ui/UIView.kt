@@ -5,6 +5,7 @@ import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.event.UIEvent
 import dev.reactant.reactant.ui.eventtarget.UIEventTarget
 import dev.reactant.reactant.ui.query.UIQueryable
+import dev.reactant.reactant.ui.rendering.RenderedView
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
@@ -28,9 +29,11 @@ interface UIView : UIEventTarget<UIEvent>, UIQueryable {
     fun getElementAt(x: Int, y: Int): UIElement?
 
     /**
-     * Render the inventory elements and Update inventory view in next tick
+     * Update render result and inventory view in next tick
      */
     fun render()
+
+    val lastRenderResult: RenderedView?
 
     fun show(player: Player)
 }

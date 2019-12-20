@@ -27,9 +27,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
     private fun onEvent(event: Event, priority: EventPriority) {
         if (eventPrioritySubjectMap.containsKey(event::class.java)
                 && eventPrioritySubjectMap[event::class.java]!!.containsKey(priority)) {
-            eventPrioritySubjectMap
-                    .getOrPut(event::class.java, { HashMap() })
-                    .getOrPut(priority, { PublishSubject.create<Event>() }).onNext(event)
+            eventPrioritySubjectMap[event::class.java]!![priority]!!.onNext(event)
         }
     }
 
@@ -48,6 +46,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass.java, { HashMap() })
                 .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
+                .doOnError { it.printStackTrace() }
                 as Observable<T>
     }
 }

@@ -62,27 +62,32 @@ interface UIQueryable {
     fun UIQueryable.firstElement(predicate: (UIElement) -> Boolean): UIElement? =
             children.firstOrNull(predicate) ?: children.mapNotNull { it.firstElement(predicate) }.firstOrNull()
 
-    fun getUIElementById(id: String): UIElement? = firstElement { it.id == id }
-
     /**
      * Find closest children, not including this itself
      */
     @JvmDefault
-    fun closest(selector: String): UIElement? = querySelectorAll(selector).map { it to this.distanceTo(it) }
+    fun closestChild(selector: String): UIElement? = querySelectorAll(selector).map { it to this.distanceTo(it) }
             .filter { it.second != null && it.second!! > 0 }
             .sortedByDescending { it.second }
             .map { it.first }.firstOrNull()
 
-    @JvmDefault
-    fun querySelector(selector: String): UIElement? = this.querySelectorAll(selector).firstOrNull()
 
     @JvmDefault
     fun querySelectorAll(selector: String): Set<UIElement> = selectElements(this, parser.parseSelectors(InputSource(StringReader(selector))))
+
+
+    /**
+     * Check is the element match the selector in parent's view
+     * Root element will always return false
+     */
+    @JvmDefault
+    fun matches(selector: String): Boolean = this.parent?.querySelectorAll(selector)?.contains(this) ?: false
 
     companion object {
         var parser = CSSOMParser(SACParserCSS3());
     }
 }
 
-inline fun <reified T : UIElement> UIQueryable.getElementById(id: String): T? = getUIElementById(id) as T?
+inline fun <reified T : UIElement> UIQueryable.querySelector(selector: String): T? = this.querySelectorAll(selector).firstOrNull() as T
+inline fun <reified T : UIElement> UIQueryable.getElementById(id: String): T? = this.firstElement { it.id == id } as T?
 

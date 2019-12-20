@@ -73,7 +73,7 @@ dependencies {
 
     api("net.sourceforge.cssparser:cssparser:0.9.27")
 
-    compileOnly("org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
     outputFormat = "html"

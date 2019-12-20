@@ -1,32 +1,37 @@
 package dev.reactant.reactant.ui.kits
 
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
-import dev.reactant.reactant.ui.element.ElementDisplay
-import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
-import dev.reactant.reactant.ui.element.type.sizing.ResizableElement
-import dev.reactant.reactant.ui.element.type.sizing.ResizableElementsEditing
+import dev.reactant.reactant.ui.element.style.ElementDisplay
+import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue
+import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.block
+import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fillParent
+import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fitContent
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
-import dev.reactant.reactant.utils.content.item.createItemStack
+import dev.reactant.reactant.utils.content.item.itemStackOf
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
 @UIElementName("div")
-open class ReactantUIDivElement : ReactantUIContainerElement("div"), ResizableElement {
+open class ReactantUIDivElement(elementIdentifier: String = "div") : ReactantUIContainerElement(elementIdentifier) {
     override fun edit() = ReactantUIDivElementEditing(this)
 
-    override var height: Int = UIElement.WRAP_CONTENT
-    override var width: Int = UIElement.MATCH_PARENT
-    override var display = ElementDisplay.BLOCK
+    override var width: PositioningStylePropertyValue = fillParent
+    override var height: PositioningStylePropertyValue = fitContent
 
-    var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack = { _, _ -> createItemStack() }
+    override var display: ElementDisplay = block
 
-    override fun getBackgroundItemStack(x: Int, y: Int): ItemStack = fillPattern(x, y)
+    override var minHeight: Int = 1
+
+    var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack? = { _, _ -> itemStackOf() }
+
+    override fun getBackgroundItemStack(x: Int, y: Int): ItemStack? = fillPattern(x, y)
 }
 
 open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
-    : ReactantUIContainerElementEditing<T>(element), ResizableElementsEditing<T> {
+    : ReactantUIContainerElementEditing<T>(element) {
     var overflowHidden by MutablePropertyDelegate(this.element::overflowHidden)
     var fillPattern by MutablePropertyDelegate(this.element::fillPattern)
     fun fill(itemStack: ItemStack) {
@@ -34,6 +39,6 @@ open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
     }
 }
 
-fun ReactantUIElementEditing<UIElement>.div(creation: ReactantUIDivElementEditing<ReactantUIDivElement>.() -> Unit) {
+fun ReactantUIElementEditing<ReactantUIElement>.div(creation: ReactantUIDivElementEditing<ReactantUIDivElement>.() -> Unit) {
     element.children.add(ReactantUIDivElement().also { ReactantUIDivElementEditing(it).apply(creation) })
 }

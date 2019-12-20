@@ -6,8 +6,9 @@ import dev.reactant.reactant.ui.element.UIElementChildren
 import dev.reactant.reactant.ui.event.UIEvent
 import dev.reactant.reactant.ui.query.UIQueryable
 import dev.reactant.reactant.ui.query.selectElements
-import dev.reactant.reactant.ui.rendering.ElementSlot
-import dev.reactant.reactant.ui.rendering.RenderedItems
+import dev.reactant.reactant.ui.rendering.ReactantRenderedView
+import dev.reactant.reactant.ui.rendering.RenderedView
+import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -18,9 +19,15 @@ import java.io.StringReader
 class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit,
                      val title: String, val height: Int) : UIView {
 
-    override fun show(player: Player) = showPlayerFunc(this, player)
+    override fun show(player: Player) = lastRenderResult.let {
+        if (it == null) {
+            updateView()
+        }
+    }.also { showPlayerFunc(this, player) }
 
     override val event = PublishSubject.create<UIEvent>()
+
+    var scheduledUpdate: Disposable? = null
 
     var width = 9
 
@@ -37,32 +44,32 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
 
     override fun querySelectorAll(selector: String): Set<UIElement> = selectElements(rootElement, UIQueryable.parser.parseSelectors(InputSource(StringReader(selector))))
 
-    override val children: UIElementChildren = LinkedHashSet<UIElement>(setOf(rootElement))
+    override val children: UIElementChildren = LinkedHashSet(setOf(rootElement))
     override val parent: UIElement? = null
 
-    private var lastRenderResult: RenderedItems? = null
-        private set
+    override var lastRenderResult: RenderedView? = null
 
     override fun render() {
-        lastRenderResult = rootElement.render(rootElement.width, rootElement.height)
         scheduleUpdate()
     }
 
     override fun getElementAt(x: Int, y: Int): UIElement? {
         if (lastRenderResult == null) throw IllegalStateException("UI never be rendered")
-        return lastRenderResult!!.items[x to y]?.element
+        return lastRenderResult!!.layerResult[x to y]?.last()
     }
 
     private fun scheduleUpdate() {
-        scheduler.next().subscribe(this::updateView)
+        if (this.scheduledUpdate == null) this.scheduledUpdate = scheduler.next().subscribe(this::updateView)
     }
 
     private fun updateView() {
-        lastRenderResult!!.items
-                .filter { it.value != ElementSlot.EMPTY }
-                .map { (pos, slot) -> (pos.second * 9 + pos.first) to slot.itemStack }
+        rootElement.computeStyle()
+        lastRenderResult = ReactantRenderedView(this)
+        lastRenderResult!!.result
+                .map { (position, item) -> (position.second * 9 + position.first) to item }
                 // filter out the slots which have different ItemStack
-                .filter { inventory.getItem(it.first)?.equals(it.second)?.not() ?: true }
-                .forEach { inventory.setItem(it.first, it.second) }
+                .filter { (slotIndex, item) -> inventory.getItem(slotIndex)?.equals(item)?.not() ?: true }
+                .forEach { (slotIndex, item) -> inventory.setItem(slotIndex, item) }
+        scheduledUpdate = null
     }
 }

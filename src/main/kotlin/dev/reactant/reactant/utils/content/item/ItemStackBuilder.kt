@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package dev.reactant.reactant.utils.content.item
 
 import org.bukkit.Material
@@ -13,6 +11,7 @@ private typealias ItemMetaModifier = ItemMeta.() -> Unit
 class ItemStackBuilder {
     lateinit var type: Material
     var amount: Int = 1
+    @Suppress("DEPRECATION")
     var data: MaterialData? = null
     private var metaModifier: ItemMetaModifier = {}
     private var enchantments = hashMapOf<Enchantment, Int>()
@@ -42,7 +41,11 @@ class ItemStackBuilder {
     }
 }
 
-fun createItemStack(type: Material = Material.AIR, amount: Int = 1, builderConfig: ItemStackBuilder.() -> Unit = {}): ItemStack {
+@Deprecated(message = "Confusing name", replaceWith = ReplaceWith("itemStackOf(type,amount,builderConfig)"))
+fun createItemStack(type: Material = Material.AIR, amount: Int = 1, builderConfig: ItemStackBuilder.() -> Unit = {}): ItemStack =
+        itemStackOf(type, amount, builderConfig)
+
+fun itemStackOf(type: Material = Material.AIR, amount: Int = 1, builderConfig: ItemStackBuilder.() -> Unit = {}): ItemStack {
     return ItemStackBuilder().also {
         it.type = type;
         it.amount = amount

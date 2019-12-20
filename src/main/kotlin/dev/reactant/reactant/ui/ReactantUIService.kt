@@ -66,7 +66,6 @@ class ReactantUIService(
         inventoryUIMap[ui.inventory] = ui
 
         ui.show(initialViewer)
-        ui.render()
 
         return ui
     }
