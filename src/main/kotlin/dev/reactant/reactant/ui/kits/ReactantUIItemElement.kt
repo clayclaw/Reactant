@@ -4,7 +4,6 @@ import dev.reactant.reactant.ui.editing.UIElementEditing
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.actual
 import dev.reactant.reactant.utils.content.item.itemStackOf
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.Material

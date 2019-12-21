@@ -49,6 +49,7 @@ interface UIElementStyle {
 
     fun computeStyle()
 
+
     companion object {
         fun actual(value: Int) = PositioningStylePropertyValue.IntValue(value)
         fun percentage(value: Float) = PositioningStylePropertyValue.PercentageValue(value)

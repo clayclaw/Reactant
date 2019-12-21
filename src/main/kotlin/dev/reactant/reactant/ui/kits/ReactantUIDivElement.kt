@@ -5,9 +5,6 @@ import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.style.ElementDisplay
 import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.block
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fillParent
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fitContent
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
@@ -17,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 open class ReactantUIDivElement(elementIdentifier: String = "div") : ReactantUIContainerElement(elementIdentifier) {
     override fun edit() = ReactantUIDivElementEditing(this)
 
-    override var width: PositioningStylePropertyValue = fillParent
+    override var width: PositioningStylePropertyValue = auto
     override var height: PositioningStylePropertyValue = fitContent
 
     override var display: ElementDisplay = block

@@ -65,9 +65,10 @@ abstract class ReactantUIElementStyle : UIElementStyleEditing {
     }
 
     override fun computeStyle() {
+        if (el.rootElement != this) throw UnsupportedOperationException("Only root element can compute style")
         clearComputedStyle()
         initializeComputedStyle()
-        computedStyle!!.computeOffsetSize()
+        computedStyle!!.computeOffsetSize((width as PositioningStylePropertyValue.IntValue).value, (height as PositioningStylePropertyValue.IntValue).value)
         computedStyle!!.computeBoundingClientRect()
     }
 }
