@@ -1,6 +1,5 @@
 package dev.reactant.reactant.ui.element.style
 
-import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue.*
@@ -25,10 +24,10 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
 
     val revisedWidth: PositioningStylePropertyValue
         get() = when (el.width) {
-            is FitContent -> fitContent
+            is FitContent -> if (el.children.isEmpty()) actual(0) else fitContent
             // consider as percentage size as fit-content if its parent also is fit-content size
             is PercentageValue -> when ((el.parent as ReactantUIElement).computedStyle!!.revisedWidth) {
-                is FitContent -> fitContent
+                is FitContent -> if (el.children.isEmpty()) actual(0) else fitContent
                 else -> el.width
             }
             is AutoValue -> actual((suggestedAutoWidth - marginLeft - marginRight).coerceAtLeast(0))
@@ -37,10 +36,10 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
 
     val revisedHeight: PositioningStylePropertyValue
         get() = when (el.height) {
-            is FitContent -> fitContent
+            is FitContent -> if (el.children.isEmpty()) actual(0) else fitContent
             // consider as percentage size as fit-content if its parent also is fit-content size
             is PercentageValue -> when ((el.parent as ReactantUIElement).computedStyle!!.revisedHeight) {
-                is FitContent -> fitContent
+                is FitContent -> if (el.children.isEmpty()) actual(0) else fitContent
                 else -> el.height
             }
             is AutoValue -> actual((suggestedAutoHeight - marginLeft - marginRight).coerceAtLeast(0))
@@ -103,6 +102,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
             offsetHeight = getOffsetSize(false)
         }
 
+        computeChildrenWidth()
         computeChildrenPosition()
     }
 
@@ -194,43 +194,56 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         fun canInsert(el: ReactantUIElement): Boolean = width == 0 || width + el.offsetWidth <= widthPerRow
     }
 
+    var childrenRows: ArrayList<ChildrenRow> by Delegates.notNull()
+
+    fun computeChildrenWidth() {
+        val widthPerRow = if (el.width == fitContent) Int.MAX_VALUE else max(0, offsetWidth - paddingLeft - paddingRight)
+        childrenRows = arrayListOf(ChildrenRow(widthPerRow))
+
+
+        el.children.map { it as ReactantUIElement }.forEach { childrenEl ->
+            var suggestingAutoWidth = widthPerRow - childrenRows.last().width;
+            if (suggestingAutoWidth <= 0) suggestingAutoWidth = widthPerRow
+            childrenEl.computedStyle!!.computeOffsetWidthOnly(suggestingAutoWidth);
+            childrenEl.computedStyle!!.let { if (it.revisedWidth is FitContent) it.computeChildrenWidth() }
+
+            if (!childrenRows.last().canInsert(childrenEl) || (childrenEl.display == block && childrenRows.last().children.size > 0)) childrenRows.add(ChildrenRow(widthPerRow))
+            suggestingAutoWidth = widthPerRow - childrenRows.last().width // recompute
+            childrenEl.computedStyle!!.computeOffsetWidthOnly(suggestingAutoWidth);
+            childrenEl.computedStyle!!.let { it.computeChildrenWidth() }
+            childrenRows.last().children.add(childrenEl)
+            if (childrenEl.display == block) childrenRows.add(ChildrenRow(widthPerRow));
+        }
+
+        if (revisedWidth is FitContent) {
+            offsetWidth = childrenRows.map { it.width }.max() ?: 0
+        }
+    }
+
     /**
      * Compute the children position, and set the height and width of "fit-content" parent
      */
     fun computeChildrenPosition() {
-        val widthPerRow = if (el.width == fitContent) Int.MAX_VALUE else max(0, offsetWidth - paddingLeft - paddingRight)
-        ReactantCore.logger.warn("" + widthPerRow + "-" + offsetWidth + "-" + paddingLeft + "-" + paddingRight + el.path)
-        val rows = arrayListOf(ChildrenRow(widthPerRow))
-
-
-        el.children.map { it as ReactantUIElement }.forEach { childrenEl ->
-            var suggestingAutoWidth = widthPerRow - rows.last().width;
-            if (suggestingAutoWidth <= 0) suggestingAutoWidth = widthPerRow
-            childrenEl.computedStyle!!.computeOffsetWidthOnly(suggestingAutoWidth);
-
-            if (!rows.last().canInsert(childrenEl) || (childrenEl.display == block && rows.last().children.size > 0)) rows.add(ChildrenRow(widthPerRow))
-            suggestingAutoWidth = widthPerRow - rows.last().width // recompute
-            rows.last().children.add(childrenEl)
-            if (childrenEl.display == block) rows.add(ChildrenRow(widthPerRow));
-        }
-        rows.forEachIndexed { index, row ->
+        childrenRows.forEachIndexed { index, row ->
             if (row.children.size == 1) {
-                val suggestingAutoHeight = offsetHeight - rows.take(index).map { it.rowHeight }.sum()
+                val suggestingAutoHeight = (if (revisedHeight is FitContent) suggestedAutoHeight else offsetHeight) - childrenRows.take(index).map { it.rowHeight }.sum()
                 row.children.forEach { it.computedStyle!!.computeOffsetHeightOnly(suggestedAutoHeight) }
+                row.children.forEach { it.computedStyle!!.computeChildrenPosition() }
             } else {
                 row.children.filter { it.height !is AutoValue }.forEach { it.computedStyle!!.computeOffsetHeightOnly(0) }
+                row.children.forEach { it.computedStyle!!.let { if (it.revisedHeight is FitContent) it.computeChildrenPosition() } }
                 val suggestingAutoHeight = row.children.map { it.offsetHeight }.max()
                 row.children.filter { it.height is AutoValue }.forEach { it.computedStyle!!.computeOffsetHeightOnly(suggestedAutoHeight) }
+                row.children.forEach { it.computedStyle!!.computeChildrenPosition() }
             }
 
-            row.children.forEach { it.computedStyle!!.computeChildrenPosition() }
         }
 
 
         var allocatingTop = paddingTop
         var allocatingLeft = paddingLeft
 
-        rows.forEach { row ->
+        childrenRows.forEach { row ->
             row.children.forEach {
 
                 val leftMargin = ((it.marginLeft as? AutoValue)?.let { row.autoMarginSpace }
@@ -247,10 +260,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
 
         // calculate the fit-content element offsetHeight and offsetWidth at this moment
         if (revisedHeight is FitContent) {
-            offsetHeight = max(el.minHeight, min(el.maxHeight, rows.map { it.rowHeight }.sum() + paddingTop + paddingBottom))
-        }
-        if (revisedWidth is FitContent) {
-            offsetWidth = rows.map { it.width }.max() ?: 0
+            offsetHeight = max(el.minHeight, min(el.maxHeight, childrenRows.map { it.rowHeight }.sum() + paddingTop + paddingBottom))
         }
     }
 
@@ -269,7 +279,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
                 else { target: ReactantUIElement, size: Int -> max(target.minHeight, min(target.maxHeight, size)) }
 
         return limiter(el, when (sizeValue) {
-            is IntValue -> return (sizeGetter(el) as IntValue).value
+            is IntValue -> (sizeGetter(el) as IntValue).value
             // cannot compute auto fit height in this stage
             is FitContent, is AutoValue -> throw UnsupportedOperationException("fit-content")
             is PercentageValue -> (((el.parent?.let { offsetSizeGetter(it as ReactantUIElement) })
