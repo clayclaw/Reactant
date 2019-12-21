@@ -10,7 +10,6 @@ import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fillParen
 import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.fitContent
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
-import dev.reactant.reactant.utils.content.item.itemStackOf
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
@@ -25,7 +24,7 @@ open class ReactantUIDivElement(elementIdentifier: String = "div") : ReactantUIC
 
     override var minHeight: Int = 1
 
-    var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack? = { _, _ -> itemStackOf() }
+    var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack? = { _, _ -> null }
 
     override fun getBackgroundItemStack(x: Int, y: Int): ItemStack? = fillPattern(x, y)
 }
@@ -34,8 +33,8 @@ open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
     : ReactantUIContainerElementEditing<T>(element) {
     var overflowHidden by MutablePropertyDelegate(this.element::overflowHidden)
     var fillPattern by MutablePropertyDelegate(this.element::fillPattern)
-    fun fill(itemStack: ItemStack) {
-        fillPattern = { _, _ -> itemStack.clone() }
+    fun fill(itemStack: ItemStack?) {
+        fillPattern = { _, _ -> itemStack?.clone() }
     }
 }
 
