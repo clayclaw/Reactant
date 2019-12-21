@@ -66,10 +66,20 @@ interface UIQueryable {
      * Find closest children, not including this itself
      */
     @JvmDefault
-    fun closestChild(selector: String): UIElement? = querySelectorAll(selector).map { it to this.distanceTo(it) }
+    fun closestChild(selector: String): UIElement? = querySelectorAll(selector)
+            .asSequence()
+            .map { it to this.distanceTo(it) }
             .filter { it.second != null && it.second!! > 0 }
-            .sortedByDescending { it.second }
+            .sortedBy { it.second }
             .map { it.first }.firstOrNull()
+
+    @JvmDefault
+    fun closest(selector: String): UIElement? = rootElement?.querySelectorAll(selector)
+            ?.asSequence()
+            ?.map { it to this.distanceTo(it) }
+            ?.filter { it.second != null && it.second!! < 0 }
+            ?.sortedByDescending { it.second }
+            ?.map { it.first }?.firstOrNull()
 
 
     @JvmDefault

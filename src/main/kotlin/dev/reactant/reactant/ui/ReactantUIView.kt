@@ -4,10 +4,12 @@ import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementChildren
 import dev.reactant.reactant.ui.event.UIEvent
+import dev.reactant.reactant.ui.event.interact.UIInteractEvent
 import dev.reactant.reactant.ui.query.UIQueryable
 import dev.reactant.reactant.ui.query.selectElements
 import dev.reactant.reactant.ui.rendering.ReactantRenderedView
 import dev.reactant.reactant.ui.rendering.RenderedView
+import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import org.bukkit.Bukkit
@@ -24,6 +26,11 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
             updateView()
         }
     }.also { showPlayerFunc(this, player) }
+
+    private var isCancelModificationEvents: Boolean = false
+    override fun setCancelModificationEvents(cancel: Boolean) {
+        this.isCancelModificationEvents = cancel
+    }
 
     override val event = PublishSubject.create<UIEvent>()
 
@@ -72,4 +79,13 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
                 .forEach { (slotIndex, item) -> inventory.setItem(slotIndex, item) }
         scheduledUpdate = null
     }
+
+
+    init {
+        event<UIInteractEvent>().subscribe { if (isCancelModificationEvents) it.isCancelled = true }
+    }
+}
+
+inline fun <reified T : UIEvent> ReactantUIView.event(): Observable<T> {
+    return event.filter { it is T }.map { it as? T }
 }

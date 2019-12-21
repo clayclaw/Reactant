@@ -32,6 +32,10 @@ open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: 
 }
 
 
+fun UIElementEditing<UIElement>.item(displayMaterial: Material = Material.AIR,
+                                     creation: ReactantUIItemElementEditing<ReactantUIItemElement>.() -> Unit = {}) =
+        item(itemStackOf(displayMaterial), creation)
+
 fun UIElementEditing<UIElement>.item(displayItem: ItemStack = itemStackOf(),
                                      creation: ReactantUIItemElementEditing<ReactantUIItemElement>.() -> Unit = {}) {
     element.children.add(ReactantUIItemElement()

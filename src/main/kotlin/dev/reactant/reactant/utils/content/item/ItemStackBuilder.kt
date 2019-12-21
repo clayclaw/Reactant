@@ -4,15 +4,12 @@ import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
-import org.bukkit.material.MaterialData
 
-private typealias ItemMetaModifier = ItemMeta.() -> Unit
+private typealias  ItemMetaModifier = ItemMeta.() -> Unit
 
 class ItemStackBuilder {
     lateinit var type: Material
     var amount: Int = 1
-    @Suppress("DEPRECATION")
-    var data: MaterialData? = null
     private var metaModifier: ItemMetaModifier = {}
     private var enchantments = hashMapOf<Enchantment, Int>()
 
@@ -35,7 +32,6 @@ class ItemStackBuilder {
 
 
     fun build() = ItemStack(type, amount).also {
-        it.data = data
         it.itemMeta = it.itemMeta?.apply(metaModifier)
         it.addUnsafeEnchantments(enchantments)
     }

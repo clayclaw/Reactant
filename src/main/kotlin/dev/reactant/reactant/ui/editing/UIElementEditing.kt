@@ -15,6 +15,10 @@ interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
     var classList: UIElementClassList
     var attributes: UIElementAttributes
 
+    fun attributes(vararg modifiers: Pair<String, String>) {
+        attributes.putAll(modifiers)
+    }
+
     @JvmDefault
     val event
         get() = element.event;

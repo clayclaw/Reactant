@@ -36,4 +36,6 @@ interface UIView : UIEventTarget<UIEvent>, UIQueryable {
     val lastRenderResult: RenderedView?
 
     fun show(player: Player)
+
+    fun setCancelModificationEvents(cancel: Boolean)
 }
