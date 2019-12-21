@@ -119,6 +119,19 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         }
     }
 
+    fun computeOffsetHeightOnly(suggestedAutoHeight: Int) {
+        this.suggestedAutoHeight = suggestedAutoHeight
+        paddingBottom = calculateWidthBasedValue(el.paddingBottom)
+        paddingTop = calculateWidthBasedValue(el.paddingTop)
+        marginBottom = calculateWidthBasedValue(el.marginBottom)
+        marginTop = calculateWidthBasedValue(el.marginTop)
+        top = calculateWidthBasedValue(el.top)
+        bottom = calculateWidthBasedValue(el.bottom)
+        if (revisedHeight !is FitContent) {
+            offsetHeight = getOffsetSize(false)
+        }
+    }
+
     fun computeBoundingClientRect() {
         boundingClientRect = when (el.position) {
             fixed -> calculatePositionByTopRightBottomLeft(el.rootElement)
@@ -128,10 +141,10 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
             }
             absolute -> calculatePositionByTopRightBottomLeft(el.parent).run {
                 BoundingRect(
-                        top + (el.parent?.boundingClientRect?.top ?: 0),
-                        right + (el.parent?.boundingClientRect?.left ?: 0),
-                        bottom + (el.parent?.boundingClientRect?.top ?: 0),
-                        left + (el.parent?.boundingClientRect?.left ?: 0)
+                        top + (el.parent?.paddingExcludedBoundingClientRect?.top ?: 0),
+                        right + (el.parent?.paddingExcludedBoundingClientRect?.left ?: 0),
+                        bottom + (el.parent?.paddingExcludedBoundingClientRect?.top ?: 0),
+                        left + (el.parent?.paddingExcludedBoundingClientRect?.left ?: 0)
                 )
             }
             else -> throw IllegalStateException("Unknown position value")
@@ -188,6 +201,8 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         val widthPerRow = if (el.width == fitContent) Int.MAX_VALUE else max(0, offsetWidth - paddingLeft - paddingRight)
         ReactantCore.logger.warn("" + widthPerRow + "-" + offsetWidth + "-" + paddingLeft + "-" + paddingRight + el.path)
         val rows = arrayListOf(ChildrenRow(widthPerRow))
+
+
         el.children.map { it as ReactantUIElement }.forEach { childrenEl ->
             var suggestingAutoWidth = widthPerRow - rows.last().width;
             if (suggestingAutoWidth <= 0) suggestingAutoWidth = widthPerRow
@@ -195,15 +210,22 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
 
             if (!rows.last().canInsert(childrenEl) || (childrenEl.display == block && rows.last().children.size > 0)) rows.add(ChildrenRow(widthPerRow))
             suggestingAutoWidth = widthPerRow - rows.last().width // recompute
-            val suggestingAutoHeight = (
-                    if (rows.last().children.isEmpty()) offsetHeight - rows.map { row -> row.rowHeight }.sum()
-                    else rows.last().rowHeight).coerceAtLeast(0
-            )
-            childrenEl.computedStyle!!.computeOffsetSize(suggestingAutoWidth, suggestingAutoWidth)
-
             rows.last().children.add(childrenEl)
             if (childrenEl.display == block) rows.add(ChildrenRow(widthPerRow));
         }
+        rows.forEachIndexed { index, row ->
+            if (row.children.size == 1) {
+                val suggestingAutoHeight = offsetHeight - rows.take(index).map { it.rowHeight }.sum()
+                row.children.forEach { it.computedStyle!!.computeOffsetHeightOnly(suggestedAutoHeight) }
+            } else {
+                row.children.filter { it.height !is AutoValue }.forEach { it.computedStyle!!.computeOffsetHeightOnly(0) }
+                val suggestingAutoHeight = row.children.map { it.offsetHeight }.max()
+                row.children.filter { it.height is AutoValue }.forEach { it.computedStyle!!.computeOffsetHeightOnly(suggestedAutoHeight) }
+            }
+
+            row.children.forEach { it.computedStyle!!.computeChildrenPosition() }
+        }
+
 
         var allocatingTop = paddingTop
         var allocatingLeft = paddingLeft

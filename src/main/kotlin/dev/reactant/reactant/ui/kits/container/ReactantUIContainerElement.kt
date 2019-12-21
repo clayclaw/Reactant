@@ -21,7 +21,7 @@ abstract class ReactantUIContainerElement(elementIdentifier: String) : ReactantU
     override fun renderVisibleElementsPositions(): LinkedHashMap<out ReactantUIElement, HashSet<Pair<Int, Int>>> {
         return super.renderVisibleElementsPositions().let {
             if (overflowHidden) LinkedHashMap(it.map { (el: ReactantUIElement, positions) ->
-                el to positions.filter { position -> el == this || paddingExcludedBoundingClientRect.contains(position) }.toHashSet()
+                el to positions.filter { position -> el == this || (el.position == fixed) || paddingExcludedBoundingClientRect.contains(position) }.toHashSet()
             }.toMap())
             else it
         }
