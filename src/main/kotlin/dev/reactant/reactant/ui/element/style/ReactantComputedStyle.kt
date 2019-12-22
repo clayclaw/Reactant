@@ -175,7 +175,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         val totalAutoMargin
             get() = children.map {
                 ((it.marginLeft as? PositioningAutoValue)?.let { 1 }
-                        ?: 0) + ((it.marginLeft as? PositioningAutoValue)?.let { 1 } ?: 0)
+                        ?: 0) + ((it.marginRight as? PositioningAutoValue)?.let { 1 } ?: 0)
             }.sum()
 
         val autoMarginSpace get() = (max(0, widthPerRow - width) / totalAutoMargin)
