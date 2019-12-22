@@ -98,6 +98,6 @@ interface UIQueryable {
     }
 }
 
-inline fun <reified T : UIElement> UIQueryable.querySelector(selector: String): T? = this.querySelectorAll(selector).firstOrNull() as T
+inline fun <reified T : UIElement> UIQueryable.querySelector(selector: String): T? = this.querySelectorAll(selector).firstOrNull() as T?
 inline fun <reified T : UIElement> UIQueryable.getElementById(id: String): T? = this.firstElement { it.id == id } as T?
 
