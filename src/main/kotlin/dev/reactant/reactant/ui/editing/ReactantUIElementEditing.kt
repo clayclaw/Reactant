@@ -6,7 +6,8 @@ import dev.reactant.reactant.ui.element.style.UIElementStyle
 import dev.reactant.reactant.ui.element.style.UIElementStyleEditing
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 
-open class ReactantUIElementEditing<out T : ReactantUIElement>(final override val element: T) : UIElementStyleEditing by element, UIElementEditing<T> {
+open class ReactantUIElementEditing<out T : ReactantUIElement>(final override val element: T)
+    : UIElementStyleEditing by element, UIElementEditing<T> {
     init {
         element.view?.render()
     }
@@ -28,17 +29,17 @@ open class ReactantUIElementEditing<out T : ReactantUIElement>(final override va
         }
 
 
-    val actual get() = UIElementStyle.Companion::actual
-    val percentage get() = UIElementStyle.Companion::percentage
-    val auto get() = UIElementStyle.auto
-    val fitContent get() = UIElementStyle.fitContent
-    val fillParent get() = UIElementStyle.fillParent
+    val actual = UIElementStyle.Companion::actual
+    val percentage = UIElementStyle.Companion::percentage
+    val auto = UIElementStyle.auto
+    val fitContent = UIElementStyle.fitContent
+    val fillParent = UIElementStyle.fillParent
 
-    val fixed get() = UIElementStyle.fixed
-    val static get() = UIElementStyle.static
-    val absolute get() = UIElementStyle.absolute
-    val relative get() = UIElementStyle.relative
+    val fixed = UIElementStyle.fixed
+    val static = UIElementStyle.static
+    val absolute = UIElementStyle.absolute
+    val relative = UIElementStyle.relative
 
-    val block get() = UIElementStyle.block
-    val inline get() = UIElementStyle.inline
+    val block = UIElementStyle.block
+    val inline = UIElementStyle.inline
 }

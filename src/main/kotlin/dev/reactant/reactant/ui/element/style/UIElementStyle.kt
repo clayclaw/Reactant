@@ -53,38 +53,34 @@ interface UIElementStyle {
     companion object {
         fun actual(value: Int) = PositioningStylePropertyValue.IntValue(value)
         fun percentage(value: Float) = PositioningStylePropertyValue.PercentageValue(value)
-        val auto = PositioningStylePropertyValue.AUTO
-        val fitContent = PositioningStylePropertyValue.FIT_CONTENT
-        val fillParent = percentage(100F)
+        val auto = object : PositioningStylePropertyValue.AutoValue {
+            override fun toString(): String = "auto"
+        }
+        val fitContent = object : PositioningStylePropertyValue.FitContent {
+            override fun toString(): String = "fit-content"
+        }
+        val fillParent = PositioningStylePropertyValue.PercentageValue(100F)
 
-        val fixed = object : ElementPosition {
-            override fun toString(): String = "fixed"
-        }
-        val static = object : ElementPosition {
-            override fun toString(): String = "static"
-        }
-        val absolute = object : ElementPosition {
-            override fun toString(): String = "absolute"
-        }
-        val relative = object : ElementPosition {
-            override fun toString(): String = "relative"
-        }
+        val fixed = ElementPosition("fixed")
+        val static = ElementPosition("static")
+        val absolute = ElementPosition("absolute")
+        val relative = ElementPosition("relative")
 
-        val block = object : ElementDisplay {
-            override fun toString(): String = "block"
-        }
-        val inline = object : ElementDisplay {
-            override fun toString(): String = "inline"
-        }
+        val block = ElementDisplay("block")
+        val inline = ElementDisplay("inline")
     }
 }
 
 /**
  *
  */
-interface ElementPosition
+class ElementPosition(val name: String) {
+    override fun toString(): String = name
+}
 
-interface ElementDisplay
+class ElementDisplay(val name: String) {
+    override fun toString(): String = name
+}
 
 data class BoundingRect(
         val top: Int,
@@ -109,18 +105,8 @@ interface PositioningStylePropertyValue {
         override fun toString(): String = "$value%"
     }
 
-    interface AutoValue : PositioningStylePropertyValue {
-    }
+    interface AutoValue : PositioningStylePropertyValue
 
     interface FitContent : PositioningStylePropertyValue
-
-    companion object {
-        val AUTO = object : AutoValue {
-            override fun toString(): String = "auto"
-        };
-        val FIT_CONTENT = object : FitContent {
-            override fun toString(): String = "fit-content"
-        };
-    }
 }
 
