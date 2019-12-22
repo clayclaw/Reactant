@@ -42,7 +42,7 @@ interface UIElement : UIElementEventTarget, UIQueryable, UIElementStyle, UIDestr
      * It will remove itself from parent
      */
     override fun destroy() {
-        this.children.forEach { it.destroy() }
+        this.children.toSet().forEach { it.destroy() }
         this.compositeDisposable.dispose()
         this.parent?.children?.remove(this)
     }
