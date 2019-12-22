@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui.element.style
 
+import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElement
 import kotlin.math.max
@@ -289,14 +290,16 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         fun calculatePosition(length: Int, rawPosition: PositioningStylePropertyValue, scaleBy: Int, oppositeValue: PositioningStylePropertyValue, offsetBetweenEnd: Boolean): Int {
             return when (rawPosition) {
                 is PositioningIntValue -> rawPosition.value
+                        .let { if (offsetBetweenEnd) scaleBy - it else it }
                 is PositioningPercentageValue -> (scaleBy * rawPosition.value / 100).roundToInt()
+                        .let { if (offsetBetweenEnd) scaleBy - it else it }
                 is PositioningAutoValue -> if (oppositeValue !is PositioningAutoValue) {
                     val oppositeActual = calculatePosition(length, oppositeValue, scaleBy, rawPosition, !offsetBetweenEnd);
                     if (offsetBetweenEnd) oppositeActual + length
-                    else oppositeActual - length
+                    else oppositeActual.let { if (offsetBetweenEnd) scaleBy - it else it } - length
                 } else 0
                 else -> 0
-            }.let { if (offsetBetweenEnd) scaleBy - it else it }
+            }
         }
 
         val revisedTop = calculatePosition(offsetHeight, el.top, scaleByEl?.offsetHeight ?: 0, el.bottom, false)
@@ -306,7 +309,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         val revisedRight = calculatePosition(offsetWidth, el.right, scaleByEl?.offsetWidth
                 ?: 0, actual(revisedLeft), true)
 
-        return BoundingRect(revisedTop, revisedRight, revisedBottom, revisedLeft)
+        return BoundingRect(revisedTop, revisedRight, revisedBottom, revisedLeft).also { ReactantCore.logger.warn(it) }
     }
 
     private val calculatedPositionTop get() = relativePositionTop + (el.parent?.boundingClientRect?.top ?: 0)
