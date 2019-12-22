@@ -1,6 +1,7 @@
 package dev.reactant.reactant.ui
 
 import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.style.PositioningIntValue
 import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue
 import dev.reactant.reactant.ui.element.style.actual
@@ -10,6 +11,7 @@ import dev.reactant.reactant.utils.content.item.itemStackOf
 import org.bukkit.event.inventory.InventoryType.*
 import org.bukkit.inventory.ItemStack
 
+@UIElementName("inventory")
 class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView) : ReactantUIContainerElement("inventory") {
     override fun edit() = object : ReactantUIContainerElementEditing<ViewInventoryContainerElement>(this) {}
 
