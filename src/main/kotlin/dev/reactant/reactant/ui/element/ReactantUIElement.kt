@@ -4,7 +4,6 @@ import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementChildrenSet
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementClassSet
 import dev.reactant.reactant.ui.element.style.ReactantUIElementStyle
-import dev.reactant.reactant.ui.element.style.UIElementStyle
 import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.UIEvent
 import io.reactivex.subjects.PublishSubject
@@ -49,19 +48,5 @@ abstract class ReactantUIElement(override val elementIdentifier: String) : React
 
     @Suppress("UNCHECKED_CAST")
     override fun renderVisibleElementsPositions(): LinkedHashMap<out ReactantUIElement, HashSet<Pair<Int, Int>>> = super.renderVisibleElementsPositions() as LinkedHashMap<out ReactantUIElement, HashSet<Pair<Int, Int>>>
-
-    val actual = UIElementStyle.Companion::actual
-    val percentage = UIElementStyle.Companion::percentage
-    val auto = UIElementStyle.auto
-    val fitContent = UIElementStyle.fitContent
-    val fillParent = UIElementStyle.fillParent
-
-    val fixed = UIElementStyle.fixed
-    val static = UIElementStyle.static
-    val absolute = UIElementStyle.absolute
-    val relative = UIElementStyle.relative
-
-    val block = UIElementStyle.block
-    val inline = UIElementStyle.inline
 
 }

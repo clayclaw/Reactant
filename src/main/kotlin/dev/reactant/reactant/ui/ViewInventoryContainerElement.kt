@@ -1,8 +1,9 @@
 package dev.reactant.reactant.ui
 
 import dev.reactant.reactant.ui.element.UIElement
+import dev.reactant.reactant.ui.element.style.PositioningIntValue
 import dev.reactant.reactant.ui.element.style.PositioningStylePropertyValue
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.actual
+import dev.reactant.reactant.ui.element.style.actual
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
 import dev.reactant.reactant.utils.content.item.itemStackOf
@@ -27,7 +28,7 @@ class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView) 
         set(value) = throw java.lang.UnsupportedOperationException("View size cannot be change")
 
     override var height: PositioningStylePropertyValue
-        get() = actual(reactantUIView.inventory.size / (width as PositioningStylePropertyValue.IntValue).value)
+        get() = actual(reactantUIView.inventory.size / (width as PositioningIntValue).value)
         set(value) = throw java.lang.UnsupportedOperationException("View size cannot be change")
 
     override fun getBackgroundItemStack(x: Int, y: Int): ItemStack = itemStackOf()

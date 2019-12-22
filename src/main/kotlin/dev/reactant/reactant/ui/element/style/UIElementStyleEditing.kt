@@ -1,7 +1,5 @@
 package dev.reactant.reactant.ui.element.style
 
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.actual
-
 interface UIElementStyleEditing : UIElementStyle {
     override var width: PositioningStylePropertyValue
     override var height: PositioningStylePropertyValue

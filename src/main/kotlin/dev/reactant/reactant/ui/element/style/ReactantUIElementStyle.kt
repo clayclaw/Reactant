@@ -1,10 +1,6 @@
 package dev.reactant.reactant.ui.element.style
 
 import dev.reactant.reactant.ui.element.ReactantUIElement
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.actual
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.auto
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.block
-import dev.reactant.reactant.ui.element.style.UIElementStyle.Companion.static
 
 abstract class ReactantUIElementStyle : UIElementStyleEditing {
     lateinit protected var el: ReactantUIElement
@@ -39,7 +35,7 @@ abstract class ReactantUIElementStyle : UIElementStyleEditing {
     override var zIndex: PositioningStylePropertyValue = auto
 
     override val computedZIndex: Int
-        get() = (zIndex as? PositioningStylePropertyValue.IntValue)?.value ?: el.parent?.computedZIndex ?: 0
+        get() = (zIndex as? PositioningIntValue)?.value ?: el.parent?.computedZIndex ?: 0
 
     override val offsetWidth: Int get() = computedStyle!!.offsetWidth
     override val offsetHeight: Int get() = computedStyle!!.offsetHeight
@@ -68,7 +64,7 @@ abstract class ReactantUIElementStyle : UIElementStyleEditing {
         if (el.rootElement != this) throw UnsupportedOperationException("Only root element can compute style")
         clearComputedStyle()
         initializeComputedStyle()
-        computedStyle!!.computeOffsetSize((width as PositioningStylePropertyValue.IntValue).value, (height as PositioningStylePropertyValue.IntValue).value)
+        computedStyle!!.computeOffsetSize((width as PositioningIntValue).value, (height as PositioningIntValue).value)
         computedStyle!!.computeBoundingClientRect()
     }
 }

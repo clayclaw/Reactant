@@ -2,6 +2,7 @@ package dev.reactant.reactant.ui.kits.container
 
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
+import dev.reactant.reactant.ui.element.style.fixed
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
