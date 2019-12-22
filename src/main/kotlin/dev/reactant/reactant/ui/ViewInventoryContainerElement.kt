@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui
 
+import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.style.PositioningIntValue
@@ -12,7 +13,8 @@ import org.bukkit.event.inventory.InventoryType.*
 import org.bukkit.inventory.ItemStack
 
 @UIElementName("inventory")
-class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView) : ReactantUIContainerElement("inventory") {
+class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView, allocatedSchedulerService: SchedulerService)
+    : ReactantUIContainerElement(allocatedSchedulerService, "inventory") {
     override fun edit() = object : ReactantUIContainerElementEditing<ViewInventoryContainerElement>(this) {}
 
     override val view: UIView get() = reactantUIView

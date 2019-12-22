@@ -10,6 +10,7 @@ import dev.reactant.reactant.ui.query.selectElements
 import dev.reactant.reactant.ui.rendering.ReactantRenderedView
 import dev.reactant.reactant.ui.rendering.RenderedView
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import org.bukkit.Bukkit
@@ -18,8 +19,11 @@ import org.bukkit.inventory.Inventory
 import org.w3c.css.sac.InputSource
 import java.io.StringReader
 
-class ReactantUIView(override val scheduler: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit,
+class ReactantUIView(val allocatedSchedulerService: SchedulerService, private val showPlayerFunc: (ReactantUIView, Player) -> Unit,
                      val title: String, val height: Int) : UIView {
+
+    override val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    override val scheduler: SchedulerService = UIDestroyable.convertToDestroyableScheduler(this, allocatedSchedulerService)
 
     override fun show(player: Player) = lastRenderResult.let {
         if (it == null) {
@@ -47,7 +51,7 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
             return _inventory!!
         }
 
-    override val rootElement = ViewInventoryContainerElement(this)
+    override val rootElement = ViewInventoryContainerElement(this, allocatedSchedulerService)
 
     override fun querySelectorAll(selector: String): Set<UIElement> = selectElements(rootElement, UIQueryable.parser.parseSelectors(InputSource(StringReader(selector))))
 
@@ -66,7 +70,7 @@ class ReactantUIView(override val scheduler: SchedulerService, private val showP
     }
 
     private fun scheduleUpdate() {
-        if (this.scheduledUpdate == null) this.scheduledUpdate = scheduler.next().subscribe(this::updateView)
+        if (this.scheduledUpdate == null) this.scheduledUpdate = allocatedSchedulerService.next().subscribe(this::updateView)
     }
 
     private fun updateView() {

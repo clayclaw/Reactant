@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui.kits.container
 
+import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.style.fixed
@@ -9,7 +10,8 @@ import org.bukkit.inventory.ItemStack
 /**
  * The abstract class which can sort and render the children elements
  */
-abstract class ReactantUIContainerElement(elementIdentifier: String) : ReactantUIElement(elementIdentifier) {
+abstract class ReactantUIContainerElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String)
+    : ReactantUIElement(allocatedSchedulerService, elementIdentifier) {
     var overflowHidden = true
 
     open fun getBackgroundItemStack(x: Int, y: Int): ItemStack? = ItemStack(Material.AIR)

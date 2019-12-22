@@ -20,6 +20,8 @@ open class ReactantUIElementEditing<out T : ReactantUIElement>(final override va
             element.classList.addAll(value)
         }
 
+    override val event = super.event.doOnSubscribe { element.compositeDisposable.add(it) }
+
     override var attributes
         get() = element.attributes
         set(value) {

@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui.kits
 
+import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
@@ -10,7 +11,9 @@ import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
 @UIElementName("div")
-open class ReactantUIDivElement(elementIdentifier: String = "div") : ReactantUIContainerElement(elementIdentifier) {
+open class ReactantUIDivElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String = "div")
+    : ReactantUIContainerElement(allocatedSchedulerService, elementIdentifier) {
+
     override fun edit() = ReactantUIDivElementEditing(this)
 
     override var width: PositioningStylePropertyValue = auto
@@ -35,5 +38,5 @@ open class ReactantUIDivElementEditing<out T : ReactantUIDivElement>(element: T)
 }
 
 fun ReactantUIElementEditing<ReactantUIElement>.div(creation: ReactantUIDivElementEditing<ReactantUIDivElement>.() -> Unit) {
-    element.children.add(ReactantUIDivElement().also { ReactantUIDivElementEditing(it).apply(creation) })
+    element.children.add(ReactantUIDivElement(element.allocatedSchedulerService).also { it.edit().apply(creation) })
 }

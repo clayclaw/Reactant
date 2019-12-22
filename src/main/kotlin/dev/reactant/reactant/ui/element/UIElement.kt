@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui.element
 
+import dev.reactant.reactant.ui.UIDestroyable
 import dev.reactant.reactant.ui.UIView
 import dev.reactant.reactant.ui.editing.UIElementEditing
 import dev.reactant.reactant.ui.element.style.UIElementStyle
@@ -10,7 +11,7 @@ import io.reactivex.subjects.Subject
 import org.bukkit.inventory.ItemStack
 import kotlin.reflect.KClass
 
-interface UIElement : UIElementEventTarget, UIQueryable, UIElementStyle {
+interface UIElement : UIElementEventTarget, UIQueryable, UIElementStyle, UIDestroyable {
     val view: UIView? get() = parent?.view
     val elementIdentifier: String
     override var parent: UIElement?
@@ -35,6 +36,16 @@ interface UIElement : UIElementEventTarget, UIQueryable, UIElementStyle {
      * Use null to represent transparent
      */
     fun render(relativePosition: Pair<Int, Int>): ItemStack?
+
+    /**
+     * Destroy childrens and itself
+     * It will remove itself from parent
+     */
+    override fun destroy() {
+        this.children.forEach { it.destroy() }
+        this.compositeDisposable.dispose()
+        this.parent?.children?.remove(this)
+    }
 
 
     /**

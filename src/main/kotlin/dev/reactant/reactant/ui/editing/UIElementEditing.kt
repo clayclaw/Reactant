@@ -19,8 +19,11 @@ interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
         attributes.putAll(modifiers)
     }
 
+    val scheduler
+        get() = element.scheduler
+
     @JvmDefault
-    val event
+    val event: Observable<UIElementEvent>
         get() = element.event;
 
     @JvmDefault

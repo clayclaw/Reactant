@@ -1,20 +1,27 @@
 package dev.reactant.reactant.ui.element
 
+import dev.reactant.reactant.service.spec.server.SchedulerService
+import dev.reactant.reactant.ui.UIDestroyable
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementChildrenSet
 import dev.reactant.reactant.ui.element.collection.ReactantUIElementClassSet
 import dev.reactant.reactant.ui.element.style.ReactantUIElementStyle
 import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.UIEvent
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import kotlin.reflect.KClass
 
 
-abstract class ReactantUIElement(override val elementIdentifier: String) : ReactantUIElementStyle(), UIElement {
+abstract class ReactantUIElement(val allocatedSchedulerService: SchedulerService, override val elementIdentifier: String)
+    : ReactantUIElementStyle(), UIElement {
     init {
         el = this
     }
+
+    override val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    override val scheduler = UIDestroyable.convertToDestroyableScheduler(this, allocatedSchedulerService)
 
     override val event = PublishSubject.create<UIElementEvent>()
     private var _parent: UIElement? = null

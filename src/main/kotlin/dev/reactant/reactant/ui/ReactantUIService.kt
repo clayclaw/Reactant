@@ -6,9 +6,6 @@ import dev.reactant.reactant.service.spec.dsl.register
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIEditing
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -22,7 +19,6 @@ class ReactantUIService(
         val schedulerService: SchedulerService
 ) : LifeCycleHook {
     val inventoryUIMap = HashMap<Inventory, UIView>()
-    val uiScheduler = HashMap<UIView, UIScheduler>()
     val destroyOnNoViewer = HashMap<Inventory, UIView>()
     val autoDestroy = HashSet<UIView>()
 
@@ -45,8 +41,8 @@ class ReactantUIService(
     }
 
     fun destroyUI(uiView: UIView) {
+        uiView.destroy()
         inventoryUIMap.remove(uiView.inventory)
-        uiScheduler.remove(uiView)?.compositeDisposable?.dispose()
         pendingDestroy.remove(uiView)
         autoDestroy.remove(uiView)
     }
@@ -58,9 +54,7 @@ class ReactantUIService(
     }
 
     fun createUI(initialViewer: Player, title: String, height: Int = 6, destroyUIOnNoViewer: Boolean = true, creating: ReactantUIEditing.() -> Unit): ReactantUIView {
-        val allocatedScheduler = UIScheduler(schedulerService)
-        val ui = ReactantUIView(allocatedScheduler, this::showUI, title, height)
-        uiScheduler[ui] = allocatedScheduler
+        val ui = ReactantUIView(schedulerService, this::showUI, title, height)
         if (destroyUIOnNoViewer) autoDestroy += ui
         ReactantUIEditing(ui).apply(creating)
         inventoryUIMap[ui.inventory] = ui
@@ -70,14 +64,5 @@ class ReactantUIService(
         return ui
     }
 
-    inner class UIScheduler(val schedulerService: SchedulerService) : SchedulerService {
-        val compositeDisposable = CompositeDisposable()
-        override fun next(): Completable = schedulerService.next().doOnSubscribe { compositeDisposable.add(it) }
-
-        override fun timer(delay: Long): Completable = schedulerService.timer(delay).doOnSubscribe { compositeDisposable.add(it) }
-
-        override fun interval(delay: Long, period: Long): Observable<Int> = schedulerService.interval(delay, period)
-                .doOnSubscribe { compositeDisposable.add(it) }
-    }
 }
 

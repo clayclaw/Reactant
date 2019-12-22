@@ -1,6 +1,5 @@
 package dev.reactant.reactant.ui
 
-import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.event.UIEvent
 import dev.reactant.reactant.ui.eventtarget.UIEventTarget
@@ -9,14 +8,9 @@ import dev.reactant.reactant.ui.rendering.RenderedView
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
-interface UIView : UIEventTarget<UIEvent>, UIQueryable {
+interface UIView : UIEventTarget<UIEvent>, UIQueryable, UIDestroyable {
     val inventory: Inventory
     override val rootElement: UIElement
-
-    /**
-     * The scheduler which will automatically dispose all observable when view be destroyed
-     */
-    val scheduler: SchedulerService
 
     /**
      * Inventory view associated by player
@@ -32,6 +26,12 @@ interface UIView : UIEventTarget<UIEvent>, UIQueryable {
      * Update render result and inventory view in next tick
      */
     fun render()
+
+
+    override fun destroy() {
+        this.children.forEach { it.destroy() }
+        this.compositeDisposable.dispose()
+    }
 
     val lastRenderResult: RenderedView?
 
