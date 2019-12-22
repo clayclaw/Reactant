@@ -12,6 +12,20 @@ open class ReactantUIElementEditing<out T : ReactantUIElement>(final override va
         element.view?.render()
     }
 
+    val actual = UIElementStyle.Companion::actual
+    val percentage = UIElementStyle.Companion::percentage
+    val auto = UIElementStyle.auto
+    val fitContent = UIElementStyle.fitContent
+    val fillParent = UIElementStyle.fillParent
+
+    val fixed = UIElementStyle.fixed
+    val static = UIElementStyle.static
+    val absolute = UIElementStyle.absolute
+    val relative = UIElementStyle.relative
+
+    val block = UIElementStyle.block
+    val inline = UIElementStyle.inline
+
     override var id by MutablePropertyDelegate(element::id)
 
     override var classList: UIElementClassList
@@ -29,17 +43,4 @@ open class ReactantUIElementEditing<out T : ReactantUIElement>(final override va
         }
 
 
-    val actual = UIElementStyle.Companion::actual
-    val percentage = UIElementStyle.Companion::percentage
-    val auto = UIElementStyle.auto
-    val fitContent = UIElementStyle.fitContent
-    val fillParent = UIElementStyle.fillParent
-
-    val fixed = UIElementStyle.fixed
-    val static = UIElementStyle.static
-    val absolute = UIElementStyle.absolute
-    val relative = UIElementStyle.relative
-
-    val block = UIElementStyle.block
-    val inline = UIElementStyle.inline
 }

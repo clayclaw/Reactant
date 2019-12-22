@@ -51,22 +51,35 @@ interface UIElementStyle {
 
 
     companion object {
+        @JvmStatic
         fun actual(value: Int) = PositioningStylePropertyValue.IntValue(value)
+
+        @JvmStatic
         fun percentage(value: Float) = PositioningStylePropertyValue.PercentageValue(value)
+
+        @JvmStatic
         val auto = object : PositioningStylePropertyValue.AutoValue {
             override fun toString(): String = "auto"
         }
+        @JvmStatic
         val fitContent = object : PositioningStylePropertyValue.FitContent {
             override fun toString(): String = "fit-content"
         }
+        @JvmStatic
         val fillParent = PositioningStylePropertyValue.PercentageValue(100F)
 
+        @JvmStatic
         val fixed = ElementPosition("fixed")
+        @JvmStatic
         val static = ElementPosition("static")
+        @JvmStatic
         val absolute = ElementPosition("absolute")
+        @JvmStatic
         val relative = ElementPosition("relative")
 
+        @JvmStatic
         val block = ElementDisplay("block")
+        @JvmStatic
         val inline = ElementDisplay("inline")
     }
 }
