@@ -30,7 +30,7 @@ class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
                 }.onFailure { injectableWrapper.catchedThrowable = it; throw it }
                 Save -> (injectableWrapper.getInstance() as? LifeCycleHook)?.onSave()
                 Disable -> {
-                    (injectableWrapper.getInstance() as? LifeCycleHook)?.onSave()
+                    (injectableWrapper.getInstance() as? LifeCycleHook)?.onDisable()
                     instanceManager.destroyInstance(injectableWrapper.getInstance())
                 }
             }
