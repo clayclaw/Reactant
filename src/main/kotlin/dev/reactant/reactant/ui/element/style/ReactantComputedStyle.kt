@@ -1,6 +1,5 @@
 package dev.reactant.reactant.ui.element.style
 
-import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElement
 import kotlin.math.max
@@ -309,7 +308,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         val revisedRight = calculatePosition(offsetWidth, el.right, scaleByEl?.offsetWidth
                 ?: 0, actual(revisedLeft), true)
 
-        return BoundingRect(revisedTop, revisedRight, revisedBottom, revisedLeft).also { ReactantCore.logger.warn(it) }
+        return BoundingRect(revisedTop, revisedRight, revisedBottom, revisedLeft)
     }
 
     private val calculatedPositionTop get() = relativePositionTop + (el.parent?.boundingClientRect?.top ?: 0)

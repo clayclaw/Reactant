@@ -33,7 +33,7 @@ interface UIQueryable {
         if (queryable == this) return 0
         else {
             fun checkChildrenDistance(parent: UIQueryable, children: UIQueryable): Int? {
-                var result = 0;
+                var result = 1;
                 var checking = children.parent
                 while (checking != null) {
                     if (checking == parent) return result
@@ -91,7 +91,7 @@ interface UIQueryable {
      * Root element will always return false
      */
     @JvmDefault
-    fun matches(selector: String): Boolean = this.parent?.querySelectorAll(selector)?.contains(this) ?: false
+    fun matches(selector: String): Boolean = this.rootElement?.querySelectorAll(selector)?.contains(this) ?: false
 
     companion object {
         var parser = CSSOMParser(SACParserCSS3());
