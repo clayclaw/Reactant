@@ -3,8 +3,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-val versionNumber = "0.1.5"
-val isSnapshot = false
+val versionNumber = "0.1.6"
+val isSnapshot = true
 val kotlinVersion = "1.3.61"
 
 group = "dev.reactant"

@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack
 
 @UIElementName("item")
 open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : ReactantUISpanElement(allocatedSchedulerService, "item") {
-    var displayItem: ItemStack = ItemStack(Material.AIR)
+    var displayItem: ItemStack? = ItemStack(Material.AIR)
 
     override fun edit(): ReactantUIItemElementEditing<ReactantUIItemElement> = ReactantUIItemElementEditing(this, allocatedSchedulerService)
 
@@ -29,7 +29,7 @@ open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : 
 
 open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: T, allocatedSchedulerService: SchedulerService)
     : ReactantUISpanElementEditing<T>(element, allocatedSchedulerService) {
-    var displayItem: ItemStack by MutablePropertyDelegate(this.element::displayItem)
+    var displayItem: ItemStack? by MutablePropertyDelegate(this.element::displayItem)
 }
 
 
