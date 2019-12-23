@@ -40,6 +40,10 @@ class ReactantUIService(
         }
     }
 
+    override fun onDisable() {
+        inventoryUIMap.forEach { it.value.inventoryViews.values.forEach { it.close() } }
+    }
+
     fun destroyUI(uiView: UIView) {
         uiView.destroy()
         inventoryUIMap.remove(uiView.inventory)
