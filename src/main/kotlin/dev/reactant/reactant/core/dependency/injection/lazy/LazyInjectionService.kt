@@ -8,7 +8,7 @@ import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import kotlin.reflect.KType
 
 @Component
-class LazyInjectionService {
+private class LazyInjectionService {
     @Inject
     private lateinit var providerManager: ProviderManager
 

@@ -21,7 +21,7 @@ interface Provider {
      */
     val disabledReason: Throwable?;
 
-    val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any
+    val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any?
 
     /**
      * Skip generic check when determining can it provide as a type.

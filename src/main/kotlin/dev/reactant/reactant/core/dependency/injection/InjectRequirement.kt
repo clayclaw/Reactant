@@ -10,20 +10,6 @@ class InjectRequirement(
         val name: String
 ) {
 
-    override fun toString() = "{ Type: $requiredType, Name: $name }"
-
-    override fun equals(other: Any?): Boolean = when {
-        other == null -> false
-        other is InjectRequirement && other.requiredType == requiredType && other.name == name -> true
-        else -> false
-    }
-
-    override fun hashCode(): Int {
-        var result = requiredType.hashCode()
-        result = 31 * result + name.hashCode()
-        return result
-    }
-
     companion object {
         fun fromProperty(property: KMutableProperty<*>): InjectRequirement = InjectRequirement(
                 property.returnType,

@@ -4,9 +4,9 @@ import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
-import dev.reactant.reactant.core.dependency.injection.producer.DynamicProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
-import kotlin.reflect.jvm.jvmErasure
+import dev.reactant.reactant.core.dependency.relation.*
+import dev.reactant.reactant.core.exception.ProviderRequirementCannotFulfilException
 
 @Component
 class ProviderManager {
@@ -15,6 +15,7 @@ class ProviderManager {
     val blacklistedProviders get() = _blacklistedProviders
     val providers: Set<Provider> get() = _providers
     val providerRelationManager = ReactantCore.instance.reactantInstanceManager.getOrConstructWithoutInjection(ProviderRelationManager::class)
+    var interpretedRelations: List<InterpretedProviderRelation> = listOf()
 
     fun addBlacklistedProvider(provider: Provider) {
         _blacklistedProviders.add(provider)
@@ -33,40 +34,59 @@ class ProviderManager {
      * Once a relation resolved and confirmed, the relation won't change anymore
      */
     fun decideRelation() {
-        // Injectable provided by @Provide is directly required its' provider
-        // ProvidedInjectable will not Inject dependency from outside
-        _providers.filter { it is DynamicProvider<*, *> }
-                .map { it as DynamicProvider<*, *> }
-                .forEach {
-                    providerRelationManager.addDependencyRelation(it, hashSetOf(it.providedInWrapper))
+
+        val relationInterpreters = listOf(
+                WrappedDynamicProviderRelationInterpreter(),
+                SimpleInjectionComponentProviderRelationInterpreter(),
+                NullableInjectionComponentProviderRelationInterpreter(),
+                ArgumentInjectionComponentProviderRelationInterpreter()
+        )
+
+        interpretedRelations = _providers
+                .flatMap { provider ->
+                    relationInterpreters.mapNotNull { interpreter ->
+                        try {
+                            interpreter.interpret(provider, providers)
+                        } catch (e: ProviderRequirementCannotFulfilException) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }.flatten()
                 }
 
-        val componentInjectableMap = _providers.filter { it is ComponentProvider<*> }
-                .map { it.productType.jvmErasure to it as ComponentProvider<*> }.toMap()
+        checkRelationFulfillRequirement(interpretedRelations,
+                _providers.mapNotNull { it as? ComponentProvider<*> }
+                        .flatMap { it.injectRequirements.map { requirement -> requirement to it } }
+                        .toMap());
 
-        componentInjectableMap.values.forEach(this::decideComponentRequirementSolution)
+        interpretedRelations.forEach { relation ->
+            if (relation.interpretTarget is ComponentProvider<*>) {
+                relation.resolvedRequirements.forEach {
+                    relation.interpretTarget.resolvedRequirements[it.first] = it.second
+                }
+            }
+            providerRelationManager.addDependencyRelation(relation.interpretTarget, setOf(relation.dependOn))
+        }
     }
 
-    /**
-     * Decide and mark in wrapper as resolved
-     */
-    private fun decideComponentRequirementSolution(componentProvider: ComponentProvider<*>) {
-        if (componentProvider.fulfilled) return;
-        componentProvider.notFulfilledRequirements
-                .mapNotNull { requirement -> fulfillRequirement(requirement)?.also { componentProvider.resolvedRequirements[requirement] = it } }
-                .toSet()
-                .let { providerRelationManager.addDependencyRelation(componentProvider, it) }
-    }
+    private fun checkRelationFulfillRequirement(relations: List<InterpretedProviderRelation>, requirementProviderMap: Map<InjectRequirement, Provider>) {
+        val requirementRelationMap = relations
+                .flatMap { relation -> relation.resolvedRequirements.map { it.first }.map { requirement -> requirement to relation } }
+                .groupBy { it.first };
+        val notFulfilledRequirements = _providers.mapNotNull { it as? ComponentProvider<*> }
+                .filter { it.catchedThrowable == null }
+                .flatMap { it.injectRequirements }
+                .filter { !requirementRelationMap.containsKey(it) }
 
-    fun fulfillRequirement(requirement: InjectRequirement): Provider? {
-        val fulfillingDependencies = _providers
-                .filter { it.canProvideType(requirement.requiredType) } // type match
-                .filter { it.namePattern.toRegex().matches(requirement.name) } // name match
-        // todo: decider
-        if (fulfillingDependencies.size > 1)
-            ReactantCore.logger.error("There have more than one injectables providing for ${requirement.requiredType}(name: ${requirement.name})," +
-                    " ${fulfillingDependencies.map { "${it.productType}(NamePattern:${it.namePattern})" }}")
+        val msg = notFulfilledRequirements
+                .map { notFulfilledRequirement -> requirementProviderMap[notFulfilledRequirement]!!.productType }
+                .joinToString(",") { "{$it}" }
 
-        return fulfillingDependencies.firstOrNull()
+
+        if (notFulfilledRequirements.isNotEmpty()) {
+            throw IllegalStateException("There have some requirements which are not handled by the interpreter, " +
+                    "it is typically the bug of Reactant component relation resolver or you have used some unsupported features. " +
+                    "Please report to Reactant Dev with the related source file. not fulfilled providers: [$msg]")
+        }
     }
 }

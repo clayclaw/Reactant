@@ -8,10 +8,13 @@ package dev.reactant.reactant.core.dependency.implied
 annotation class ImpliedDepend(
         /**
          * Indexes of generic type arguments which is a implied depend type, start from 0
+         * All of these type will marks as required by the component
+         * There must have at least 1 available provider, otherwise exception will be throw
          */
-        val typeArgumentIndexes: IntArray,
+        val argumentIndexes: IntArray = [],
         /**
-         * Convert the type to nullable
+         * All of these type will marks as required by the component
+         * It will not throw exception if there have none of these provider
          */
         val nullableArgumentIndexes: IntArray = []
 )

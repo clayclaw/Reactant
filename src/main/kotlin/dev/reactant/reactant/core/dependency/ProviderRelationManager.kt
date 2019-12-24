@@ -54,13 +54,15 @@ class ProviderRelationManager {
 
     fun getDependenciesDepth(): Map<Dependency, Int> {
         val depth = hashMapOf<Dependency, Int>()
-        fun getDependencyDepth(dependency: Dependency): Int {
+        fun getDependencyDepth(dependency: Dependency, walked: LinkedHashSet<Dependency>): Int {
+            if (walked.contains(dependency)) throw CyclicDependencyRelationException(arrayListOf(dependency).also { it.addAll(walked.reversed()) })
+            walked.add(dependency)
             return (depth[dependency] // if cache exist
-                    ?: nodes[dependency]!!.required.map { getDependencyDepth(it.dependency) + 1 }.max() // from max depth + 1
+                    ?: nodes[dependency]!!.required.map { getDependencyDepth(it.dependency, LinkedHashSet(walked)) + 1 }.max() // from max depth + 1
                     ?: 0) // 0 if no required providers
         }
         nodes.keys.forEach {
-            depth.set(it, getDependencyDepth(it))
+            depth.set(it, getDependencyDepth(it, linkedSetOf()))
         }
         return depth
     }

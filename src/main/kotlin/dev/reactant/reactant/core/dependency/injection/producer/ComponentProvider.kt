@@ -3,7 +3,6 @@ package dev.reactant.reactant.core.dependency.injection.producer
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.instance.ComponentInstanceManager
-import dev.reactant.reactant.core.dependency.implied.ImpliedDependRelationHelper
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.exception.InjectRequirementNotFulfilledException
@@ -41,18 +40,21 @@ class ComponentProvider<T : Any>(
 
     val resolvedRequirements = HashMap<InjectRequirement, Provider>()
 
+    override fun toString(): String {
+        return String.format("%15s %s", "Component", componentClass.qualifiedName)
+    }
 
     /**
      * The required injectable of the constructor parameters
      */
-    private val constructorInjectRequirements = componentClass.constructors.first().parameters
+    val constructorInjectRequirements = componentClass.constructors.first().parameters
             .map(InjectRequirement.Companion::fromParameter)
 
     /**
      * The required injectable of the properties
      */
     @Suppress("UNCHECKED_CAST")
-    private val propertiesInjectRequirements = FieldsFinder.getAllDeclaredPropertyRecursively(componentClass)
+    val propertiesInjectRequirements = FieldsFinder.getAllDeclaredPropertyRecursively(componentClass)
             .asSequence()
             // filter out constructor declared properties
             .filter { property -> !componentClass.constructors.first().parameters.any { it.name == property.name } }
@@ -67,10 +69,7 @@ class ComponentProvider<T : Any>(
      */
     val injectRequirements: Set<InjectRequirement>
         get() {
-            val variableRequirement = constructorInjectRequirements.union(propertiesInjectRequirements.values)
-            val impliedRequirement = variableRequirement.map { requirement -> ImpliedDependRelationHelper.getImpliedDependRequirementsRecursively(requirement) }
-                    .flatten()
-            return variableRequirement.union(impliedRequirement);
+            return constructorInjectRequirements.union(propertiesInjectRequirements.values)
         }
 
 

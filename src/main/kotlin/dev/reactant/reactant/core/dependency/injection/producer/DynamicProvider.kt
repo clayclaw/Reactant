@@ -22,7 +22,7 @@ class DynamicProvider<T : Any, R : Any>(
     override val productType get() = this.callableFactory.returnType
     override val namePattern get() = Provide.fromElement(callableFactory).namePattern
 
-    override val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any = { requestedType, requestedName, requester ->
+    override val producer: (requestedType: KType, requestedName: String, requester: Provider) -> Any? = { requestedType, requestedName, requester ->
         val provider = providedInWrapper.getInstance()
         val puttingArgs = arrayListOf(provider, requestedType, requestedName, requester)
         if (callableFactory.parameters.size > puttingArgs.size)
@@ -36,6 +36,10 @@ class DynamicProvider<T : Any, R : Any>(
         callableFactory.call(*puttingArgs.take(callableFactory.parameters.size).toTypedArray());
     }
 
+    override fun toString(): String {
+        return String.format("%15s %s@%s", "Dynamic", callableFactory.name, providedInWrapper.componentClass.qualifiedName)
+    }
+
     companion object {
         fun <T : Any, R : Any> fromCallable(providedInWrapper: ComponentProvider<T>,
                                             callable: KCallable<R>) =
@@ -47,6 +51,6 @@ class DynamicProvider<T : Any, R : Any>(
         fun <T : Any> findAllFromComponentInjectableWrapper(injectableWrapper: ComponentProvider<T>) =
                 (FieldsFinder.getAllDeclaredFunctionRecursively(injectableWrapper.componentClass))
                         .filter { func -> func.annotations.any { it is Provide } }
-                        .map { DynamicProvider.fromCallable(injectableWrapper, it as KCallable<Any>) }
+                        .map { fromCallable(injectableWrapper, it as KCallable<Any>) }
     }
 }
