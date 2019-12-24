@@ -73,6 +73,10 @@ dependencies {
 
     api("net.sourceforge.cssparser:cssparser:0.9.27")
 
+    implementation("org.graphstream:gs-core:1.3")
+    implementation("org.graphstream:gs-ui:1.3")
+
+
     compileOnly("org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {

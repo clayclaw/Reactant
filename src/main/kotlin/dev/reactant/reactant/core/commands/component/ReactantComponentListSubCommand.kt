@@ -1,6 +1,6 @@
 package dev.reactant.reactant.core.commands.component
 
-import dev.reactant.reactant.core.commands.ReactantPermissions.Companion.Reactant
+import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.core.component.container.Container
 import dev.reactant.reactant.core.component.container.ContainerManager
 import dev.reactant.reactant.core.dependency.ProviderManager
@@ -19,7 +19,7 @@ import kotlin.reflect.jvm.jvmName
         mixinStandardHelpOptions = true,
         description = ["Listing all Component"]
 )
-internal class ComponentListSubCommand(
+internal class ReactantComponentListSubCommand(
         val providerManager: ProviderManager,
         val containerManager: ContainerManager
 ) : ReactantCommand() {
@@ -52,7 +52,7 @@ internal class ComponentListSubCommand(
     }
 
     override fun run() {
-        requirePermission(Reactant.REACTANT_OBJ.LIST)
+        requirePermission(ReactantPermissions.ADMIN.DEV.REACTANT_OBJ.LIST)
 
         providerManager.providers.union(providerManager.blacklistedProviders).mapNotNull { it as? ComponentProvider<*> }
                 .asSequence()
