@@ -1,5 +1,6 @@
 package dev.reactant.reactant.core.component.container
 
+import org.reflections.Reflections
 import kotlin.reflect.KClass
 
 /**
@@ -7,8 +8,7 @@ import kotlin.reflect.KClass
  */
 interface Container {
     val componentClasses: Set<KClass<out Any>>
-
     val displayName: String
-
     val identifier: String
+    val reflections: Reflections
 }

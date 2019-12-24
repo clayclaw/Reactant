@@ -12,6 +12,8 @@ import kotlin.reflect.KClass
 
 class BukkitPluginContainer(val plugin: Plugin) : Container {
     override val componentClasses: Set<KClass<out Any>>
+    var _reflections: Reflections
+    override val reflections: Reflections get() = _reflections
 
     private val servicePackagesUrl
         get() = plugin.javaClass.getAnnotation(ReactantPlugin::class.java)
@@ -25,16 +27,15 @@ class BukkitPluginContainer(val plugin: Plugin) : Container {
             throw IllegalArgumentException()
         }
 
-        Configurator.setLevel(Reflections::class.java.canonicalName, Level.ERROR)
-        val reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
+        Configurator.setLevel("org.reflections", Level.ERROR)
+        _reflections = Reflections(ConfigurationBuilder().addUrls(servicePackagesUrl))
         componentClasses = reflections.getTypesAnnotatedWith(Component::class.java)
                 .map { it.kotlin }
                 .toSet()
-        Configurator.setLevel(Reflections::class.java.canonicalName, Level.INFO)
     }
 
     override val displayName: String = plugin.description.name
-    override val identifier: String = BukkitPluginContainer.getIdentifier(plugin)
+    override val identifier: String = getIdentifier(plugin)
 
     companion object {
         @JvmStatic
