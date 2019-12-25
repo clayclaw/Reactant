@@ -3,46 +3,67 @@ package dev.reactant.reactant.ui.element.style
 import dev.reactant.reactant.ui.element.ReactantUIElement
 
 abstract class ReactantUIElementStyle : UIElementStyleEditing {
-    lateinit protected var el: ReactantUIElement
+    protected lateinit var el: ReactantUIElement
 
     var computedStyle: ReactantComputedStyle? = null
 
-    override var width: PositioningStylePropertyValue = actual(1)
-    override var height: PositioningStylePropertyValue = actual(1)
+    final override var width: PositioningStylePropertyValue = actual(1)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var height: PositioningStylePropertyValue = actual(1)
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var maxWidth: Int = Int.MAX_VALUE
-    override var maxHeight: Int = Int.MAX_VALUE
-    override var minWidth: Int = 0
-    override var minHeight: Int = 0
+    final override var maxWidth: Int = Int.MAX_VALUE
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var maxHeight: Int = Int.MAX_VALUE
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var minWidth: Int = 0
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var minHeight: Int = 0
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var position: ElementPosition = static
+    final override var position: ElementPosition = static
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var marginTop: PositioningStylePropertyValue = actual(0)
-    override var marginRight: PositioningStylePropertyValue = actual(0)
-    override var marginBottom: PositioningStylePropertyValue = actual(0)
-    override var marginLeft: PositioningStylePropertyValue = actual(0)
+    final override var marginTop: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var marginRight: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var marginBottom: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var marginLeft: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var paddingTop: PositioningStylePropertyValue = actual(0)
-    override var paddingRight: PositioningStylePropertyValue = actual(0)
-    override var paddingBottom: PositioningStylePropertyValue = actual(0)
-    override var paddingLeft: PositioningStylePropertyValue = actual(0)
+    final override var paddingTop: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var paddingRight: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var paddingBottom: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var paddingLeft: PositioningStylePropertyValue = actual(0)
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var top: PositioningStylePropertyValue = auto
-    override var right: PositioningStylePropertyValue = auto
-    override var bottom: PositioningStylePropertyValue = auto
-    override var left: PositioningStylePropertyValue = auto
+    final override var top: PositioningStylePropertyValue = auto
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var right: PositioningStylePropertyValue = auto
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var bottom: PositioningStylePropertyValue = auto
+        set(value) = run { field = value }.also { el.view?.render() }
+    final override var left: PositioningStylePropertyValue = auto
+        set(value) = run { field = value }.also { el.view?.render() }
 
-    override var zIndex: PositioningStylePropertyValue = auto
+    final override var zIndex: PositioningStylePropertyValue = auto
+        set(value) = run { field = value }.also { el.view?.render() }
 
     override val computedZIndex: Int
         get() = (zIndex as? PositioningIntValue)?.value ?: el.parent?.computedZIndex ?: 0
 
-    override val offsetWidth: Int get() = computedStyle!!.offsetWidth
-    override val offsetHeight: Int get() = computedStyle!!.offsetHeight
-    override val boundingClientRect: BoundingRect get() = computedStyle!!.boundingClientRect
-    override val paddingExcludedBoundingClientRect: BoundingRect get() = computedStyle!!.paddingExcludedBoundingClientRect
+    final override val offsetWidth: Int get() = computedStyle!!.offsetWidth
+    final override val offsetHeight: Int get() = computedStyle!!.offsetHeight
+    final override val boundingClientRect: BoundingRect get() = computedStyle!!.boundingClientRect
+    final override val paddingExcludedBoundingClientRect: BoundingRect get() = computedStyle!!.paddingExcludedBoundingClientRect
 
-    override var display: ElementDisplay = block
+    final override var display: ElementDisplay = block
+        set(value) = run { field = value }.also { el.view?.render() }
 
     protected fun clearComputedStyle() {
         this.computedStyle = null;

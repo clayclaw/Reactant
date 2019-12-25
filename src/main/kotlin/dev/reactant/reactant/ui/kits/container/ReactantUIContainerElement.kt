@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack
 abstract class ReactantUIContainerElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String)
     : ReactantUIElement(allocatedSchedulerService, elementIdentifier) {
     var overflowHidden = true
+        set(value) = run { field = value }.also { view?.render() }
 
     open fun getBackgroundItemStack(x: Int, y: Int): ItemStack? = ItemStack(Material.AIR)
 

@@ -36,7 +36,7 @@ class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
             }
             triggerInspectors(false, action, injectableWrapper);
         } catch (e: Throwable) {
-            ReactantCore.logger.error("${injectableWrapper.componentClass.jvmName} cannot be initialized", e)
+            ReactantCore.logger.error("${injectableWrapper.componentClass.jvmName} cannot be ${action.name}", e)
             return false;
         }
         return true;

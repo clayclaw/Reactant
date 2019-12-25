@@ -4,7 +4,9 @@ import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
-import dev.reactant.reactant.ui.element.style.*
+import dev.reactant.reactant.ui.element.style.auto
+import dev.reactant.reactant.ui.element.style.block
+import dev.reactant.reactant.ui.element.style.fitContent
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElement
 import dev.reactant.reactant.ui.kits.container.ReactantUIContainerElementEditing
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
@@ -13,17 +15,17 @@ import org.bukkit.inventory.ItemStack
 @UIElementName("div")
 open class ReactantUIDivElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String = "div")
     : ReactantUIContainerElement(allocatedSchedulerService, elementIdentifier) {
+    init {
+        width = auto
+        height = fitContent
+        display = block
+        minHeight = 1
+    }
 
     override fun edit() = ReactantUIDivElementEditing(this)
 
-    override var width: PositioningStylePropertyValue = auto
-    override var height: PositioningStylePropertyValue = fitContent
-
-    override var display: ElementDisplay = block
-
-    override var minHeight: Int = 1
-
-    var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack? = { _, _ -> null }
+    open var fillPattern: (relativeX: Int, relativeY: Int) -> ItemStack? = { _, _ -> null }
+        set(value) = run { field = value }.also { view?.render() }
 
     override fun getBackgroundItemStack(x: Int, y: Int): ItemStack? = fillPattern(x, y)
 }

@@ -1,5 +1,6 @@
 package dev.reactant.reactant.ui
 
+import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.element.UIElement
 import dev.reactant.reactant.ui.element.UIElementChildren
@@ -70,7 +71,9 @@ class ReactantUIView(val allocatedSchedulerService: SchedulerService, private va
     }
 
     private fun scheduleUpdate() {
-        if (this.scheduledUpdate == null) this.scheduledUpdate = allocatedSchedulerService.next().subscribe(this::updateView)
+        if (this.scheduledUpdate == null) this.scheduledUpdate = allocatedSchedulerService.next()
+                .observeOn(ReactantCore.mainThreadScheduler)
+                .subscribe(this::updateView)
     }
 
     private fun updateView() {
