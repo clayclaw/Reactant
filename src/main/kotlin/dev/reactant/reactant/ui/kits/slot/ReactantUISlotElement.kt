@@ -11,6 +11,7 @@ import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.interact.UIClickEvent
 import dev.reactant.reactant.ui.event.interact.UIDragEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementClickEvent
+import dev.reactant.reactant.ui.event.inventory.UICloseEvent
 import dev.reactant.reactant.ui.kits.ReactantUIItemElement
 import dev.reactant.reactant.ui.kits.ReactantUIItemElementEditing
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
@@ -247,7 +248,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
 }
 
-fun UIView.setAsSlotView(playerInventoryQuickPutTarget: ItemStorage) {
+fun UIView.setAsSlotView(playerInventoryQuickPutTarget: ItemStorage, dropCursorWhenClose: Boolean = true) {
     this.event.ofType(UIDragEvent::class.java).subscribe { it.isCancelled = true }
     this.event.ofType(UIClickEvent::class.java).filter { it is UIElementEvent }.subscribe { it.isCancelled = true }
     this.event.ofType(UIClickEvent::class.java).filter { it !is UIElementEvent }.subscribe {
@@ -259,6 +260,9 @@ fun UIView.setAsSlotView(playerInventoryQuickPutTarget: ItemStorage) {
                 }
             }
         }
+    }
+    if (dropCursorWhenClose) this.event.ofType(UICloseEvent::class.java).subscribe {
+        if (!it.player.itemOnCursor.type.isAir) it.player.world.dropItem(it.player.location, it.player.itemOnCursor)
     }
 }
 
