@@ -21,7 +21,7 @@ open class ReactantUISlotGroupElement(allocatedSchedulerService: SchedulerServic
 
     private fun findQuickPutTarget(finding: UIElement): ItemStorage? = when (finding) {
         is ItemStorageElement -> finding.quickPutTarget
-        else -> parent?.let { findQuickPutTarget(it) }
+        else -> finding.parent?.let { findQuickPutTarget(it) }
     }
 
     override fun putItems(items: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> {
