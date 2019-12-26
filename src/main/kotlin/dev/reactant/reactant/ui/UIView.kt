@@ -22,6 +22,9 @@ interface UIView : UIEventTarget<UIEvent>, UIQueryable, UIDestroyable {
 
     fun getElementAt(x: Int, y: Int): UIElement?
 
+    fun getIntractableElementAt(index: Int) = getIntractableElementAt(index % 9, index / 9)
+    fun getIntractableElementAt(x: Int, y: Int): UIElement?
+
     /**
      * Update render result and inventory view in next tick
      */

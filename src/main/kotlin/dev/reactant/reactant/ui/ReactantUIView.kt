@@ -70,6 +70,11 @@ class ReactantUIView(val allocatedSchedulerService: SchedulerService, private va
         return lastRenderResult!!.layerResult[x to y]?.last()
     }
 
+    override fun getIntractableElementAt(x: Int, y: Int): UIElement? {
+        if (lastRenderResult == null) throw IllegalStateException("UI never be rendered")
+        return lastRenderResult!!.layerResult[x to y]?.last { it.computedInteractEvents }
+    }
+
     private fun scheduleUpdate() {
         if (this.scheduledUpdate == null) this.scheduledUpdate = allocatedSchedulerService.next()
                 .observeOn(ReactantCore.mainThreadScheduler)

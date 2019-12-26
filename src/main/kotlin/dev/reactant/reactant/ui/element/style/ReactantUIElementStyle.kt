@@ -57,6 +57,16 @@ abstract class ReactantUIElementStyle : UIElementStyleEditing {
     override val computedZIndex: Int
         get() = (zIndex as? PositioningIntValue)?.value ?: el.parent?.computedZIndex ?: 0
 
+    final override val interactEvents = interactInherit
+    override val computedInteractEvents: Boolean
+        get() = when (interactEvents) {
+            interactInherit -> el.parent?.computedInteractEvents ?: true
+            interactAll -> true
+            interactNone -> false
+            else -> throw IllegalStateException("Unknown interactEvents value: ${interactEvents.name}")
+        }
+
+
     final override val offsetWidth: Int get() = computedStyle!!.offsetWidth
     final override val offsetHeight: Int get() = computedStyle!!.offsetHeight
     final override val boundingClientRect: BoundingRect get() = computedStyle!!.boundingClientRect

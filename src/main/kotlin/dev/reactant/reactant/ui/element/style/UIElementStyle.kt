@@ -35,6 +35,13 @@ interface UIElementStyle {
 
     val computedZIndex: Int
 
+    /**
+     * To specify can an InteractEvent happening on this element
+     */
+    val interactEvents: ElementInteractEventsReceivingProperty
+
+    val computedInteractEvents: Boolean
+
 
     // Computed Values
     val offsetWidth: Int

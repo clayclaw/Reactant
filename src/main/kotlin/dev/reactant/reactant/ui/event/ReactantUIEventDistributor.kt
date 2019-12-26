@@ -31,7 +31,7 @@ class ReactantUIEventDistributor(
                         val uiContainer = reactantUIService.inventoryUIMap[bukkitEvent.whoClicked.openInventory.topInventory]!!
 
                         val isClickOnUIContainer = bukkitEvent.clickedInventory == uiContainer.inventory
-                        val clickedElement = if (isClickOnUIContainer) uiContainer.getElementAt(bukkitEvent.slot) else null
+                        val clickedElement = if (isClickOnUIContainer) uiContainer.getIntractableElementAt(bukkitEvent.slot) else null
 
                         when {
                             isClickOnUIContainer && clickedElement != null -> UIElementClickEvent(clickedElement, bukkitEvent).propagateTo(clickedElement)
@@ -57,7 +57,7 @@ class ReactantUIEventDistributor(
                         val inventories = bukkitEvent.rawSlots.map { bukkitEvent.view.getInventory(it) }.distinct()
                         val isDragOnUIContainer = inventories.size == 1 && inventories[0] == uiContainer.inventory
                         val draggingElements =
-                                if (isDragOnUIContainer) bukkitEvent.inventorySlots.mapNotNull { uiContainer.getElementAt(it) }.distinct()
+                                if (isDragOnUIContainer) bukkitEvent.inventorySlots.mapNotNull { uiContainer.getIntractableElementAt(it) }.distinct()
                                 else listOf()
 
                         when {

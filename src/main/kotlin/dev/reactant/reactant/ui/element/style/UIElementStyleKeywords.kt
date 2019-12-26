@@ -17,6 +17,14 @@ val relative = ElementPosition("relative")
 val block = ElementDisplay("block")
 val inline = ElementDisplay("inline")
 
+val interactInherit = ElementInteractEventsReceivingProperty("inherit")
+val interactNone = ElementInteractEventsReceivingProperty("none")
+val interactAll = ElementInteractEventsReceivingProperty("all")
+
+class ElementInteractEventsReceivingProperty(val name: String) {
+    override fun toString(): String = name
+}
+
 class ElementPosition(val name: String) {
     override fun toString(): String = name
 }
