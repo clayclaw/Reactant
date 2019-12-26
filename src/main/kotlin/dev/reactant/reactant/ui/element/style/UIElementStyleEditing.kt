@@ -95,6 +95,7 @@ interface UIElementStyleEditing : UIElementStyle {
     override var left: PositioningStylePropertyValue
 
     override var zIndex: PositioningStylePropertyValue
+    override var interactEvents: ElementInteractEventsReceivingProperty
 
     override var display: ElementDisplay
 
