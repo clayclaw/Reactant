@@ -8,7 +8,6 @@ import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementClickEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementDragEvent
 import io.reactivex.Observable
-import io.reactivex.functions.Consumer
 
 interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
     val element: T;
@@ -26,7 +25,7 @@ interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
      * Subscribe an observable, the disposable will automatically add to element's compositeDisposable
      */
 
-    fun <T> subscribe(observable: Observable<T>, onNext: Consumer<T>) = element.subscribe(observable, onNext)
+    fun <T> subscribe(observable: Observable<T>, onNext: (T) -> Unit) = element.subscribe(observable, onNext)
 
     @JvmDefault
     val event: Observable<UIElementEvent>
