@@ -209,7 +209,7 @@ class ReactantComputedStyle(val el: ReactantUIElement) {
         }
 
         if (revisedWidth is PositioningFitContent) {
-            offsetWidth = childrenRows.map { it.width }.max() ?: 0
+            offsetWidth = (childrenRows.map { it.width }.max() ?: 0) + paddingLeft + paddingRight
         }
     }
 

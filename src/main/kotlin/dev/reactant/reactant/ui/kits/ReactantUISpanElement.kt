@@ -15,10 +15,10 @@ open class ReactantUISpanElement(allocatedSchedulerService: SchedulerService, el
         display = inline
     }
 
-    override fun edit() = ReactantUISpanElementEditing(this, allocatedSchedulerService)
+    override fun edit() = ReactantUISpanElementEditing(this)
 }
 
-open class ReactantUISpanElementEditing<out T : ReactantUISpanElement>(element: T, allocatedSchedulerService: SchedulerService)
+open class ReactantUISpanElementEditing<out T : ReactantUISpanElement>(element: T)
     : ReactantUIDivElementEditing<T>(element)
 
 fun ReactantUIElementEditing<ReactantUIElement>.span(creation: ReactantUISpanElementEditing<ReactantUISpanElement>.() -> Unit) {

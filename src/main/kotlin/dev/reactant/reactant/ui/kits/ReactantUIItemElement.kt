@@ -17,10 +17,10 @@ open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : 
         height = actual(1)
     }
 
-    var displayItem: ItemStack? = ItemStack(Material.AIR)
-        set(value) = run { field = value }.also { view?.render() }
+    var displayItem: ItemStack? = null
+        set(value) = run { field = if (value?.type == Material.AIR) null else value }.also { view?.render() }
 
-    override fun edit(): ReactantUIItemElementEditing<ReactantUIItemElement> = ReactantUIItemElementEditing(this, allocatedSchedulerService)
+    override fun edit(): ReactantUIItemElementEditing<ReactantUIItemElement> = ReactantUIItemElementEditing(this)
 
 
     override fun render(relativePosition: Pair<Int, Int>): ItemStack? {
@@ -28,8 +28,8 @@ open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : 
     }
 }
 
-open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: T, allocatedSchedulerService: SchedulerService)
-    : ReactantUISpanElementEditing<T>(element, allocatedSchedulerService) {
+open class ReactantUIItemElementEditing<out T : ReactantUIItemElement>(element: T)
+    : ReactantUISpanElementEditing<T>(element) {
     var displayItem: ItemStack? by MutablePropertyDelegate(this.element::displayItem)
 }
 
