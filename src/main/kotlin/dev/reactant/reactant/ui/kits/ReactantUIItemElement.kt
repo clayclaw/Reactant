@@ -17,7 +17,7 @@ open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : 
         height = actual(1)
     }
 
-    var displayItem: ItemStack? = null
+    open var displayItem: ItemStack? = null
         set(value) = run { field = if (value?.type == Material.AIR) null else value }.also { view?.render() }
 
     override fun edit(): ReactantUIItemElementEditing<ReactantUIItemElement> = ReactantUIItemElementEditing(this)
