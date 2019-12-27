@@ -32,12 +32,22 @@ interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
         get() = element.event;
 
     @JvmDefault
-    val click: Observable<UIElementClickEvent>
+    val onClick: Observable<UIElementClickEvent>
         get() = event.filter { it is UIElementClickEvent }.map { it as UIElementClickEvent }
 
+    @Deprecated("Confusing name", ReplaceWith("onClick"))
     @JvmDefault
-    val drag: Observable<UIElementDragEvent>
+    val click
+        get() = onClick
+
+    @JvmDefault
+    val onDrag: Observable<UIElementDragEvent>
         get() = event.filter { it is UIElementDragEvent }.map { it as UIElementDragEvent }
+
+    @Deprecated("Confusing name", ReplaceWith("onDrag"))
+    @JvmDefault
+    val drag
+        get() = onDrag
 
 }
 

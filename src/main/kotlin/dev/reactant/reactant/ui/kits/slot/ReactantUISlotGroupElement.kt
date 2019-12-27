@@ -25,16 +25,16 @@ open class ReactantUISlotGroupElement(allocatedSchedulerService: SchedulerServic
     }
 
     override fun putItems(items: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> {
-        return children.mapNotNull { it as? ItemStorage }.fold(items) { previousResult, el -> el.putItems(previousResult, from) }
+        return children.mapNotNull { it as? ItemStorageElement }.sortedBy { it.slotIndex }.fold(items) { previousResult, el -> el.putItems(previousResult, from) }
     }
 
     override fun testPutItems(items: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> {
-        return children.mapNotNull { it as? ItemStorage }.fold(items) { previousResult, el -> el.testPutItems(previousResult, from) }
+        return children.mapNotNull { it as? ItemStorageElement }.sortedBy { it.slotIndex }.fold(items) { previousResult, el -> el.testPutItems(previousResult, from) }
     }
 
     private fun takeItems(wantedItems: Map<Int, ItemStack>, isTest: Boolean, from: ItemStorage?): Map<Int, ItemStack> {
         val takenItems = hashMapOf<Int, ItemStack>()
-        children.mapNotNull { it as? ItemStorage }
+        children.mapNotNull { it as? ItemStorageElement }.sortedBy { it.slotIndex }
                 .fold(wantedItems) { latestNeeded, el ->
                     val taken = (if (isTest) el.testTakeItems(latestNeeded, from) else el.takeItems(latestNeeded, from))
                             .map { (index, itemStack) ->
@@ -57,6 +57,8 @@ open class ReactantUISlotGroupElement(allocatedSchedulerService: SchedulerServic
         return takenItems;
     }
 
+    override var slotIndex: Int = 0
+
     override fun takeItems(wantedItems: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> = takeItems(wantedItems, false, from)
     override fun testTakeItems(wantedItems: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> = takeItems(wantedItems, true, from)
 
@@ -67,6 +69,7 @@ open class ReactantUISlotGroupElement(allocatedSchedulerService: SchedulerServic
 open class ReactantUISlotGroupElementEditing<out T : ReactantUISlotGroupElement>(element: T)
     : ReactantUIDivElementEditing<T>(element) {
     var quickPutTarget by MutablePropertyDelegate(element::quickPutTarget)
+    var slotIndex by MutablePropertyDelegate(element::slotIndex)
 }
 
 fun ReactantUIElementEditing<ReactantUIElement>.slotGroup(creation: ReactantUISlotGroupElementEditing<ReactantUISlotGroupElement>.() -> Unit) {

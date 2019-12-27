@@ -7,4 +7,5 @@ import org.bukkit.inventory.ItemStack
 interface UISlotTakeItemEvent : UIElementEvent, UICancellableEvent, ItemStorageElementEvent {
     val takingItem: ItemStack?
     val from: ItemStorage?
+    val isTest: Boolean
 }

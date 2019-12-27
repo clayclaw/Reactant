@@ -12,5 +12,6 @@ class ReactantUISlotElementSwapHotbarItemEvent(
         override val takingItem: ItemStack?,
         override val from: ItemStorage?
 ) : AbstractUIElementEvent(target), UISlotPutItemEvent, UISlotTakeItemEvent, UISlotSwapItemEvent {
+    override val isTest = false
     override var isCancelled: Boolean = false
 }
