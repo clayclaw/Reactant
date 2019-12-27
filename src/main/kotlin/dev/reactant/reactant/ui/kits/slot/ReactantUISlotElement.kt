@@ -1,5 +1,6 @@
 package dev.reactant.uikit.element.slot
 
+import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.UIView
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
@@ -78,13 +79,15 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     }
 
     private fun swapItem(player: Player) {
-        ReactantUISlotElementSwapCursorItemEvent(this, player, player.itemOnCursor, displayItem, PlayerItemStorage(player)).let {
-            event.onNext(it)
-            if (!it.isCancelled) {
-                val tmp = player.itemOnCursor
-                player.setItemOnCursor(displayItem)
-                displayItem = tmp
-                pushUpdatedEvent()
+        if (putAmountLimit(player.itemOnCursor) >= player.itemOnCursor.amount && takeAmountLimit(displayItem.clone()) >= displayItem.amount) {
+            ReactantUISlotElementSwapCursorItemEvent(this, player, player.itemOnCursor, displayItem, PlayerItemStorage(player)).let {
+                event.onNext(it)
+                if (!it.isCancelled) {
+                    val tmp = player.itemOnCursor
+                    player.setItemOnCursor(displayItem)
+                    displayItem = tmp
+                    pushUpdatedEvent()
+                }
             }
         }
     }
@@ -149,7 +152,10 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
             // the calculated amount that this slot can receive
             val putting: ItemStack = input.clone()
-            putting.amount = putting.amount.coerceAtMost(putAmountLimit(putting) - displayItem.amount).coerceAtLeast(0)
+            putting.amount = putting.amount
+                    .coerceAtMost(putAmountLimit(putting) - displayItem.let { if (it.type.isAir) 0 else it.amount })
+                    .coerceAtLeast(0)
+            ReactantCore.logger.info("To ${putting.amount}")
 
             when {
                 // accept full stack item
@@ -177,11 +183,11 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
             when (putting.amount) {
                 // if can't put anything, return all
-                0 -> i to input
+                0 -> i to input.clone()
                 // if put everything, return nothing
                 input.amount -> null
                 // return partly (at most its original size)
-                else -> i to input.also { it.amount -= putting.amount.coerceAtMost(it.amount) }
+                else -> i to input.clone().also { it.amount -= putting.amount.coerceAtMost(it.amount) }
             }
         }.toMap().also {
             if (!isTest) {
@@ -254,9 +260,11 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
                     when (it.bukkitEvent.action) {
                         MOVE_TO_OTHER_INVENTORY -> if (slotAmount != 0) quickPut(PlayerItemStorage(it.bukkitEvent.whoClicked as Player))
                         PICKUP_ALL -> takeItem(player, slotAmount)
+                        PICKUP_SOME -> takeItem(player, slotAmount)
                         PICKUP_HALF -> takeItem(player, ceil(slotAmount / 2.0).toInt())
                         PICKUP_ONE -> takeItem(player, min(slotAmount, 1))
                         PLACE_ALL -> putItem(player, player.itemOnCursor.amount)
+                        PLACE_SOME -> putItem(player, player.itemOnCursor.amount)
                         PLACE_ONE -> putItem(player, min(player.itemOnCursor.amount, 1))
                         SWAP_WITH_CURSOR -> when {
                             slotAmount != 0 -> swapItem(player)
