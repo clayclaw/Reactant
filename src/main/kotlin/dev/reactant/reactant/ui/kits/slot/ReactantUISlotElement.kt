@@ -1,6 +1,5 @@
 package dev.reactant.uikit.element.slot
 
-import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.UIView
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
@@ -71,7 +70,11 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
                 putting.amount -= (returned?.amount ?: 0)
                 when {
-                    player.itemOnCursor.amount > putting.amount -> player.itemOnCursor.amount -= putting.amount
+                    player.itemOnCursor.amount > putting.amount -> {
+                        player.itemOnCursor.amount -= putting.amount
+                        //refresh view
+                        player.setItemOnCursor(player.itemOnCursor)
+                    }
                     else -> player.setItemOnCursor(null)
                 }
             }
@@ -155,7 +158,6 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             putting.amount = putting.amount
                     .coerceAtMost(putAmountLimit(putting) - displayItem.let { if (it.type.isAir) 0 else it.amount })
                     .coerceAtLeast(0)
-            ReactantCore.logger.info("To ${putting.amount}")
 
             when {
                 // accept full stack item

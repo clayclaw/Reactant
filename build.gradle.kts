@@ -53,7 +53,6 @@ dependencies {
         isTransitive = false
     }
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
     api("io.reactivex.rxjava2:rxjava:2.2.13")
     api("io.reactivex.rxjava2:rxkotlin:2.4.0")
     api("org.reflections:reflections:0.9.11")

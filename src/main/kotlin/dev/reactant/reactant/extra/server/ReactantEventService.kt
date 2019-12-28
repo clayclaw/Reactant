@@ -49,4 +49,6 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
                 .doOnError { it.printStackTrace() }
                 as Observable<T>
     }
+
+    override fun <T : Event> pushEvent(event: Event) = Bukkit.getPluginManager().callEvent(event)
 }
