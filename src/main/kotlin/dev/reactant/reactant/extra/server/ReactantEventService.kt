@@ -50,5 +50,5 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
                 as Observable<T>
     }
 
-    override fun <T : Event> pushEvent(event: Event) = Bukkit.getPluginManager().callEvent(event)
+    override fun pushEvent(event: Event) = Bukkit.getPluginManager().callEvent(event)
 }

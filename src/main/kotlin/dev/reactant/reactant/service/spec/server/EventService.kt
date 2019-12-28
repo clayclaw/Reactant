@@ -10,7 +10,7 @@ interface EventService : Registrable<EventService.Registering> {
     fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
                        eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
 
-    fun <T : Event> pushEvent(event: Event)
+    fun pushEvent(event: Event)
 
     class Registering(val eventService: EventService, val componentRegistrant: Any) {
         @Deprecated("confusing name", ReplaceWith("observable()"))

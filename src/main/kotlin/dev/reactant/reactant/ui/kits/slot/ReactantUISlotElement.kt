@@ -35,7 +35,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
                 // todo: the handler should take to ui view level for future extend, e.g. using packet-fake bag ui
                 val tmp = hotbarItem
                 player.inventory.setItem(hotbar, displayItem)
-                displayItem = tmp ?: itemStackOf(AIR)
+                displayItem = tmp?.let { ItemStack(it) } ?: itemStackOf(AIR)
                 pushUpdatedEvent()
             }
         }
@@ -47,12 +47,12 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
     private fun takeItem(player: Player, amount: Int) {
         if (displayItem.type != AIR && player.itemOnCursor.amount == 0) {
-            val takingItem = displayItem.clone().also { it.amount = amount }
+            val takingItem = ItemStack(displayItem).also { it.amount = amount }
             ReactantUISlotTakeItemEvent(this, takingItem, PlayerItemStorage(player), false).let {
                 event.onNext(it)
                 if (!it.isCancelled) {
                     assert(takingItem.type == displayItem.type && takingItem.amount <= displayItem.amount)
-                    displayItem = displayItem.clone().also { it.amount -= takingItem.amount }
+                    displayItem = ItemStack(displayItem).also { it.amount -= takingItem.amount }
                     if (displayItem.amount == 0) displayItem = itemStackOf(AIR)
                     player.setItemOnCursor(takingItem)
                     pushUpdatedEvent()
@@ -63,7 +63,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
     private fun putItem(player: Player, amount: Int) {
         if (player.itemOnCursor.amount != 0 && (displayItem.type == AIR || displayItem.isSimilar(player.itemOnCursor))) {
-            val putting = player.itemOnCursor.clone().also { it.amount = amount }
+            val putting = ItemStack(player.itemOnCursor).also { it.amount = amount }
             putItem(putting, PlayerItemStorage(player)).let { returned ->
                 // it is not return other item when player putting the item
                 assert(returned == null || returned.isSimilar(putting))
@@ -86,7 +86,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             ReactantUISlotElementSwapCursorItemEvent(this, player, player.itemOnCursor, displayItem, PlayerItemStorage(player)).let {
                 event.onNext(it)
                 if (!it.isCancelled) {
-                    val tmp = player.itemOnCursor
+                    val tmp = ItemStack(player.itemOnCursor)
                     player.setItemOnCursor(displayItem)
                     displayItem = tmp
                     pushUpdatedEvent()
@@ -98,7 +98,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     fun quickPut(playerItemStorage: PlayerItemStorage) {
         (quickPutTarget ?: playerItemStorage).let { quickPutIS ->
             quickPutIS.testPutItem(displayItem, this).let { returned ->
-                val puttingItem = displayItem.clone().also { it.amount - (returned?.amount ?: 0) }
+                val puttingItem = ItemStack(displayItem).also { it.amount - (returned?.amount ?: 0) }
                 ReactantUISlotTakeItemEvent(this, puttingItem, quickPutIS, false).let {
                     event.onNext(it)
                     if (!it.isCancelled) {
@@ -193,7 +193,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             }
         }.toMap().also {
             if (!isTest) {
-                this.displayItem = newDisplayItem
+                this.displayItem = ItemStack(newDisplayItem)
                 pushUpdatedEvent()
             }
         }
@@ -204,7 +204,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     override fun testPutItems(items: Map<Int, ItemStack>, from: ItemStorage?): Map<Int, ItemStack> = putItems(items, from, true)
 
     private fun takeItems(wantedItems: Map<Int, ItemStack>, from: ItemStorage?, isTest: Boolean): Map<Int, ItemStack> {
-        var newDisplayItem = displayItem.clone()
+        var newDisplayItem = ItemStack(displayItem)
         return wantedItems.mapNotNull { (i, wanted) ->
 
             val taking: ItemStack = wanted.clone()
@@ -237,7 +237,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             }
         }.toMap().also {
             if (!isTest) {
-                this.displayItem = newDisplayItem
+                this.displayItem = ItemStack(newDisplayItem)
                 pushUpdatedEvent()
             }
         }

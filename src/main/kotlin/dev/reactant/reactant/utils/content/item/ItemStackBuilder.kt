@@ -48,3 +48,5 @@ fun itemStackOf(type: Material = Material.AIR, amount: Int = 1, builderConfig: I
     }.apply(builderConfig).build()
 }
 
+fun airItemStack() = itemStackOf(Material.AIR)
+
