@@ -35,7 +35,7 @@ open class ReactantUIBindingSlotElement(allocatedSchedulerService: SchedulerServ
         this.bindingSubject = subject
     }
 
-    override var displayItem: ItemStack
+    override var slotItem: ItemStack
         set(value) = run {
             bindingSubject?.onNext(value)
         }
