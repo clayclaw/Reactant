@@ -16,7 +16,7 @@ abstract class ReactantUISingleSlotDisplayElement(allocatedSchedulerService: Sch
     protected open var slotItem: ItemStack = itemStackOf(Material.AIR)
         set(value) = run { field = value }.also { view?.render() }
 
-    override fun render(relativePosition: Pair<Int, Int>): ItemStack? = slotItem
+    override fun render(relativePosition: Pair<Int, Int>): ItemStack? = if (slotItem.type.isAir) super.render(relativePosition) else slotItem
 }
 
 
