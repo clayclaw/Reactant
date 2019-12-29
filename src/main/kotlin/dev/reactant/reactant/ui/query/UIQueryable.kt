@@ -8,6 +8,7 @@ import dev.reactant.reactant.ui.element.UIElementChildren
 import dev.reactant.reactant.ui.element.UIElementName
 import org.w3c.css.sac.InputSource
 import java.io.StringReader
+import kotlin.reflect.full.findAnnotation
 
 
 interface UIQueryable {
@@ -17,11 +18,9 @@ interface UIQueryable {
 
     val id: String? get() = null;
 
-    val name: String
-        get() = javaClass.run {
-            (if (isAnnotationPresent(UIElementName::class.java)) getAnnotation(UIElementName::class.java)
-                    .run { "$namespace:$name" } else "no-name-el") + (id?.let { "#$it" } ?: "")
-        }
+    val name: String get() = this::class.findAnnotation<UIElementName>()?.name ?: "unnamed-el"
+    val namespace: String get() = this::class.findAnnotation<UIElementName>()?.namespace ?: ""
+    val fullName: String get() = "$name:$namespace"
 
     val path: String get() = (parent?.path?.let { "$it>" } ?: "") + name
 

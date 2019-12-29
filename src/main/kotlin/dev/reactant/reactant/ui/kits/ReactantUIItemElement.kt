@@ -11,7 +11,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 @UIElementName("item")
-open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : ReactantUISpanElement(allocatedSchedulerService, "item") {
+open class ReactantUIItemElement(allocatedSchedulerService: SchedulerService) : ReactantUISpanElement(allocatedSchedulerService) {
     init {
         width = actual(1)
         height = actual(1)

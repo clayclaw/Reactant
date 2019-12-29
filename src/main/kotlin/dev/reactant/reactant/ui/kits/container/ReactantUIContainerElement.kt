@@ -10,8 +10,8 @@ import org.bukkit.inventory.ItemStack
 /**
  * The abstract class which can sort and render the children elements
  */
-abstract class ReactantUIContainerElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String)
-    : ReactantUIElement(allocatedSchedulerService, elementIdentifier) {
+abstract class ReactantUIContainerElement(allocatedSchedulerService: SchedulerService)
+    : ReactantUIElement(allocatedSchedulerService) {
     var overflowHidden = true
         set(value) = run { field = value }.also { view?.render() }
 

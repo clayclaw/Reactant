@@ -13,7 +13,6 @@ import kotlin.reflect.KClass
 
 interface UIElement : UIElementEventTarget, UIQueryable, UIElementStyle, UIDestroyable {
     val view: UIView? get() = parent?.view
-    val elementIdentifier: String
     override var parent: UIElement?
     override var id: String?
     val classList: UIElementClassList

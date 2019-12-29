@@ -14,7 +14,7 @@ import io.reactivex.subjects.Subject
 import kotlin.reflect.KClass
 
 
-abstract class ReactantUIElement(val allocatedSchedulerService: SchedulerService, override val elementIdentifier: String)
+abstract class ReactantUIElement(val allocatedSchedulerService: SchedulerService)
     : ReactantUIElementStyle(), UIElement {
     init {
         el = this

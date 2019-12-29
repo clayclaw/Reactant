@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack
 
 @UIElementName("slotGroup")
 open class ReactantUISlotGroupElement(allocatedSchedulerService: SchedulerService)
-    : ReactantUIDivElement(allocatedSchedulerService, "slotGroup"), ItemStorageElement {
+    : ReactantUIDivElement(allocatedSchedulerService), ItemStorageElement {
 
     private var _quickPutTarget: ItemStorage? = null
     override var quickPutTarget: ItemStorage?

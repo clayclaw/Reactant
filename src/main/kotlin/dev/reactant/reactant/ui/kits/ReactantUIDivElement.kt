@@ -13,8 +13,8 @@ import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import org.bukkit.inventory.ItemStack
 
 @UIElementName("div")
-open class ReactantUIDivElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String = "div")
-    : ReactantUIContainerElement(allocatedSchedulerService, elementIdentifier) {
+open class ReactantUIDivElement(allocatedSchedulerService: SchedulerService)
+    : ReactantUIContainerElement(allocatedSchedulerService) {
     init {
         width = auto
         height = fitContent

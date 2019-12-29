@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack
 
 @UIElementName("inventory")
 class ViewInventoryContainerElement(private val reactantUIView: ReactantUIView, allocatedSchedulerService: SchedulerService)
-    : ReactantUIContainerElement(allocatedSchedulerService, "inventory") {
+    : ReactantUIContainerElement(allocatedSchedulerService) {
     init {
         width = when (view.inventory.type) {
             CHEST -> actual(9)

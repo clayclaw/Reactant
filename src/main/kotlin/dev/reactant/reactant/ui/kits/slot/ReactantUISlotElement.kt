@@ -115,8 +115,6 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
         }
     }
 
-    override val elementIdentifier = "slot"
-
     override fun edit() = ReactantUISlotElementEditing(this)
 
     private fun findQuickPutTarget(finding: UIElement): ItemStorage? = when (finding) {

@@ -8,7 +8,7 @@ import dev.reactant.reactant.ui.element.style.fitContent
 import dev.reactant.reactant.ui.element.style.inline
 
 @UIElementName("span")
-open class ReactantUISpanElement(allocatedSchedulerService: SchedulerService, elementIdentifier: String = "span") : ReactantUIDivElement(allocatedSchedulerService, elementIdentifier) {
+open class ReactantUISpanElement(allocatedSchedulerService: SchedulerService) : ReactantUIDivElement(allocatedSchedulerService) {
     init {
         width = fitContent
         height = fitContent
