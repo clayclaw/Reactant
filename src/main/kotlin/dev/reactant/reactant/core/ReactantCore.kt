@@ -90,9 +90,12 @@ class ReactantCore : JavaPlugin() {
         ReactantCore.logger.info("Initializing components")
         @Suppress("UNCHECKED_CAST")
         componentLifeCycleManager.invokeAction(
-                providerManager.providers
+                providerManager.availableProviders
                         .mapNotNull { it as? ComponentProvider<Any> }
-                        .onEach { if (!it.fulfilled) ReactantCore.logger.error("${it.componentClass.jvmName} missing providers: ${it.notFulfilledRequirements}") }
+                        .onEach {
+                            if (!it.fulfilled)
+                                ReactantCore.logger.error("${it.componentClass.jvmName} missing providers: [\n${it.notFulfilledRequirements.joinToString(",\n")}\n]")
+                        }
                         .filter { it.fulfilled },
                 LifeCycleControlAction.Initialize)
 

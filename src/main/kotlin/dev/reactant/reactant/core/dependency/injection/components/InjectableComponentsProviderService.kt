@@ -11,7 +11,7 @@ import kotlin.reflect.full.isSubtypeOf
 private class InjectableComponentsProviderService(val providerManager: ProviderManager) {
     @Provide(".*", true)
     private fun provideComponents(kType: KType, name: String): Components<Any> {
-        return providerManager.providers.mapNotNull { it as? ComponentProvider<*> }
+        return providerManager.availableProviders.mapNotNull { it as? ComponentProvider<*> }
                 .filter { it.isInitialized() }
                 .filter { it.productType.isSubtypeOf(kType.arguments[0].type!!) }
                 .map { it.getInstance() }

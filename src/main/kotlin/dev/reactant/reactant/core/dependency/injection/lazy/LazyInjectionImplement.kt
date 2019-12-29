@@ -10,7 +10,7 @@ class LazyInjectionImplement<T : Any>(val providerManager: ProviderManager, over
                                       val name: String, val requester: Provider) : LazyInjection<T> {
     override fun get(): T? {
         @Suppress("UNCHECKED_CAST")
-        return providerManager.providers.mapNotNull { it as? ComponentProvider<*> }
+        return providerManager.availableProviders.mapNotNull { it as? ComponentProvider<*> }
                 .filter { it.isInitialized() }
                 .filter { it.productType.isSubtypeOf(ktype) }
                 .map { it.getInstance() }

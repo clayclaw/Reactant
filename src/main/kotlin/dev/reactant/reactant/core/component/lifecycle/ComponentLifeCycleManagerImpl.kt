@@ -7,6 +7,9 @@ import dev.reactant.reactant.core.component.lifecycle.LifeCycleControlAction.*
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.ProviderRelationManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
+import java.io.FileDescriptor
+import java.io.FileOutputStream
+import java.io.PrintStream
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.jvm.jvmName
@@ -86,15 +89,23 @@ class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
 
         if (action == Disable || action == Save) invokeOrder = invokeOrder.reversed()
 
+        var maxPrintLength = 0
+        val out = PrintStream(FileOutputStream(FileDescriptor.out))
         return invokeOrder
                 .filter { checkState(it, action) }
-                .map { invokeAction(it, action) }
+                .mapIndexed { i, provider ->
+                    "\r> ${action}: ${String.format("%1$-60s", provider.componentClass.qualifiedName?.takeLast(60))} ...  ($i/${invokeOrder.size})\r".let {
+                        maxPrintLength = Math.max(maxPrintLength, it.length)
+                        out.printf("%${maxPrintLength}s", it)
+                    };
+                    invokeAction(provider, action)
+                }
                 .fold(true) { result, next -> result && next }
                 .also { inspectors.forEach { it.afterBulkActionComplete(action) } }
     }
 
     private val inspectors
-        get() = dependencyManager.providers.mapNotNull { it as? ComponentProvider<*> }
+        get() = dependencyManager.availableProviders.mapNotNull { it as? ComponentProvider<*> }
                 .filter { it.isInitialized() }
                 .mapNotNull { it.getInstance() as? LifeCycleInspector }
 }

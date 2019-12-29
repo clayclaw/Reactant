@@ -10,6 +10,8 @@ class InjectRequirement(
         val name: String
 ) {
 
+    override fun toString(): String = "$requiredType(name=$name)"
+
     companion object {
         fun fromProperty(property: KMutableProperty<*>): InjectRequirement = InjectRequirement(
                 property.returnType,
