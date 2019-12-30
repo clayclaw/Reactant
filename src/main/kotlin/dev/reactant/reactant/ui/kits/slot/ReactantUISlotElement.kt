@@ -35,7 +35,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     private fun hotbarSwap(player: Player, hotbar: Int) {
         val hotbarItem = player.inventory.getItem(hotbar)
         ReactantUISlotElementSwapHotbarItemEvent(this, player, hotbar, hotbarItem, slotItem, PlayerItemStorage(player)).let {
-            event.onNext(it)
+            it.propagateTo(this)
             if (!it.isCancelled) {
                 // todo: the handler should take to ui view level for future extend, e.g. using packet-fake bag ui
                 val tmp = hotbarItem
@@ -47,21 +47,15 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     }
 
     private fun pushUpdatedEvent() {
-        event.onNext(ReactantUISlotUpdatedEvent(this))
+        ReactantUISlotUpdatedEvent(this).propagateTo(this)
     }
 
     private fun takeItem(player: Player, amount: Int) {
         if (slotItem.type != AIR && player.itemOnCursor.amount == 0) {
             val takingItem = ItemStack(slotItem).also { it.amount = amount }
-            ReactantUISlotTakeItemEvent(this, takingItem, PlayerItemStorage(player), false).let {
-                event.onNext(it)
-                if (!it.isCancelled) {
-                    assert(takingItem.type == slotItem.type && takingItem.amount <= slotItem.amount)
-                    slotItem = ItemStack(slotItem).also { it.amount -= takingItem.amount }
-                    if (slotItem.amount == 0) slotItem = itemStackOf(AIR)
-                    player.setItemOnCursor(takingItem)
-                    pushUpdatedEvent()
-                }
+            takeItem(takingItem, this).let { taken ->
+                player.setItemOnCursor(taken)
+                pushUpdatedEvent()
             }
         }
     }
@@ -89,7 +83,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     private fun swapItem(player: Player) {
         if (putAmountLimit(player.itemOnCursor) >= player.itemOnCursor.amount && takeAmountLimit(slotItem.clone()) >= slotItem.amount) {
             ReactantUISlotElementSwapCursorItemEvent(this, player, player.itemOnCursor, slotItem, PlayerItemStorage(player)).let {
-                event.onNext(it)
+                it.propagateTo(this)
                 if (!it.isCancelled) {
                     val tmp = ItemStack(player.itemOnCursor)
                     player.setItemOnCursor(slotItem)
@@ -100,20 +94,15 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
         }
     }
 
-    fun quickPut(playerItemStorage: PlayerItemStorage) {
-        (quickPutTarget ?: playerItemStorage).let { quickPutIS ->
-            quickPutIS.testPutItem(slotItem, this).let { returned ->
-                val puttingItem = ItemStack(slotItem).also { it.amount - (returned?.amount ?: 0) }
-                ReactantUISlotTakeItemEvent(this, puttingItem, quickPutIS, false).let {
-                    event.onNext(it)
-                    if (!it.isCancelled) {
-                        assert(puttingItem.type == slotItem.type && puttingItem.amount <= slotItem.amount)
-                        quickPutIS.putItem(puttingItem, this).let { actualReturned ->
-                            val actualPutting = puttingItem.amount - (actualReturned?.amount ?: 0)
-                            slotItem.amount -= actualPutting
-                            if (slotItem.amount == 0) slotItem = itemStackOf(AIR)
-                            pushUpdatedEvent()
-                        }
+    fun quickTake(playerItemStorage: PlayerItemStorage) {
+        (quickPutTarget ?: playerItemStorage).let { currentPutTarget ->
+            currentPutTarget.testPutItem(slotItem, this).let { returned ->
+                val takingItem = ItemStack(slotItem).also { it.amount - (returned?.amount ?: 0) }
+                testTakeItem(takingItem, currentPutTarget)?.let { availableTakingItem ->
+                    currentPutTarget.putItem(availableTakingItem, this).let { actualReturned ->
+                        val actualPuttedAmount = availableTakingItem.amount - (actualReturned?.amount ?: 0)
+                        takingItem.amount = actualPuttedAmount
+                        takeItem(takingItem, currentPutTarget)
                     }
                 }
             }
@@ -175,13 +164,15 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             // fire event
             if (putting.amount != 0) {
                 ReactantUISlotPutItemEvent(this, putting, from, isTest).let { putItemEvent ->
-                    event.onNext(putItemEvent)
+                    putItemEvent.propagateTo(this)
 
                     if (!putItemEvent.isCancelled) {
                         when (newDisplayItem.type) {
                             AIR -> newDisplayItem = putting
                             else -> newDisplayItem.amount += putting.amount
                         }
+                    } else {
+                        putting.amount = 0
                     }
                 }
             }
@@ -222,12 +213,14 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
             // fire event
             if (taking.amount != 0) {
                 ReactantUISlotTakeItemEvent(this, taking, from, isTest).let { takeItemEvent ->
-                    event.onNext(takeItemEvent)
+                    takeItemEvent.propagateTo(this)
 
                     if (!takeItemEvent.isCancelled) {
                         assert(taking.type == slotItem.type && taking.amount <= slotItem.amount)
                         newDisplayItem.amount -= taking.amount
                         if (newDisplayItem.amount == 0) newDisplayItem = itemStackOf(AIR)
+                    } else {
+                        taking.amount = 0
                     }
                 }
             }
@@ -257,13 +250,12 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
         edit().apply {
             event<UIElementClickEvent>().subscribe {
                 it.isCancelled = true
-                it.stopPropagation()
 
                 scheduler.next().subscribe {
                     val player = it.bukkitEvent.whoClicked as Player
-                    val slotAmount = slotItem.amount
+                    val slotAmount = if (slotItem.type.isAir) 0 else slotItem.amount
                     when (it.bukkitEvent.action) {
-                        MOVE_TO_OTHER_INVENTORY -> if (slotAmount != 0) quickPut(PlayerItemStorage(it.bukkitEvent.whoClicked as Player))
+                        MOVE_TO_OTHER_INVENTORY -> if (slotAmount != 0) quickTake(PlayerItemStorage(it.bukkitEvent.whoClicked as Player))
                         PICKUP_ALL -> takeItem(player, slotAmount)
                         PICKUP_SOME -> takeItem(player, slotAmount)
                         PICKUP_HALF -> takeItem(player, ceil(slotAmount / 2.0).toInt())
