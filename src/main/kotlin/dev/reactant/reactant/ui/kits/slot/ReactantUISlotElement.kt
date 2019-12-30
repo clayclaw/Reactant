@@ -291,11 +291,14 @@ fun UIView.setAsSlotView(playerInventoryQuickPutTarget: ItemStorage, dropCursorW
     this.event.ofType(UIDragEvent::class.java).subscribe { it.isCancelled = true }
     this.event.ofType(UIClickEvent::class.java).filter { it is UIElementEvent }.subscribe { it.isCancelled = true }
     this.event.ofType(UIClickEvent::class.java).filter { it !is UIElementEvent }.subscribe {
-        if (it.bukkitEvent.action == MOVE_TO_OTHER_INVENTORY) {
-            it.isCancelled = true
-            it.bukkitEvent.currentItem?.let { movingItem ->
-                playerInventoryQuickPutTarget.putItem(movingItem, PlayerItemStorage(it.bukkitEvent.whoClicked as Player)).let { returned ->
-                    it.bukkitEvent.whoClicked.inventory.setItem(it.bukkitEvent.slot, returned)
+        when (it.bukkitEvent.action) {
+            COLLECT_TO_CURSOR -> it.isCancelled = true
+            MOVE_TO_OTHER_INVENTORY -> {
+                it.isCancelled = true
+                it.bukkitEvent.currentItem?.let { movingItem ->
+                    playerInventoryQuickPutTarget.putItem(movingItem, PlayerItemStorage(it.bukkitEvent.whoClicked as Player)).let { returned ->
+                        it.bukkitEvent.whoClicked.inventory.setItem(it.bukkitEvent.slot, returned)
+                    }
                 }
             }
         }
