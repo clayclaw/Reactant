@@ -1,5 +1,6 @@
 package dev.reactant.uikit.element.progress
 
+import dev.reactant.reactant.extensions.trySetColor
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
@@ -8,10 +9,7 @@ import dev.reactant.reactant.ui.element.style.actual
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import dev.reactant.uikit.element.progress.ReactantUIProgressDirection.*
 import org.bukkit.Color
-import org.bukkit.FireworkEffect
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.FireworkEffectMeta
 
 @UIElementName("progress")
 open class ReactantUIProgressElement(allocatedSchedulerService: SchedulerService)
@@ -45,13 +43,7 @@ open class ReactantUIProgressElement(allocatedSchedulerService: SchedulerService
                 BOTTOM_TO_TOP -> computedStyle?.offsetWidth?.let { it - 1 - x } ?: 0
             }
             theme(ProgressBarRenderInfo(barItemLength, barItemIndex, value))?.apply {
-                if (type == Material.FIREWORK_STAR && color != null) {
-                    itemMeta = itemMeta?.let {
-                        (it as FireworkEffectMeta).apply {
-                            effect = FireworkEffect.builder().withColor(color!!).build()
-                        }
-                    }
-                }
+                if (color != null) trySetColor(color!!)
             }
         }
     }
