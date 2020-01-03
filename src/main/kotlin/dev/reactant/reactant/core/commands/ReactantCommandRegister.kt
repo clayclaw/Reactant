@@ -2,7 +2,6 @@ package dev.reactant.reactant.core.commands
 
 import dev.reactant.reactant.core.commands.component.ComponentCommand
 import dev.reactant.reactant.core.commands.component.ReactantComponentListSubCommand
-import dev.reactant.reactant.core.commands.component.ReactantComponentVisualizeSubCommand
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.container.ContainerManager
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
@@ -27,7 +26,6 @@ internal class ReactantCommandRegister : LifeCycleHook {
             command(::ReactantMainCommand) {
                 command(::ComponentCommand) {
                     command({ ReactantComponentListSubCommand(providerManager, containerManager) })
-                    command({ ReactantComponentVisualizeSubCommand(providerManager) })
                 }
                 command(::ReactantEchoCommand)
             }

@@ -116,7 +116,7 @@ class ReactantCore : JavaPlugin() {
 
         lateinit var mainThreadScheduler: Scheduler
 
-        val logger: Logger = LogManager.getLogger("ReactantCore")
+        internal val logger: Logger = LogManager.getLogger("ReactantCore")
         const val configDirPath = "plugins/Reactant";
         const val tmpDirPath = "${ReactantCore.configDirPath}/tmp";
     }
