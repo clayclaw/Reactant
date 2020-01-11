@@ -1,15 +1,9 @@
-package dev.reactant.reactant.service.spec.config
+package dev.reactant.reactant.extra.config.type
 
 import dev.reactant.reactant.service.spec.parser.ParserService
 import io.reactivex.Completable
 
-/**
- * The container of the config entity
- *
- * @param <T> Model of config
-</T> */
-interface Config<out T : Any> {
-
+interface SharedConfig<out T : Any> {
     val path: String
 
     val content: T

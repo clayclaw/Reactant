@@ -7,8 +7,11 @@ import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
 import dev.reactant.reactant.service.spec.file.text.TextFileWriterService
 import dev.reactant.reactant.service.spec.parser.ParserService
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.functions.Function
 import java.io.File
+import java.io.FileNotFoundException
 import kotlin.reflect.KClass
 
 @Component
@@ -17,25 +20,41 @@ class ReactantConfigService(
         private val fileWriter: TextFileWriterService
 ) : ConfigService {
 
-    override fun <T : Any> load(parser: ParserService, modelClass: KClass<T>, path: String): Single<Config<T>> {
-        return loadContent(parser, modelClass, path)
-                .map { content -> ConfigImpl(path, content, parser) }
-    }
+    override fun <T : Any> get(parser: ParserService, modelClass: KClass<T>, path: String): Maybe<Config<T>> =
+            loadContent(parser, modelClass, path)
+                    .toMaybe()
+                    .onErrorResumeNext(Function { e ->
+                        when (e) {
+                            is FileNotFoundException -> Maybe.empty()
+                            else -> Maybe.error(e)
+                        }
+                    })
+                    .map { content -> ConfigImpl(path, content, parser) }
 
-    override fun <T : Any> loadOrDefault(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> {
-        return Single.defer { Single.just(File(path)) }
-                .flatMap { file ->
-                    if (file.exists())
-                        load(parser, modelClass, path)
-                    else
-                        Single.just(ConfigImpl(path, defaultContentCallable(), parser))
+    override fun <T : Any> getOrDefault(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
+            Single.fromCallable { File(path) }
+                    .flatMapMaybe { get(parser, modelClass, path) }
+                    .switchIfEmpty(Single.fromCallable { ConfigImpl(path, defaultContentCallable(), parser) })
+
+    override fun <T : Any> getOrPut(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
+            getOrDefault(parser, modelClass, path, defaultContentCallable)
+                    .doOnSuccess { it.save().blockingAwait() }
+
+    override fun remove(config: Config<Any>): Completable =
+            Completable.fromCallable {
+                File(config.path).let {
+                    when {
+                        !it.exists() -> throw FileNotFoundException("File not exist")
+                        !it.isFile -> throw IllegalArgumentException("Not a file")
+                        else -> it.delete()
+                    }
                 }
-    }
+            }
 
 
     override fun save(config: Config<Any>): Completable {
         return config.parser.encode(config.content)
-                .flatMapCompletable { encoded -> fileWriter!!.write(File(config.path), encoded) }
+                .flatMapCompletable { encoded -> fileWriter.write(File(config.path), encoded) }
     }
 
     override fun refresh(config: Config<Any>): Completable {
@@ -44,6 +63,7 @@ class ReactantConfigService(
                 .doOnSuccess { content -> (config as ConfigImpl).content = content }
                 .ignoreElement()
     }
+
 
     protected fun <T : Any> loadContent(parserService: ParserService, modelClass: KClass<T>, path: String): Single<T> {
         return fileReader.readAll(File(path))
@@ -59,5 +79,6 @@ class ReactantConfigService(
         override fun save(): Completable = this@ReactantConfigService.save(this)
 
         override fun refresh(): Completable = this@ReactantConfigService.refresh(this)
+        override fun remove(): Completable = this@ReactantConfigService.remove(this)
     }
 }
