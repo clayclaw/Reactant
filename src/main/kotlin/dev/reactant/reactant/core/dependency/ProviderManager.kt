@@ -2,7 +2,6 @@ package dev.reactant.reactant.core.dependency
 
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
-import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.core.dependency.relation.*
@@ -35,8 +34,8 @@ class ProviderManager {
     val relationInterpreters = listOf(
             WrappedDynamicProviderRelationInterpreter(),
             SimpleInjectionComponentProviderRelationInterpreter(),
-            NullableInjectionComponentProviderRelationInterpreter(),
-            ArgumentInjectionComponentProviderRelationInterpreter()
+            ArgumentInjectionComponentProviderRelationInterpreter(),
+            NullableInjectionRelationInterpreter()
     )
 
 
@@ -66,12 +65,14 @@ class ProviderManager {
                     }.flatten()
                 }
 
-        checkRelationFulfillRequirement(interpretedRelations,
-                availableProviders.mapNotNull { it as? ComponentProvider<*> }
-                        .flatMap { it.injectRequirements.map { requirement -> requirement to it } }
-                        .toMap());
+        val requirementSolvingRelation = interpretedRelations
+                .flatMap { relation -> relation.resolvedRequirements.map { it to relation } }
+                .groupBy { it.first.first }
+                .mapValues { it.value.map { it.second }.first() } // take the first priority relation, and abandon other
 
-        interpretedRelations.forEach { relation ->
+        val directRelation = interpretedRelations.filter { it.directRelation }
+
+        requirementSolvingRelation.forEach { (requirement, relation) ->
             if (relation.interpretTarget is ComponentProvider<*>) {
                 relation.resolvedRequirements.forEach {
                     relation.interpretTarget.resolvedRequirements[it.first] = it.second
@@ -79,22 +80,10 @@ class ProviderManager {
             }
             providerRelationManager.addDependencyRelation(relation.interpretTarget, setOf(relation.dependOn))
         }
-    }
 
-    private fun checkRelationFulfillRequirement(relations: List<InterpretedProviderRelation>, requirementProviderMap: Map<InjectRequirement, Provider>) {
-        val requirementRelationMap = relations
-                .flatMap { relation -> relation.resolvedRequirements.map { it.first }.map { requirement -> requirement to relation } }
-                .groupBy { it.first };
-        val notFulfilledRequirements = availableProviders.mapNotNull { it as? ComponentProvider<*> }
-                .filter { it.catchedThrowable == null }
-                .flatMap { it.injectRequirements }
-                .filter { !requirementRelationMap.containsKey(it) }
+        requirementSolvingRelation.values.union(directRelation).forEach { relation ->
+            providerRelationManager.addDependencyRelation(relation.interpretTarget, setOf(relation.dependOn))
+        }
 
-        val msg = notFulfilledRequirements
-                .map { notFulfilledRequirement -> requirementProviderMap[notFulfilledRequirement]!!.productType }
-                .joinToString(",") { "{$it}" }
-
-
-        assert(notFulfilledRequirements.isNotEmpty())
     }
 }

@@ -55,11 +55,12 @@ class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionCom
                                 "It implied it is depend on the type"
                         )
                     }.union(
-                            setOf(solve(interpretTarget, providers, requirement).let { solution ->
+                            setOf(solve(interpretTarget, providers, requirement).let { (solution, priority) ->
                                 InterpretedProviderRelation(
                                         this, interpretTarget, solution,
                                         "Solution that solve the argumented injection from the providers list",
-                                        setOf(requirement to solution)
+                                        setOf(requirement to solution),
+                                        priority
                                 )
                             })
                     )
@@ -67,5 +68,5 @@ class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionCom
     }
 
 
-    override fun isRequirementInterpretable(requirement: InjectRequirement): Boolean = requirement.requiredType.run { !isMarkedNullable && arguments.isNotEmpty() }
+    override fun isRequirementInterpretable(requirement: InjectRequirement): Boolean = requirement.requiredType.run { arguments.isNotEmpty() }
 }

@@ -18,6 +18,6 @@ class WrappedDynamicProviderRelationInterpreter : ProviderRelationInterpreter {
         }
         return setOf(InterpretedProviderRelation(this, interpretTarget,
                 interpretTarget.providedInWrapper,
-                "It is a wrapper of the dynamic provider."))
+                "It is a wrapper of the dynamic provider.", priority = Int.MIN_VALUE))
     }
 }
