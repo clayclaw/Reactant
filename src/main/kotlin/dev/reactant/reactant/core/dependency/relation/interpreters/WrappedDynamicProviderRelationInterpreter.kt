@@ -1,7 +1,8 @@
-package dev.reactant.reactant.core.dependency.relation
+package dev.reactant.reactant.core.dependency.relation.interpreters
 
 import dev.reactant.reactant.core.dependency.injection.producer.DynamicProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
+import dev.reactant.reactant.core.dependency.relation.InterpretedProviderRelation
 import dev.reactant.reactant.core.exception.ProviderRequirementCannotFulfilException
 
 /**

@@ -2,6 +2,7 @@ package dev.reactant.reactant.core.dependency.relation
 
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
+import dev.reactant.reactant.core.dependency.relation.interpreters.ProviderRelationInterpreter
 
 class InterpretedProviderRelation(
         val interpretBy: ProviderRelationInterpreter,
