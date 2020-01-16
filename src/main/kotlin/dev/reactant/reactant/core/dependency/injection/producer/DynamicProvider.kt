@@ -1,5 +1,6 @@
 package dev.reactant.reactant.core.dependency.injection.producer
 
+import dev.reactant.reactant.core.component.container.Container
 import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.exception.IllegalCallableInjectableProviderException
 import dev.reactant.reactant.utils.reflections.FieldsFinder
@@ -48,9 +49,11 @@ class DynamicProvider<T : Any, R : Any>(
                                 ?: false)
 
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> findAllFromComponentInjectableWrapper(injectableWrapper: ComponentProvider<T>) =
-                (FieldsFinder.getAllDeclaredFunctionRecursively(injectableWrapper.componentClass))
+        fun <T : Any> findAllFromComponentInjectableProvider(injectableProvider: ComponentProvider<T>) =
+                (FieldsFinder.getAllDeclaredFunctionRecursively(injectableProvider.componentClass))
                         .filter { func -> func.annotations.any { it is Provide } }
-                        .map { fromCallable(injectableWrapper, it as KCallable<Any>) }
+                        .map { fromCallable(injectableProvider, it as KCallable<Any>) }
     }
+
+    override val container: Container get() = providedInWrapper.container
 }

@@ -1,7 +1,6 @@
 package dev.reactant.reactant.core.commands.component
 
 import dev.reactant.reactant.core.commands.ReactantPermissions
-import dev.reactant.reactant.core.component.container.Container
 import dev.reactant.reactant.core.component.container.ContainerManager
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
@@ -65,18 +64,15 @@ internal class ReactantComponentListSubCommand(
                 }
                 // Class name wildcards filter
                 .filter { matchClassNameWildcards(it) }
-                // wrap it with its container
-                .map { Pair(it, containerManager.containers.first { container -> it.productType.jvmErasure in container.componentClasses }) }
-                // Container rawIdentifier filter
-                .filter { matchContainerIdentifierWildcards(it.second.identifier) }
+                .filter { matchContainerIdentifierWildcards(it.container.identifier) }
                 .toList()
                 .forEach { addToListTable(it) }
         listTable.generate().forEach(stdout::out)
     }
 
-    private fun matchClassNameWildcards(componentWrapper: ComponentProvider<*>) =
+    private fun matchClassNameWildcards(componentProvider: ComponentProvider<*>) =
             classNameWildcards.isEmpty() || classNameWildcards.any { wildcard ->
-                PatternMatchingUtils.matchWildcard(wildcard, componentWrapper.productType.jvmErasure.jvmName)
+                PatternMatchingUtils.matchWildcard(wildcard, componentProvider.productType.jvmErasure.jvmName)
             }
 
     private fun matchContainerIdentifierWildcards(identifier: String) =
@@ -84,17 +80,15 @@ internal class ReactantComponentListSubCommand(
                 PatternMatchingUtils.matchWildcard(wildcard, identifier)
             }
 
-    private fun addToListTable(componentWrapperContainerPair: Pair<ComponentProvider<*>, Container>) {
-        val componentWrapper = componentWrapperContainerPair.first;
-        val container = componentWrapperContainerPair.second;
+    private fun addToListTable(componentProvider: ComponentProvider<*>) {
         listTable.rows.add(listOf<String>(
-                componentWrapper.hashCode().toString(36),
-                componentWrapper.productType.jvmErasure.let { if (showShortName) it.simpleName!! else it.jvmName },
-                container.identifier,
-                if (componentWrapper.isInitialized()) "Running"
-                else if (providerManager.blacklistedProviders.contains(componentWrapperContainerPair.first)) "Blacklisted"
-                else if (componentWrapper.catchedThrowable != null) "Error"
-                else if (!componentWrapper.fulfilled) "Not Fulfilled" else ""
+                componentProvider.hashCode().toString(36),
+                componentProvider.productType.jvmErasure.let { if (showShortName) it.simpleName!! else it.jvmName },
+                componentProvider.container.identifier,
+                if (componentProvider.isInitialized()) "Running"
+                else if (providerManager.blacklistedProviders.contains(componentProvider)) "Blacklisted"
+                else if (componentProvider.catchedThrowable != null) "Error"
+                else if (!componentProvider.fulfilled) "Not Fulfilled" else ""
         ))
     }
 

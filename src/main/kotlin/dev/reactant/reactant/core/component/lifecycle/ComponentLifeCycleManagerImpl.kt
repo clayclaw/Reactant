@@ -20,44 +20,44 @@ class ComponentLifeCycleManagerImpl : ComponentLifeCycleManager {
     private val relationManager = instanceManager.getOrConstructWithoutInjection(ProviderRelationManager::class)
     private val dependencyManager = instanceManager.getOrConstructWithoutInjection(ProviderManager::class)
 
-    override fun invokeAction(injectableWrapper: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean {
-        if (!checkState(injectableWrapper, action)) throw IllegalStateException();
+    override fun invokeAction(injectableProvider: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean {
+        if (!checkState(injectableProvider, action)) throw IllegalStateException();
         try {
-            triggerInspectors(true, action, injectableWrapper);
+            triggerInspectors(true, action, injectableProvider);
             when (action) {
-                Initialize -> injectableWrapper.runCatching {
+                Initialize -> injectableProvider.runCatching {
                     constructComponentInstance().also {
                         (it as? LifeCycleHook)?.onEnable()
                         instanceManager.putInstance(it)
                     }
-                }.onFailure { injectableWrapper.catchedThrowable = it; throw it }
-                Save -> (injectableWrapper.getInstance() as? LifeCycleHook)?.onSave()
+                }.onFailure { injectableProvider.catchedThrowable = it; throw it }
+                Save -> (injectableProvider.getInstance() as? LifeCycleHook)?.onSave()
                 Disable -> {
-                    (injectableWrapper.getInstance() as? LifeCycleHook)?.onDisable()
-                    instanceManager.destroyInstance(injectableWrapper.getInstance())
+                    (injectableProvider.getInstance() as? LifeCycleHook)?.onDisable()
+                    instanceManager.destroyInstance(injectableProvider.getInstance())
                 }
             }
-            triggerInspectors(false, action, injectableWrapper);
+            triggerInspectors(false, action, injectableProvider);
         } catch (e: Throwable) {
-            ReactantCore.logger.error("${injectableWrapper.componentClass.jvmName} cannot be ${action.name}", e)
+            ReactantCore.logger.error("${injectableProvider.componentClass.jvmName} cannot be ${action.name}", e)
             return false;
         }
         return true;
     }
 
-    private fun triggerInspectors(isBefore: Boolean, action: LifeCycleControlAction, componentWrapper: ComponentProvider<Any>) {
+    private fun triggerInspectors(isBefore: Boolean, action: LifeCycleControlAction, componentProvider: ComponentProvider<Any>) {
         inspectors.forEach {
             if (isBefore) {
                 when (action) {
-                    Initialize -> it.beforeEnable(componentWrapper)
-                    Save -> it.beforeSave(componentWrapper)
-                    Disable -> it.beforeDisable(componentWrapper)
+                    Initialize -> it.beforeEnable(componentProvider)
+                    Save -> it.beforeSave(componentProvider)
+                    Disable -> it.beforeDisable(componentProvider)
                 }
             } else {
                 when (action) {
-                    Initialize -> it.afterEnable(componentWrapper)
-                    Save -> it.afterSave(componentWrapper)
-                    Disable -> it.afterDisable(componentWrapper)
+                    Initialize -> it.afterEnable(componentProvider)
+                    Save -> it.afterSave(componentProvider)
+                    Disable -> it.afterDisable(componentProvider)
                 }
             }
         }

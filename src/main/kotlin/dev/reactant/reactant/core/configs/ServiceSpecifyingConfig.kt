@@ -2,13 +2,13 @@ package dev.reactant.reactant.core.configs
 
 import java.util.*
 
-class ServiceSpecifyingConfig {
-    var specifyRules: List<ServiceSpecifyingRule> = ArrayList()
-    var blacklistRules: List<ServiceSpecifyingRule> = ArrayList()
-
+data class ServiceSpecifyingConfig(
+        var specifyRules: List<ServiceSpecifyingRule> = ArrayList(),
+        var blacklistRules: List<ServiceSpecifyingRule> = ArrayList()
+) {
     inner class ServiceSpecifyingRule {
         var requester = ""
-        var fullfillWith: List<ServiceProviderSpecifier> = ArrayList()
+        var fulfillWith: List<ServiceProviderSpecifier> = ArrayList()
     }
 
     inner class ServiceProviderSpecifier {

@@ -76,7 +76,7 @@ class ProviderManager {
 
         val directRelation = interpretedRelations.filter { it.directRelation }
 
-        requirementSolvingRelation.forEach { (requirement, relation) ->
+        requirementSolvingRelation.forEach { (_, relation) ->
             if (relation.interpretTarget is ComponentProvider<*>) {
                 relation.resolvedRequirements.forEach {
                     relation.interpretTarget.resolvedRequirements[it.first] = it.second

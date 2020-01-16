@@ -2,6 +2,7 @@ package dev.reactant.reactant.core.dependency.injection.producer
 
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.component.container.Container
 import dev.reactant.reactant.core.component.instance.ComponentInstanceManager
 import dev.reactant.reactant.core.dependency.injection.Inject
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
@@ -22,7 +23,8 @@ import kotlin.reflect.jvm.javaField
 class ComponentProvider<T : Any>(
         val componentClass: KClass<T>,
         override val namePattern: String,
-        private val componentInstanceManager: ComponentInstanceManager
+        private val componentInstanceManager: ComponentInstanceManager,
+        override val container: Container
 ) : Provider {
     var catchedThrowable: Throwable? = null
     override val disabledReason: Throwable?
@@ -117,8 +119,8 @@ class ComponentProvider<T : Any>(
     val fulfilled get() = notFulfilledRequirements.isEmpty()
 
     companion object {
-        fun <T : Any> fromComponentClass(componentClass: KClass<T>, instanceManager: ComponentInstanceManager) =
+        fun <T : Any> fromComponent(componentClass: KClass<T>, instanceManager: ComponentInstanceManager, container: Container) =
                 ComponentProvider(componentClass,
-                        Component.fromElement(componentClass).name, instanceManager)
+                        Component.fromElement(componentClass).name, instanceManager, container)
     }
 }

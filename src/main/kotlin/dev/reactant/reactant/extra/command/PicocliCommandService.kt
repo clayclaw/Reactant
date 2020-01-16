@@ -49,12 +49,12 @@ class PicocliCommandService : LifeCycleHook, LifeCycleInspector, Registrable<Pic
             override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
                 val writer = CommandSenderWriter(sender)
                 commandTreeMap[name]!!.getCommandLine(sender, writer)
-                        .setExecutionExceptionHandler { ex, commandLine, parseResult ->
+                        .setExecutionExceptionHandler { ex, _, _ ->
                             if (ex is CommandExecutionPermissionException) {
                                 sender.sendMessage("You don't have permission to do it.")
                                 return@setExecutionExceptionHandler 0
                             }
-                            ReactantCore.logger.error("Error occured while executing the command \"$name ${args.joinToString(" ")}\"", ex);
+                            ReactantCore.logger.error("Error occurred while executing the command \"$name ${args.joinToString(" ")}\"", ex);
                             1
                         }
                         .execute(*(argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList().toTypedArray()))
