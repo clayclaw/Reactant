@@ -27,7 +27,7 @@ class ReactantContainerManager : ContainerManager {
     private val dependencyManager = instanceManager.getInstance(ProviderManager::class)!!
 
     override val containers: Collection<Container> get() = componentContainerMap.values
-    private val containerInjectableWrapperMap = HashMap<Container, HashSet<Provider>>();
+    private val containerInjectableProviderMap = HashMap<Container, HashSet<Provider>>();
 
     override fun getContainer(identifier: String): Container? {
         return componentContainerMap[identifier]
@@ -36,16 +36,16 @@ class ReactantContainerManager : ContainerManager {
     override fun addContainer(container: Container) {
         require(componentContainerMap[container.identifier] == null) { "Component Container with same rawIdentifier already exist: ${container.identifier}" }
         componentContainerMap[container.identifier] = container
-        addAllInjectableWrapper(container)
+        addAllInjectableProvider(container)
     }
 
-    private fun addAllInjectableWrapper(container: Container) {
+    private fun addAllInjectableProvider(container: Container) {
         container.componentClasses
                 .filter { it.java.isAnnotationPresent(Component::class.java) }
-                .map { ComponentProvider.fromComponentClass(it, instanceManager) }.forEach {
+                .map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
                     // providers including component and @Provide
-                    listOf(it).union(DynamicProvider.findAllFromComponentInjectableWrapper(it))
-                            .onEach { provider -> containerInjectableWrapperMap.getOrPut(container) { hashSetOf() }.add(provider) }
+                    listOf(it).union(DynamicProvider.findAllFromComponentInjectableProvider(it))
+                            .onEach { provider -> containerInjectableProviderMap.getOrPut(container) { hashSetOf() }.add(provider) }
                             .forEach { provider ->
                                 val providerName = it.componentClass.jvmName;
                                 val isBlacklisted = matchingConfig.blacklistServicePatterns
@@ -59,13 +59,13 @@ class ReactantContainerManager : ContainerManager {
     override fun removeContainer(container: Container) {
         requireNotNull(componentContainerMap[container.identifier]) { "Component Container not exist: ${container.identifier}" }
 
-        containerInjectableWrapperMap[container]!!.forEach { dependencyManager.removeProvider(it) }
-        containerInjectableWrapperMap.remove(container)
+        containerInjectableProviderMap[container]!!.forEach { dependencyManager.removeProvider(it) }
+        containerInjectableProviderMap.remove(container)
         componentContainerMap.remove(container.identifier)
     }
 
-    override fun getContainerProvidedInjectableWrapper(container: Container): Set<Provider> =
-            containerInjectableWrapperMap[container]!!
+    override fun getContainerProvidedInjectableProvider(container: Container): Set<Provider> =
+            containerInjectableProviderMap[container]!!
 
 
 }

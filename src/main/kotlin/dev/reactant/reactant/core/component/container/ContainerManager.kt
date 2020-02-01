@@ -13,5 +13,5 @@ interface ContainerManager {
     fun addContainer(container: Container)
 
     fun removeContainer(container: Container)
-    fun getContainerProvidedInjectableWrapper(container: Container): Set<Provider>
+    fun getContainerProvidedInjectableProvider(container: Container): Set<Provider>
 }

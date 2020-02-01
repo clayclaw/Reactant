@@ -10,7 +10,7 @@ import kotlin.reflect.full.isSubtypeOf
 @Component
 private class InjectableComponentsProviderService(val providerManager: ProviderManager) {
     @Provide(".*", true)
-    private fun provideComponents(kType: KType, name: String): Components<Any> {
+    private fun provideComponents(kType: KType, @Suppress("UNUSED_PARAMETER") name: String): Components<Any> {
         return providerManager.availableProviders.mapNotNull { it as? ComponentProvider<*> }
                 .filter { it.isInitialized() }
                 .filter { it.productType.isSubtypeOf(kType.arguments[0].type!!) }

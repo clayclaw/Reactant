@@ -1,5 +1,6 @@
 package dev.reactant.reactant.core.dependency.injection.producer
 
+import dev.reactant.reactant.core.component.container.Container
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
@@ -33,4 +34,9 @@ interface Provider {
     fun canProvideType(requiredKType: KType) =
             if (ignoreGenerics) productType.jvmErasure.isSubclassOf(requiredKType.jvmErasure)
             else productType.isSubtypeOf(requiredKType)
+
+    /**
+     * The parent container of this provider
+     */
+    val container: Container
 }

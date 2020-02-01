@@ -6,7 +6,7 @@ interface ComponentLifeCycleManager {
     /**
      * invoke action for a single Component
      */
-    fun invokeAction(injectableWrapper: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean
+    fun invokeAction(injectableProvider: ComponentProvider<Any>, action: LifeCycleControlAction): Boolean
 
     /**
      * Invoke the action for all Component, order will be resolved automatically

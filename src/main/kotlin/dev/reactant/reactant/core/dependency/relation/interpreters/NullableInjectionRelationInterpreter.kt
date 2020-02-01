@@ -1,4 +1,4 @@
-package dev.reactant.reactant.core.dependency.relation
+package dev.reactant.reactant.core.dependency.relation.interpreters
 
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.dependency.injection.producer.NullProvider

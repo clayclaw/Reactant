@@ -57,7 +57,7 @@ class ReactantCore : JavaPlugin() {
         ReactantCore.logger.info("Disabling services")
         val container = containerManager.getContainer(BukkitPluginContainer.getIdentifier(plugin))
         if (container != null) {
-            containerManager.getContainerProvidedInjectableWrapper(container)
+            containerManager.getContainerProvidedInjectableProvider(container)
                     .mapNotNull { it as? ComponentProvider<Any> }
                     .let {
                         componentLifeCycleManager.invokeAction(it, LifeCycleControlAction.Save)

@@ -1,8 +1,10 @@
-package dev.reactant.reactant.core.dependency.relation
+package dev.reactant.reactant.core.dependency.relation.interpreters
 
 import dev.reactant.reactant.core.dependency.injection.InjectRequirement
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
+import dev.reactant.reactant.core.dependency.relation.InterpretedProviderRelation
+import dev.reactant.reactant.core.dependency.relation.SimpleInjectionResolverUtil
 import dev.reactant.reactant.core.exception.ProviderRequirementCannotFulfilException
 
 /**

@@ -4,7 +4,11 @@ import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
-import dev.reactant.reactant.core.dependency.relation.*
+import dev.reactant.reactant.core.dependency.relation.InterpretedProviderRelation
+import dev.reactant.reactant.core.dependency.relation.interpreters.ArgumentInjectionComponentProviderRelationInterpreter
+import dev.reactant.reactant.core.dependency.relation.interpreters.NullableInjectionRelationInterpreter
+import dev.reactant.reactant.core.dependency.relation.interpreters.SimpleInjectionComponentProviderRelationInterpreter
+import dev.reactant.reactant.core.dependency.relation.interpreters.WrappedDynamicProviderRelationInterpreter
 
 @Component
 class ProviderManager {
@@ -72,7 +76,7 @@ class ProviderManager {
 
         val directRelation = interpretedRelations.filter { it.directRelation }
 
-        requirementSolvingRelation.forEach { (requirement, relation) ->
+        requirementSolvingRelation.forEach { (_, relation) ->
             if (relation.interpretTarget is ComponentProvider<*>) {
                 relation.resolvedRequirements.forEach {
                     relation.interpretTarget.resolvedRequirements[it.first] = it.second
