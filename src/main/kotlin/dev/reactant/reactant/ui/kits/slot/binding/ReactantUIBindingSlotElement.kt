@@ -4,10 +4,10 @@ import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
+import dev.reactant.reactant.ui.kits.slot.ItemStorageElement
+import dev.reactant.reactant.ui.kits.slot.ReactantUISlotElement
+import dev.reactant.reactant.ui.kits.slot.ReactantUISlotElementEditing
 import dev.reactant.reactant.utils.content.item.itemStackOf
-import dev.reactant.uikit.element.slot.ItemStorageElement
-import dev.reactant.uikit.element.slot.ReactantUISlotElement
-import dev.reactant.uikit.element.slot.ReactantUISlotElementEditing
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import org.bukkit.Material

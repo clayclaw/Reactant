@@ -1,4 +1,4 @@
-package dev.reactant.uikit.element.slot
+package dev.reactant.reactant.ui.kits.slot
 
 import dev.reactant.reactant.ui.element.UIElement
 

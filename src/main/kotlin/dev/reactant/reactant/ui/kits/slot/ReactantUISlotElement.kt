@@ -1,4 +1,4 @@
-package dev.reactant.uikit.element.slot
+package dev.reactant.reactant.ui.kits.slot
 
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.UIView
@@ -14,6 +14,7 @@ import dev.reactant.reactant.ui.event.interact.element.UIElementClickEvent
 import dev.reactant.reactant.ui.event.inventory.UICloseEvent
 import dev.reactant.reactant.ui.kits.ReactantUISingleSlotDisplayElement
 import dev.reactant.reactant.ui.kits.ReactantUISingleSlotDisplayElementEditing
+import dev.reactant.reactant.ui.kits.slot.event.*
 import dev.reactant.reactant.utils.content.item.itemStackOf
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
 import io.reactivex.Observable
@@ -34,7 +35,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
     private fun hotbarSwap(player: Player, hotbar: Int) {
         val hotbarItem = player.inventory.getItem(hotbar)
-        ReactantUISlotElementSwapHotbarItemEvent(this, player, hotbar, hotbarItem, slotItem, PlayerItemStorage(player)).let {
+        UIElementSlotSwapHotbarItemEvent(this, player, hotbar, hotbarItem, slotItem, PlayerItemStorage(player)).let {
             it.propagateTo(this)
             if (!it.isCancelled) {
                 // todo: the handler should take to ui view level for future extend, e.g. using packet-fake bag ui
@@ -47,7 +48,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
     }
 
     private fun pushUpdatedEvent() {
-        ReactantUISlotUpdatedEvent(this).propagateTo(this)
+        UIElementSlotUpdatedEvent(this).propagateTo(this)
     }
 
     private fun takeItem(player: Player, amount: Int) {
@@ -82,7 +83,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
     private fun swapItem(player: Player) {
         if (putAmountLimit(player.itemOnCursor) >= player.itemOnCursor.amount && takeAmountLimit(slotItem.clone()) >= slotItem.amount) {
-            ReactantUISlotElementSwapCursorItemEvent(this, player, player.itemOnCursor, slotItem, PlayerItemStorage(player)).let {
+            UIElementSlotSwapCursorItemEvent(this, player, player.itemOnCursor, slotItem, PlayerItemStorage(player)).let {
                 it.propagateTo(this)
                 if (!it.isCancelled) {
                     val tmp = ItemStack(player.itemOnCursor)
@@ -163,7 +164,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
             // fire event
             if (putting.amount != 0) {
-                ReactantUISlotPutItemEvent(this, putting, from, isTest).let { putItemEvent ->
+                UIElementSlotPutItemEvent(this, putting, from, isTest).let { putItemEvent ->
                     putItemEvent.propagateTo(this)
 
                     if (!putItemEvent.isCancelled) {
@@ -212,7 +213,7 @@ open class ReactantUISlotElement(allocatedSchedulerService: SchedulerService)
 
             // fire event
             if (taking.amount != 0) {
-                ReactantUISlotTakeItemEvent(this, taking, from, isTest).let { takeItemEvent ->
+                UIElementSlotTakeItemEvent(this, taking, from, isTest).let { takeItemEvent ->
                     takeItemEvent.propagateTo(this)
 
                     if (!takeItemEvent.isCancelled) {
@@ -311,9 +312,9 @@ open class ReactantUISlotElementEditing<out T : ReactantUISlotElement>(element: 
     override val onClick: Observable<UIElementClickEvent>
         get() = super.onClick
 
-    val onSlotPut get() = event<ReactantUISlotPutItemEvent>()
-    val onSlotTake get() = event<ReactantUISlotTakeItemEvent>()
-    val onSlotUpdate get() = event<ReactantUISlotUpdatedEvent>()
+    val onSlotPut get() = event<UIElementSlotPutItemEvent>()
+    val onSlotTake get() = event<UIElementSlotTakeItemEvent>()
+    val onSlotUpdate get() = event<UIElementSlotUpdatedEvent>()
 }
 
 fun ReactantUIElementEditing<ReactantUIElement>.slot(creation: ReactantUISlotElementEditing<ReactantUISlotElement>.() -> Unit) {

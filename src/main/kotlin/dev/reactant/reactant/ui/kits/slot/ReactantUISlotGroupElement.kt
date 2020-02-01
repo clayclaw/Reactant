@@ -1,4 +1,4 @@
-package dev.reactant.uikit.element.slot
+package dev.reactant.reactant.ui.kits.slot
 
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIElementEditing

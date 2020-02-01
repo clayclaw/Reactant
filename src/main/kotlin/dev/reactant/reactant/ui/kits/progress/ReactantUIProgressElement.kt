@@ -1,4 +1,4 @@
-package dev.reactant.uikit.element.progress
+package dev.reactant.reactant.ui.kits.progress
 
 import dev.reactant.reactant.extensions.trySetColor
 import dev.reactant.reactant.service.spec.server.SchedulerService
@@ -6,8 +6,8 @@ import dev.reactant.reactant.ui.editing.ReactantUIElementEditing
 import dev.reactant.reactant.ui.element.ReactantUIElement
 import dev.reactant.reactant.ui.element.UIElementName
 import dev.reactant.reactant.ui.element.style.actual
+import dev.reactant.reactant.ui.kits.progress.ReactantUIProgressDirection.*
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
-import dev.reactant.uikit.element.progress.ReactantUIProgressDirection.*
 import org.bukkit.Color
 import org.bukkit.inventory.ItemStack
 

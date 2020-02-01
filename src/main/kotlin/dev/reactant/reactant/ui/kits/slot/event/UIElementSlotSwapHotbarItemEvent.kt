@@ -1,10 +1,12 @@
-package dev.reactant.uikit.element.slot
+package dev.reactant.reactant.ui.kits.slot.event
 
 import dev.reactant.reactant.ui.event.AbstractUIElementEvent
+import dev.reactant.reactant.ui.kits.slot.ItemStorage
+import dev.reactant.reactant.ui.kits.slot.ReactantUISlotElement
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class ReactantUISlotElementSwapHotbarItemEvent(
+class UIElementSlotSwapHotbarItemEvent(
         override val target: ReactantUISlotElement,
         val player: Player,
         val hotbar: Int,

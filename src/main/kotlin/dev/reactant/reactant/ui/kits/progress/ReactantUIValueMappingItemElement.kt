@@ -1,4 +1,4 @@
-package dev.reactant.uikit.element.progress
+package dev.reactant.reactant.ui.kits.progress
 
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.kits.ReactantUIDivElement
