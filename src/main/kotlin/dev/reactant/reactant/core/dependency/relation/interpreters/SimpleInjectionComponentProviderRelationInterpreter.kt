@@ -10,7 +10,7 @@ import dev.reactant.reactant.core.exception.ProviderRequirementCannotFulfilExcep
 /**
  * Handle the direct inject requirement, which mean the requiring type is not nullable or with any type argument
  */
-open class SimpleInjectionComponentProviderRelationInterpreter : ProviderRelationInterpreter {
+abstract class SimpleInjectionComponentProviderRelationInterpreter : ProviderRelationInterpreter {
     override fun interpret(interpretTarget: Provider, providers: Set<Provider>): Set<InterpretedProviderRelation>? {
         if (interpretTarget !is ComponentProvider<*>) return null
 

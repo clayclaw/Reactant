@@ -13,7 +13,8 @@ object SimpleInjectionResolverUtil {
 
         //todo: configable priority
             ReactantCore.logger.error("There have more than one injectables providing for ${requirement.requiredType}(name: ${requirement.name})," +
-                    " ${fulfillingDependencies.map { "${it.productType}(NamePattern:${it.namePattern})" }}")
+                    " ${fulfillingDependencies.map { "${it.productType}(NamePattern:${it.namePattern})" }}," +
+                    " interpreting target: ${interpretTarget.productType}")
         val priority = 0
         return fulfillingDependencies.firstOrNull()?.let { it to priority }
     }

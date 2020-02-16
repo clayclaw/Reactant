@@ -10,7 +10,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.jvm.jvmErasure
 
 /**
- * Interpreter that handle arugment injection, @ImpliedDepend and @ImpiledDependAll
+ * Interpreter that can handle simple injection, argument injection, @ImpliedDepend and @ImpiledDependAll
  */
 class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionComponentProviderRelationInterpreter() {
     override fun interpret(interpretTarget: Provider, providers: Set<Provider>): Set<InterpretedProviderRelation>? {
@@ -18,39 +18,43 @@ class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionCom
 
         fun checkArgSizeAndType(type: KType, index: Int) {
             if (index >= type.arguments.size)
-                throw IllegalArgumentException("Argument size of ${type.jvmErasure} is ${type.arguments.size}, but ImpliedDepend args included index $index");
+                throw IllegalArgumentException("Argument size of ${type.jvmErasure} is ${type.arguments.size}, but ImpliedDepend args included index $index")
             if (type.arguments[index].type == null)
-                throw IllegalArgumentException("ImpliedDepend type ${type.jvmErasure} is required Generic args");
+                throw IllegalArgumentException("ImpliedDepend type ${type.jvmErasure} is required Generic args")
         }
 
-        fun walkType(type: KType, providers: Set<Provider>): HashSet<Provider> {
-            val result = HashSet<Provider>();
-            type.jvmErasure.java.let {
+        /**
+         * Extract the relations from implied depends (if annotated with @ImpliedDepend)
+         */
+        fun extractImpliedDepends(type: KType, providers: Set<Provider>): Set<Provider> {
+            return type.jvmErasure.java.let {
                 if (it.isAnnotationPresent(ImpliedDepend::class.java)) {
                     val depend = it.getAnnotation(ImpliedDepend::class.java)
 
-                    depend.argumentIndexes.union(depend.nullableArgumentIndexes.asIterable()).forEach { argIndex ->
+                    depend.argumentIndexes.union(depend.nullableArgumentIndexes.asIterable()).flatMap { argIndex ->
                         checkArgSizeAndType(type, argIndex)
                         val argumentType = type.arguments[argIndex].type!!
-                        providers.filter { it.canProvideType(argumentType) }
-                                .let {
-                                    if (it.isEmpty() && !depend.nullableArgumentIndexes.contains(argIndex)) {
-                                        throw ProviderRequirementCannotFulfilException(this, interpretTarget,
-                                                "Target required $type, which implied that it require ${argumentType}," +
-                                                        " and it is not in the nullableArgumentIndexes, but there have no provider for it")
-                                                .also { interpretTarget.catchedThrowable = it }
-                                    } else result.addAll(it)
-                                }
+                        val nullable = depend.nullableArgumentIndexes.contains(argIndex)
+                        providers.filter { provider -> provider.canProvideType(argumentType) }.let { impliedRequires ->
+                            if (impliedRequires.isEmpty() && !nullable) {
+                                // if a non-nullable impliedDepend have no provider found
+                                throw ProviderRequirementCannotFulfilException(this, interpretTarget,
+                                        "Target required $type, which implied that it require ${argumentType}," +
+                                                " and it is not in the nullableArgumentIndexes, but there have no provider for it")
+                                        .also { interpretTarget.catchedThrowable = it }
+                            } else impliedRequires
+                        }
                     }
-                }
-            }
-            return result;
+                } else listOf()
+            }.toSet()
         }
 
 
         return filterInterpretableRequirements(interpretTarget)
                 .flatMap { requirement ->
-                    walkType(requirement.requiredType, providers).map {
+                    // firstly, check whether the requirement is requiring a type which have @ImpliedDepend
+                    // then extract the implied require relation if true, and union with the solved main requiring target
+                    extractImpliedDepends(requirement.requiredType, providers).map {
                         InterpretedProviderRelation(
                                 this, interpretTarget, it,
                                 "It implied it is depend on the type"
@@ -59,7 +63,7 @@ class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionCom
                             setOf(solve(interpretTarget, providers, requirement).let { (solution, priority) ->
                                 InterpretedProviderRelation(
                                         this, interpretTarget, solution,
-                                        "Solution that solve the argumented injection from the providers list",
+                                        "Solution that solve the injection from the providers list",
                                         setOf(requirement to solution),
                                         priority
                                 )
@@ -69,5 +73,5 @@ class ArgumentInjectionComponentProviderRelationInterpreter : SimpleInjectionCom
     }
 
 
-    override fun isRequirementInterpretable(requirement: InjectRequirement): Boolean = requirement.requiredType.run { arguments.isNotEmpty() }
+    override fun isRequirementInterpretable(requirement: InjectRequirement): Boolean = true
 }

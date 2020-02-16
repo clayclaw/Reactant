@@ -7,7 +7,6 @@ import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.core.dependency.relation.InterpretedProviderRelation
 import dev.reactant.reactant.core.dependency.relation.interpreters.ArgumentInjectionComponentProviderRelationInterpreter
 import dev.reactant.reactant.core.dependency.relation.interpreters.NullableInjectionRelationInterpreter
-import dev.reactant.reactant.core.dependency.relation.interpreters.SimpleInjectionComponentProviderRelationInterpreter
 import dev.reactant.reactant.core.dependency.relation.interpreters.WrappedDynamicProviderRelationInterpreter
 
 @Component
@@ -37,7 +36,6 @@ class ProviderManager {
      */
     val relationInterpreters = listOf(
             WrappedDynamicProviderRelationInterpreter(),
-            SimpleInjectionComponentProviderRelationInterpreter(),
             ArgumentInjectionComponentProviderRelationInterpreter(),
             NullableInjectionRelationInterpreter()
     )
