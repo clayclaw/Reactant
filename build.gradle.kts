@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 val versionNumber = "0.1.6"
-val isSnapshot = true
+val isSnapshot = false
 val kotlinVersion = "1.3.61"
 
 group = "dev.reactant"
