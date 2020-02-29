@@ -1,15 +1,11 @@
 package dev.reactant.reactant.utils.content.area
 
-import dev.reactant.reactant.extensions.plus
 import org.bukkit.util.Vector
 
 class CombinedArea(val areaA: Area, val areaB: Area, val operator: Operator) : Area {
     enum class Operator {
         UNION, INTERSECTION, EXCLUSION, DIFFERENCE
     }
-
-    var movedOffset = Vector()
-        private set
 
     override fun contains(vec: Vector): Boolean {
         val inA = vec in areaA
@@ -23,8 +19,13 @@ class CombinedArea(val areaA: Area, val areaB: Area, val operator: Operator) : A
     }
 
     override fun move(vector: Vector) {
-        movedOffset += vector
+        areaA.move(vector)
+        areaB.move(vector)
     }
+
+    override val bounds: Pair<Vector, Vector>
+        get() = Vector.getMinimum(areaA.bounds.first, areaB.bounds.first) to
+                Vector.getMaximum(areaA.bounds.second, areaB.bounds.second)
 
     override fun clone(): Area = CombinedArea(areaA.clone(), areaB.clone(), operator)
 }

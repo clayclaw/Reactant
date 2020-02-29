@@ -19,6 +19,7 @@ operator fun Location.times(m: Double) = this.clone().multiply(m)
 
 operator fun Location.div(m: Double) = this.clone().multiply(1 / m)
 
+operator fun Location.rangeTo(location: Location) = formRectangularPrism(location)
 
 @JvmOverloads
 fun locationOf(world: World, x: Double, y: Double, z: Double, yaw: Float = 0F, pitch: Float = 0F) = Location(world, x, y, z, yaw, pitch)
@@ -32,6 +33,7 @@ fun locationOf(uid: UUID, x: Double, y: Double, z: Double, yaw: Float = 0F, pitc
 fun locationOf(world: World, vec: Vector) = vec.toLocation(world)
 fun locationOf(uid: UUID, vec: Vector) = worldOf(uid)?.let { vec.toLocation(it) }
 fun locationOf(name: String, vec: Vector) = worldOf(name)?.let { vec.toLocation(it) }
+
 
 fun Location.formRectangularPrism(loc: Location): WorldArea<RectangularPrismArea> {
     assertSameWorld(this, loc)

@@ -1,5 +1,6 @@
 package dev.reactant.reactant.utils.content.area
 
+import dev.reactant.reactant.extensions.rangeTo
 import dev.reactant.reactant.extensions.snapToBlockCenter
 import org.bukkit.Location
 import org.bukkit.World
@@ -18,5 +19,14 @@ interface Area : Cloneable {
     fun move(vector: Vector)
 
     fun toWorldArea(world: World) = WorldArea(world, this)
+
+    val bounds: Pair<Vector, Vector>
+
+    /**
+     * Get the list of area included integer vectors (as know as block location)
+     */
+    val integerVectors: List<Vector> get() = bounds.run { first..second }.integerVectors.filter { contains(it) }
+
+
     public override fun clone(): Area
 }

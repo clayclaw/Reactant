@@ -3,8 +3,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-val versionNumber = "0.1.6"
-val isSnapshot = false
+val versionNumber = "0.1.7"
+val isSnapshot = true
 val kotlinVersion = "1.3.61"
 
 group = "dev.reactant"
@@ -86,7 +86,7 @@ val dokkaJavadoc by tasks.registering(DokkaTask::class) {
 gradle.taskGraph.whenReady {
     if (allTasks.any { it is Sign }) {
         allprojects {
-            extra["signing.keyId"] = System.getenv("SIGNING_KEYID");
+            extra["signing.keyId"] = System.getenv("SIGNING_KEYID")
         }
     }
 }

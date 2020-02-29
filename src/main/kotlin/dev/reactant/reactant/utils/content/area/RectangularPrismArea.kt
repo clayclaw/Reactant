@@ -1,5 +1,7 @@
 package dev.reactant.reactant.utils.content.area
 
+import dev.reactant.reactant.extensions.ceil
+import dev.reactant.reactant.extensions.floor
 import org.bukkit.World
 import org.bukkit.util.Vector
 
@@ -24,4 +26,13 @@ open class RectangularPrismArea(var x1: Double, var y1: Double, var z1: Double,
     override operator fun contains(vec: Vector): Boolean = vec.isInAABB(minCorner, maxCorner)
 
     override fun toWorldArea(world: World) = WorldArea(world, this)
+    override val bounds: Pair<Vector, Vector> get() = minCorner to maxCorner
+
+    override val integerVectors: List<Vector>
+        get() = minCorner.ceil.let { min ->
+            maxCorner.floor.let { max ->
+                (min.x.toInt()..max.x.toInt()).flatMap { x -> (min.y.toInt()..max.y.toInt()).flatMap { y -> (min.z.toInt()..max.z.toInt()).map { z -> Vector(x, y, z) } } }
+            }
+        }
+
 }

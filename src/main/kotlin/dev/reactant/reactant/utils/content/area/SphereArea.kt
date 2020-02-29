@@ -8,8 +8,10 @@ open class SphereArea(var center: Vector, var radius: Double) : Area {
         this.center += vector
     }
 
+    override val bounds: Pair<Vector, Vector>
+        get() = center + Vector(-radius, -radius, -radius) to center + Vector(radius, radius, radius)
+
     override fun contains(vec: Vector): Boolean = vec.isInSphere(center, radius)
 
     override fun clone(): SphereArea = SphereArea(center, radius)
-
 }
