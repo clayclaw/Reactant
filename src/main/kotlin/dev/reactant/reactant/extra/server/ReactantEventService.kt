@@ -16,36 +16,44 @@ import kotlin.reflect.KClass
 
 @Component
 class ReactantEventService : LifeCycleHook, Listener, EventService {
-    private val eventPrioritySubjectMap = HashMap<Class<out Event>, HashMap<EventPriority, PublishSubject<Event>>>();
-    private val listeningEventClasses = HashSet<Class<out Event>>();
+    /**
+     * Map which using Pair<EventClass, Boolean> as key, while the Boolean is ignoreCancelled
+     */
+    private val eventPrioritySubjectMap = HashMap<Pair<Class<out Event>, Boolean>, HashMap<EventPriority, PublishSubject<Event>>>();
+    private val listeningEventClasses = HashSet<Pair<Class<out Event>, Boolean>>();
 
     override fun onDisable() {
         HandlerList.unregisterAll(this)
         eventPrioritySubjectMap.flatMap { it.value.map { it.value } }.map { it.onComplete() }
     }
 
-    private fun onEvent(event: Event, priority: EventPriority) {
-        if (eventPrioritySubjectMap.containsKey(event::class.java)
-                && eventPrioritySubjectMap[event::class.java]!!.containsKey(priority)) {
-            eventPrioritySubjectMap[event::class.java]!![priority]!!.onNext(event)
+    private fun onEvent(event: Event, ignoreCancelled: Boolean, priority: EventPriority) {
+        if (eventPrioritySubjectMap.containsKey(event::class.java to ignoreCancelled)
+                && eventPrioritySubjectMap[event::class.java to ignoreCancelled]!!.containsKey(priority)) {
+            eventPrioritySubjectMap[event::class.java to ignoreCancelled]!![priority]!!.onNext(event)
+        } else {
+            throw IllegalStateException("Event not listening: ${event::class.qualifiedName}")
         }
     }
 
     private fun listen(eventClass: Class<out Event>) {
         EventPriority.values().forEach { priority ->
-            Bukkit.getPluginManager().registerEvent(eventClass, this, priority, { _, event -> onEvent(event, priority) }, ReactantCore.instance)
+            listOf(true, false).forEach { ignoreCancelled ->
+                Bukkit.getPluginManager().registerEvent(eventClass, this, priority,
+                        { _, event -> onEvent(event, ignoreCancelled, priority) }, ReactantCore.instance, ignoreCancelled)
+            }
         }
-        listeningEventClasses.add(eventClass)
     }
 
-    override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> {
-        if (!listeningEventClasses.contains(eventClass.java)) {
+    override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
+                                ignoreCancelled: Boolean, eventPriority: EventPriority): Observable<T> {
+        if (!listeningEventClasses.contains(eventClass.java to ignoreCancelled)) {
             listen(eventClass.java)
         }
         @Suppress("UNCHECKED_CAST")
         return (eventPrioritySubjectMap
-                .getOrPut(eventClass.java, { HashMap() })
-                .getOrPut(eventPriority, { PublishSubject.create<Event>() }))
+                .getOrPut(eventClass.java to ignoreCancelled, { HashMap() })
+                .getOrPut(eventPriority, { PublishSubject.create() }))
                 .doOnError { it.printStackTrace() }
                 as Observable<T>
     }
