@@ -8,7 +8,10 @@ import kotlin.reflect.KClass
 
 interface EventService : Registrable<EventService.Registering> {
     fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
-                       ignoreCancelled: Boolean, eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
+                       eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
+
+    fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
+                       ignoreCancelled: Boolean = false, eventPriority: EventPriority = EventPriority.NORMAL): Observable<T>;
 
     fun pushEvent(event: Event)
 

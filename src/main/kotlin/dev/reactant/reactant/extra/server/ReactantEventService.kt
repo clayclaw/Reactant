@@ -45,6 +45,9 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
+    override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>, eventPriority: EventPriority): Observable<T> =
+            on(componentRegistrant, eventClass, false, eventPriority)
+
     override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
                                 ignoreCancelled: Boolean, eventPriority: EventPriority): Observable<T> {
         if (!listeningEventClasses.contains(eventClass.java to ignoreCancelled)) {
