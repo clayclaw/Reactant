@@ -31,8 +31,6 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         if (eventPrioritySubjectMap.containsKey(event::class.java to ignoreCancelled)
                 && eventPrioritySubjectMap[event::class.java to ignoreCancelled]!!.containsKey(priority)) {
             eventPrioritySubjectMap[event::class.java to ignoreCancelled]!![priority]!!.onNext(event)
-        } else {
-            throw IllegalStateException("Event not listening: ${event::class.qualifiedName}")
         }
     }
 
