@@ -1,6 +1,5 @@
 package dev.reactant.reactant.extra.file
 
-import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
 import io.reactivex.Flowable
@@ -16,11 +15,11 @@ class ReactantTextFileReaderService : TextFileReaderService {
     override fun readAll(fileReader: Reader): Single<List<String>> = read(fileReader).toList()
 
     override fun read(file: File): Flowable<String> {
-        return Single.defer<File> { Single.just(file) }.doOnSuccess {
+        return Single.defer { Single.just(file) }.doOnSuccess {
             if (!file.exists()) throw FileNotFoundException(file.name)
             if (file.exists() && !file.isFile)
                 throw IllegalArgumentException(file.name + " is not a file")
-        }.map { FileReader(file) }.flatMapPublisher { ReactantCore.logger.info("Reading config file at ${Thread.currentThread().name}");read(it) }
+        }.map { FileReader(file) }.flatMapPublisher { read(it) }
     }
 
     override fun read(fileReader: Reader): Flowable<String> {

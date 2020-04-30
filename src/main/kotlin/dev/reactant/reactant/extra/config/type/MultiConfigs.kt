@@ -19,7 +19,7 @@ interface MultiConfigs<T : Any> {
     fun getAllAsMap(recursively: Boolean = true): Single<Map<String, Config<T>>> =
             getAll(recursively).collect(
                     { HashMap<String, Config<T>>() },
-                    { configSet, next -> configSet[next.path.removePrefix(configFolder.absolutePath)] = next }
+                    { configSet, next -> configSet[next.path.removePrefix("${configFolder.absolutePath}/")] = next }
             ).map { it.toMap() }
 
 }
