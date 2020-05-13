@@ -3,6 +3,7 @@ package dev.reactant.reactant.extra.config
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.Provide
+import dev.reactant.reactant.extra.config.exception.ConfigDecodeException
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.extra.config.type.SharedConfig
 import dev.reactant.reactant.service.spec.config.Config
@@ -59,10 +60,16 @@ private class InjectableConfigRepositoryService(
 
         override fun getAll(recursively: Boolean): Observable<Config<T>> =
                 Observable.defer { configFolder.walkTopDown().filter { it.isFile }.toObservable() }
-                        .flatMapSingle {
-                            configService.get(configParserDecider.getParserByPath(it.absolutePath), modelClass, it.absolutePath)
-                                    .switchIfEmpty(Single.error<Config<T>> { IllegalStateException() })
-                        }
+                        .flatMapSingle { file ->
+                            configService.get(configParserDecider.getParserByPath(file.absolutePath), modelClass, file.absolutePath)
+                                    .switchIfEmpty(Single.error { IllegalStateException() }).materialize().map { file.path to it }
+                        }.toList()
+                        .flatMap { result ->
+                            when {
+                                result.any { it.second.isOnError } -> Single.error { ConfigDecodeException(result.filter { it.second.isOnError }.map { it.first to it.second.error!! }.toMap()) }
+                                else -> Single.just(result.map { it.second.value })
+                            }
+                        }.flattenAsObservable { it }
 
     }
 }
