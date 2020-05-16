@@ -20,7 +20,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
      * Map which using Pair<EventClass, Boolean> as key, while the Boolean is ignoreCancelled
      */
     private val eventPrioritySubjectMap = HashMap<Pair<Class<out Event>, Boolean>, HashMap<EventPriority, PublishSubject<Event>>>();
-    private val listeningEventClasses = HashSet<Pair<Class<out Event>, Boolean>>();
+    private val listeningEventClasses = HashSet<Class<out Event>>();
 
     override fun onDisable() {
         HandlerList.unregisterAll(this)
@@ -34,11 +34,17 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
         }
     }
 
+    /**
+     * Register the event listener if the event class has never be reigstered
+     */
     private fun listen(eventClass: Class<out Event>) {
-        EventPriority.values().forEach { priority ->
-            listOf(true, false).forEach { ignoreCancelled ->
-                Bukkit.getPluginManager().registerEvent(eventClass, this, priority,
-                        { _, event -> onEvent(event, ignoreCancelled, priority) }, ReactantCore.instance, ignoreCancelled)
+        if (!listeningEventClasses.contains(eventClass)) {
+            listeningEventClasses.add(eventClass)
+            EventPriority.values().forEach { priority ->
+                listOf(true, false).forEach { ignoreCancelled ->
+                    Bukkit.getPluginManager().registerEvent(eventClass, this, priority,
+                            { _, event -> onEvent(event, ignoreCancelled, priority) }, ReactantCore.instance, ignoreCancelled)
+                }
             }
         }
     }
@@ -48,9 +54,7 @@ class ReactantEventService : LifeCycleHook, Listener, EventService {
 
     override fun <T : Event> on(componentRegistrant: Any, eventClass: KClass<T>,
                                 ignoreCancelled: Boolean, eventPriority: EventPriority): Observable<T> {
-        if (!listeningEventClasses.contains(eventClass.java to ignoreCancelled)) {
-            listen(eventClass.java)
-        }
+        listen(eventClass.java)
         @Suppress("UNCHECKED_CAST")
         return (eventPrioritySubjectMap
                 .getOrPut(eventClass.java to ignoreCancelled, { HashMap() })
