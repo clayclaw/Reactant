@@ -1,5 +1,6 @@
 package dev.reactant.reactant.core.commands.provider
 
+import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine
 
@@ -11,6 +12,7 @@ import picocli.CommandLine
 )
 internal class ReactantProviderCommand : ReactantCommand() {
     override fun run() {
+        requirePermission(ReactantPermissions.ADMIN.DEV.OBJ)
         showUsage()
     }
 }

@@ -37,7 +37,7 @@ internal class ReactantComponentListSubCommand(
 
     @CommandLine.Option(names = ["-c", "--container"],
             description = ["Filtering the Component by container rawIdentifier, wildcard is available"])
-    val containerIdentifierWildcards: ArrayList<String> = arrayListOf()
+    var containerIdentifierWildcards: ArrayList<String> = arrayListOf()
 
     @CommandLine.Parameters(arity = "0..*", paramLabel = "CLASS_NAME",
             description = ["Filtering Component class canonical name, wildcard is available"])
@@ -51,7 +51,7 @@ internal class ReactantComponentListSubCommand(
     }
 
     override fun run() {
-        requirePermission(ReactantPermissions.ADMIN.DEV.REACTANT_OBJ.LIST)
+        requirePermission(ReactantPermissions.ADMIN.DEV.OBJ.LIST)
 
         providerManager.providers.union(providerManager.blacklistedProviders).mapNotNull { it as? ComponentProvider<*> }
                 .asSequence()

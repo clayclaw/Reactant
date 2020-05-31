@@ -27,11 +27,9 @@ abstract class SimpleInjectionComponentProviderRelationInterpreter : ProviderRel
                 }.toSet()
     }
 
-    protected open fun filterInterpretableRequirements(interpretTarget: ComponentProvider<*>): List<InjectRequirement> {
-        return interpretTarget.constructorInjectRequirements
-                .union(interpretTarget.propertiesInjectRequirements.map { it.value })
-                .filter { isRequirementInterpretable(it) }
-    }
+    protected open fun filterInterpretableRequirements(interpretTarget: ComponentProvider<*>): List<InjectRequirement> =
+            interpretTarget.injectRequirements
+                    .filter { isRequirementInterpretable(it) }
 
     protected open fun isRequirementInterpretable(requirement: InjectRequirement): Boolean = requirement.requiredType.run { arguments.isEmpty() }
 

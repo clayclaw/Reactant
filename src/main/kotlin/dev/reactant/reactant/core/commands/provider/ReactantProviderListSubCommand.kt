@@ -53,7 +53,7 @@ internal class ReactantProviderListSubCommand(
     }
 
     override fun run() {
-        requirePermission(ReactantPermissions.ADMIN.DEV.REACTANT_OBJ.LIST)
+        requirePermission(ReactantPermissions.ADMIN.DEV.OBJ.LIST)
 
         val targetClass = kotlin.runCatching { Class.forName(targetClassName) }.getOrElse {
             stderr.out("Class not found $targetClassName")

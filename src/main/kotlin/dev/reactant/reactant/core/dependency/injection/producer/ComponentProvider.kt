@@ -50,7 +50,8 @@ class ComponentProvider<T : Any>(
      * The required injectable of the constructor parameters
      */
     val constructorInjectRequirements = componentClass.constructors.first().parameters
-            .map(InjectRequirement.Companion::fromParameter)
+            .filter { !it.isOptional }
+            .map { it -> it to InjectRequirement.fromParameter(it) }.toMap()
 
     /**
      * The required injectable of the properties
@@ -71,7 +72,7 @@ class ComponentProvider<T : Any>(
      */
     val injectRequirements: Set<InjectRequirement>
         get() {
-            return constructorInjectRequirements.union(propertiesInjectRequirements.values)
+            return constructorInjectRequirements.values.union(propertiesInjectRequirements.values)
         }
 
 
@@ -97,7 +98,7 @@ class ComponentProvider<T : Any>(
 
         val instance: T = componentClass.constructors.first().runCatching {
             isAccessible = true
-            call(*constructorInjectRequirements.map { requiredInjectables[it] }.toTypedArray())
+            callBy(constructorInjectRequirements.mapValues { requiredInjectables[it.value] })
         }.getOrElse { throw RequiredInjectableCannotBeActiveException(this, it).also { e -> catchedThrowable = e } }
 
         propertiesInjectRequirements.forEach {

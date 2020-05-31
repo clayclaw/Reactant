@@ -4,6 +4,7 @@ import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.event.UIEvent
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -35,6 +36,8 @@ interface UIDestroyable {
 
             override fun interval(delay: Long, period: Long): Observable<Int> = schedulerService.interval(delay, period)
                     .doOnSubscribe { compositeDisposable.add(it) }
+
+            override val mainThreadScheduler: Scheduler get() = schedulerService.mainThreadScheduler
         }
     }
 

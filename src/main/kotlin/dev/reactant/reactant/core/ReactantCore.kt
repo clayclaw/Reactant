@@ -114,6 +114,7 @@ class ReactantCore : JavaPlugin() {
         lateinit var instance: ReactantCore
             private set
 
+        @Deprecated("Replace with EventScheduler.mainThreadScheduler")
         lateinit var mainThreadScheduler: Scheduler
 
         internal val logger: Logger = LogManager.getLogger("ReactantCore")
