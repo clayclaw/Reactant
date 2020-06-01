@@ -1,7 +1,7 @@
 package dev.reactant.reactant.service.spec.server
 
 import dev.reactant.reactant.service.spec.dsl.Registrable
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import kotlin.reflect.KClass

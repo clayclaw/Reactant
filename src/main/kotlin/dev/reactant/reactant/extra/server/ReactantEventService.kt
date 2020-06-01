@@ -8,9 +8,9 @@ import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import dev.reactant.reactant.service.spec.server.EventService
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority

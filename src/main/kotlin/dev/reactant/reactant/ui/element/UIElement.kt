@@ -7,7 +7,7 @@ import dev.reactant.reactant.ui.element.style.UIElementStyle
 import dev.reactant.reactant.ui.event.UIEvent
 import dev.reactant.reactant.ui.eventtarget.UIElementEventTarget
 import dev.reactant.reactant.ui.query.UIQueryable
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.subjects.Subject
 import org.bukkit.inventory.ItemStack
 import kotlin.reflect.KClass
 

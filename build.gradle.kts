@@ -3,9 +3,9 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-val versionNumber = "0.1.7"
+val versionNumber = "0.2.0"
 val isSnapshot = true
-val kotlinVersion = "1.3.61"
+val kotlinVersion = "1.3.72"
 
 group = "dev.reactant"
 version = "$versionNumber${if (isSnapshot) "-SNAPSHOT" else ""}"
@@ -15,7 +15,7 @@ plugins {
     java
     `maven-publish`
     signing
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.0.0"
     id("org.jetbrains.dokka") version "0.10.0"
 }
@@ -49,30 +49,30 @@ dependencies {
 //            "scripting-compiler"
     ).forEach { api(kotlin(it, kotlinVersion)) }
 
-    implementation("org.bstats:bstats-bukkit:1.4") {
+    implementation("org.bstats:bstats-bukkit:1.7") {
         isTransitive = false
     }
 
-    api("io.reactivex.rxjava2:rxjava:2.2.13")
-    api("io.reactivex.rxjava2:rxkotlin:2.4.0")
-    api("org.reflections:reflections:0.9.11")
+    api("io.reactivex.rxjava3:rxjava:3.0.4")
+    api("io.reactivex.rxjava3:rxkotlin:3.0.0")
+    api("org.reflections:reflections:0.9.12")
 
-    api("com.google.code.gson:gson:2.8.5")
-    api("org.yaml:snakeyaml:1.25")
+    api("com.google.code.gson:gson:2.8.6")
+    api("org.yaml:snakeyaml:1.26")
     api("com.moandjiezana.toml:toml4j:0.7.2")
 
-    api("info.picocli:picocli:4.0.4")
+    api("info.picocli:picocli:4.3.2")
     api("org.mariadb.jdbc:mariadb-java-client:2.5.1")
 
     api("org.apache.logging.log4j:log4j-core:2.12.1")
 
-    api("com.squareup.retrofit2:retrofit:2.6.2")
-    api("com.squareup.retrofit2:adapter-rxjava2:2.6.2")
-    api("com.squareup.retrofit2:converter-gson:2.6.2")
+    api("com.squareup.retrofit2:retrofit:2.9.0")
+    api("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+    api("com.squareup.retrofit2:converter-gson:2.9.0")
 
     api("net.sourceforge.cssparser:cssparser:0.9.27")
 
-    compileOnly("org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
     outputFormat = "html"

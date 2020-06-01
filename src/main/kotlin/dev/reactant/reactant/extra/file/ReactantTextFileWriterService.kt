@@ -2,8 +2,8 @@ package dev.reactant.reactant.extra.file
 
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.file.text.TextFileWriterService
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.io.FileWriter
 

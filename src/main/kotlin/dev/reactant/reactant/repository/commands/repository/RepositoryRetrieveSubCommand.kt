@@ -8,9 +8,9 @@ import dev.reactant.reactant.repository.MavenRepositoryRetrieverService
 import dev.reactant.reactant.repository.RepositoryService
 import dev.reactant.reactant.repository.commands.RepositoryPermission.Companion.Reactant
 import dev.reactant.reactant.utils.converter.StacktraceConverterUtils
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.ResponseBody
 import okio.Okio
 import org.bukkit.Bukkit

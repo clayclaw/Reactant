@@ -7,11 +7,11 @@ import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import dev.reactant.reactant.service.spec.server.SchedulerService
-import io.reactivex.Completable
-import io.reactivex.Completable.defer
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Completable.defer
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import kotlin.reflect.KType

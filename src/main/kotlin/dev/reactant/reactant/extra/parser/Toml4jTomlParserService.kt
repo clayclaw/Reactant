@@ -4,7 +4,7 @@ import com.moandjiezana.toml.Toml
 import com.moandjiezana.toml.TomlWriter
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.parser.TomlParserService
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import kotlin.reflect.KClass
 
 @Component

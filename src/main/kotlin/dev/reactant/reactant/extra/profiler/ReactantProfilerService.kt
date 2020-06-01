@@ -4,10 +4,10 @@ import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.components.Components
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import dev.reactant.reactant.service.spec.server.SchedulerService
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.withLatestFrom
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.withLatestFrom
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 
 @Component
 class ReactantProfilerService(

@@ -2,11 +2,11 @@ package dev.reactant.reactant.ui
 
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.event.UIEvent
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * A UI object that have its own scheduler and event bus

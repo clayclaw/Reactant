@@ -1,7 +1,7 @@
 package dev.reactant.reactant.service.spec.file.text
 
-import io.reactivex.Flowable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.Reader
 

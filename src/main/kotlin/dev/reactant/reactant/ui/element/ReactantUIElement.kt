@@ -8,9 +8,9 @@ import dev.reactant.reactant.ui.element.collection.ReactantUIElementClassSet
 import dev.reactant.reactant.ui.element.style.ReactantUIElementStyle
 import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.UIEvent
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import kotlin.reflect.KClass
 
 

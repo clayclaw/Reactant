@@ -1,9 +1,9 @@
 package dev.reactant.reactant.extra.config.type
 
 import dev.reactant.reactant.service.spec.config.Config
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.io.File
 import kotlin.reflect.KClass
 

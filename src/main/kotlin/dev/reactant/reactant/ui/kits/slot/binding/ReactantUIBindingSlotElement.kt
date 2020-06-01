@@ -8,8 +8,8 @@ import dev.reactant.reactant.ui.kits.slot.ItemStorageElement
 import dev.reactant.reactant.ui.kits.slot.ReactantUISlotElement
 import dev.reactant.reactant.ui.kits.slot.ReactantUISlotElementEditing
 import dev.reactant.reactant.utils.content.item.itemStackOf
-import io.reactivex.disposables.Disposable
-import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 

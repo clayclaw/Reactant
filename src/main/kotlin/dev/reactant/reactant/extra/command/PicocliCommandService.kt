@@ -95,9 +95,7 @@ private class PicocliCommandServiceProvider(
                     }
                     return true;
                 }
-            }).also {
-                ReactantCore.logger.info(it.setPermission(null))
-            })
+            }))
 
             Bukkit.getServer()::class.java.getDeclaredMethod("syncCommands").let {
                 it.isAccessible = true

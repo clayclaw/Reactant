@@ -1,6 +1,6 @@
 package dev.reactant.reactant.service.spec.file.text
 
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 import java.io.File
 

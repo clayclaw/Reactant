@@ -1,6 +1,6 @@
 package dev.reactant.reactant.service.spec.profiler
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 interface ProfilerDataProvider {
     val profilerDataObservable: Observable<ProfilerData>

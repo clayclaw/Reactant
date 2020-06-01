@@ -7,7 +7,7 @@ import dev.reactant.reactant.ui.element.style.UIElementStyleEditing
 import dev.reactant.reactant.ui.event.UIElementEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementClickEvent
 import dev.reactant.reactant.ui.event.interact.element.UIElementDragEvent
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 interface UIElementEditing<out T : UIElement> : UIElementStyleEditing {
     val element: T;

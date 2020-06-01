@@ -11,10 +11,10 @@ import dev.reactant.reactant.core.component.lifecycle.ComponentLifeCycleManagerI
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleControlAction
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.bstats.bukkit.Metrics
@@ -42,7 +42,7 @@ class ReactantCore : JavaPlugin() {
 
     override fun onEnable() {
         @Suppress("UNUSED_VARIABLE")
-        val metrics = Metrics(this)
+        val metrics = Metrics(this, 6056)
 
         mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(this, command) }
 

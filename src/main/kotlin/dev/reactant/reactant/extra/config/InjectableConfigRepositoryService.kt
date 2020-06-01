@@ -11,10 +11,10 @@ import dev.reactant.reactant.service.spec.config.ConfigService
 import dev.reactant.reactant.service.spec.parser.JsonParserService
 import dev.reactant.reactant.service.spec.parser.TomlParserService
 import dev.reactant.reactant.service.spec.parser.YamlParserService
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.toObservable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.KType

@@ -7,7 +7,7 @@ import dev.reactant.reactant.extra.file.FileIOUploadService
 import dev.reactant.reactant.extra.profiler.ReactantProfilerService
 import dev.reactant.reactant.service.spec.parser.JsonParserService
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.entity.Player

@@ -2,9 +2,9 @@ package dev.reactant.reactant.extra.file
 
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
-import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.*
 
 @Component

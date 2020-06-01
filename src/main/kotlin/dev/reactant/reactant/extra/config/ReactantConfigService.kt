@@ -6,10 +6,9 @@ import dev.reactant.reactant.service.spec.config.ConfigService
 import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
 import dev.reactant.reactant.service.spec.file.text.TextFileWriterService
 import dev.reactant.reactant.service.spec.parser.ParserService
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.functions.Function
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.reflect.KClass
@@ -23,12 +22,12 @@ class ReactantConfigService(
     override fun <T : Any> get(parser: ParserService, modelClass: KClass<T>, path: String): Maybe<Config<T>> =
             loadContent(parser, modelClass, path)
                     .toMaybe()
-                    .onErrorResumeNext(Function { e ->
+                    .onErrorResumeNext { e ->
                         when (e) {
                             is FileNotFoundException -> Maybe.empty()
                             else -> Maybe.error(e)
                         }
-                    })
+                    }
                     .map { content -> ConfigImpl(path, content, parser) }
 
     override fun <T : Any> getOrDefault(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> =

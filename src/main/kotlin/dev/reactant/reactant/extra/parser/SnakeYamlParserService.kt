@@ -2,7 +2,7 @@ package dev.reactant.reactant.extra.parser
 
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.parser.YamlParserService
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor
 import org.yaml.snakeyaml.nodes.Tag

@@ -6,7 +6,7 @@ import dev.reactant.reactant.service.spec.dsl.register
 import dev.reactant.reactant.service.spec.server.EventService
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import dev.reactant.reactant.ui.editing.ReactantUIEditing
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.disposables.Disposable
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.inventory.InventoryCloseEvent

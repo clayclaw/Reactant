@@ -10,10 +10,10 @@ import dev.reactant.reactant.ui.query.UIQueryable
 import dev.reactant.reactant.ui.query.selectElements
 import dev.reactant.reactant.ui.rendering.ReactantRenderedView
 import dev.reactant.reactant.ui.rendering.RenderedView
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory

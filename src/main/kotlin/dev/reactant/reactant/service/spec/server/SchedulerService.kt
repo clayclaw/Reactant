@@ -1,8 +1,8 @@
 package dev.reactant.reactant.service.spec.server
 
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Scheduler
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
 
 interface SchedulerService {
     fun next(): Completable

@@ -3,7 +3,7 @@ package dev.reactant.reactant.extra.parser
 import com.google.gson.GsonBuilder
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.service.spec.parser.JsonParserService
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import kotlin.reflect.KClass
 
 @Component

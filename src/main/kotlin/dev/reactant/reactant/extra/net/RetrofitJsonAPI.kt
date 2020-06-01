@@ -3,7 +3,7 @@ package dev.reactant.reactant.extra.net
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Provide
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
@@ -31,7 +31,7 @@ private class RetrofitHttpAPIProvider {
         val retrofit = Retrofit.Builder()
                 .baseUrl(if (name != "") name else serviceClass.findAnnotation<BaseUrl>()?.baseUrl ?: "")
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
         return RetrofitJsonAPI(retrofit.create(serviceClass.java))
     }

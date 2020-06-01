@@ -1,8 +1,8 @@
 package dev.reactant.reactant.ui.eventtarget
 
 import dev.reactant.reactant.ui.event.UIEvent
-import io.reactivex.Observable
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.Subject
 
 interface UIEventTarget<T : UIEvent> {
     val event: Subject<T>

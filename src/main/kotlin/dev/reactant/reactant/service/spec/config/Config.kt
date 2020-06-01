@@ -1,7 +1,7 @@
 package dev.reactant.reactant.service.spec.config
 
 import dev.reactant.reactant.service.spec.parser.ParserService
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 /**
  * The container of the config entity

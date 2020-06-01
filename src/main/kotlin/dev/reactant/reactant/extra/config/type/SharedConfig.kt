@@ -1,7 +1,7 @@
 package dev.reactant.reactant.extra.config.type
 
 import dev.reactant.reactant.service.spec.parser.ParserService
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 interface SharedConfig<out T : Any> {
     val path: String

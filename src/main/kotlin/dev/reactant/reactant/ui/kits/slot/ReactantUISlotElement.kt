@@ -17,7 +17,7 @@ import dev.reactant.reactant.ui.kits.ReactantUISingleSlotDisplayElementEditing
 import dev.reactant.reactant.ui.kits.slot.event.*
 import dev.reactant.reactant.utils.content.item.itemStackOf
 import dev.reactant.reactant.utils.delegation.MutablePropertyDelegate
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import org.bukkit.Material.AIR
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryAction.*

@@ -3,7 +3,7 @@ package dev.reactant.reactant.extra.file
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.extra.net.BaseUrl
 import dev.reactant.reactant.extra.net.RetrofitJsonAPI
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

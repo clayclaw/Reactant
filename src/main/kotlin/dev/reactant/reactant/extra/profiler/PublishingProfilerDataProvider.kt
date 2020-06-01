@@ -1,7 +1,7 @@
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlin.system.measureNanoTime
 
 class PublishingProfilerDataProvider() : ProfilerDataProvider {

@@ -6,8 +6,8 @@ import dev.reactant.reactant.extra.file.ReactantTextFileReaderService
 import dev.reactant.reactant.service.spec.script.kotlin.KtsService
 import dev.reactant.reactant.service.spec.script.kotlin.KtsService.ScriptImporter
 import dev.reactant.reactant.service.spec.script.kotlin.KtsService.Scripting
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.nio.file.Paths
 import javax.script.ScriptEngineManager
