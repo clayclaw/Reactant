@@ -25,7 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
-@ReactantPlugin(servicePackages = ["dev.reactant.reactant"])
+@ReactantPlugin(servicePackages = ["dev.reactant.reactant", "dev.reactant.desk"])
 class ReactantCore : JavaPlugin() {
     val instanceManager: ComponentInstanceManager = ReactantInstanceManager()
     internal val reactantInstanceManager: ReactantInstanceManager get() = instanceManager as ReactantInstanceManager
@@ -117,7 +117,7 @@ class ReactantCore : JavaPlugin() {
         @Deprecated("Replace with EventScheduler.mainThreadScheduler")
         lateinit var mainThreadScheduler: Scheduler
 
-        internal val logger: Logger = LogManager.getLogger("ReactantCore")
+        val logger: Logger = LogManager.getLogger("ReactantCore")
         const val configDirPath = "plugins/Reactant";
         const val tmpDirPath = "${ReactantCore.configDirPath}/tmp";
     }

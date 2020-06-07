@@ -42,11 +42,17 @@ repositories {
 dependencies {
     listOf(
             "stdlib-jdk8",
-            "reflect"
+            "reflect",
+//
 //            "script-util",
 //            "script-runtime",
 //            "compiler-embeddable",
-//            "scripting-compiler"
+//            "scripting-compiler-embeddable",
+
+            "scripting-jvm",
+            "scripting-jvm-host",
+            "scripting-jvm-host-embeddable"
+
     ).forEach { api(kotlin(it, kotlinVersion)) }
 
     implementation("org.bstats:bstats-bukkit:1.7") {
@@ -71,6 +77,11 @@ dependencies {
     api("com.squareup.retrofit2:converter-gson:2.9.0")
 
     api("net.sourceforge.cssparser:cssparser:0.9.27")
+
+    api("io.ktor:ktor-server-netty:1.3.1")
+    api("io.ktor:ktor-gson:1.3.1")
+
+    api("net.java.dev.jna:jna:5.5.0")
 
     compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
 }
