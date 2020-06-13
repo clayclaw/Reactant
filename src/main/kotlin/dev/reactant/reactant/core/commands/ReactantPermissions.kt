@@ -12,6 +12,10 @@ object ReactantPermissions : PermissionNode("reactant") {
             }
 
             object PROFILER : PermissionNode("profiler")
+            object I18N : PermissionNode("i18n") {
+                object LIST : PermissionNode(child("list"))
+                object GENERATE : PermissionNode(child("generate"))
+            }
         }
     }
 }
