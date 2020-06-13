@@ -7,6 +7,7 @@ import dev.reactant.reactant.core.configs.ServiceMatchingConfig
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.DynamicProvider
+import dev.reactant.reactant.core.dependency.injection.producer.DynamicSubtypeProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.utils.PatternMatchingUtils
 import java.io.File
@@ -45,6 +46,7 @@ class ReactantContainerManager : ContainerManager {
                 .map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
                     // providers including component and @Provide
                     listOf(it).union(DynamicProvider.findAllFromComponentInjectableProvider(it))
+                            .union(DynamicSubtypeProvider.findAllFromComponentInjectableProvider(it))
                             .onEach { provider -> containerInjectableProviderMap.getOrPut(container) { hashSetOf() }.add(provider) }
                             .forEach { provider ->
                                 val providerName = it.componentClass.jvmName;

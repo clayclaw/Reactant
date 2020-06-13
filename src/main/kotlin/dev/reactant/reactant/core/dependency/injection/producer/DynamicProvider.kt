@@ -14,7 +14,7 @@ import kotlin.reflect.jvm.jvmErasure
 /**
  * A injectable which is provided by a class function/getter
  */
-class DynamicProvider<T : Any, R : Any>(
+open class DynamicProvider<T : Any, R : Any>(
         val providedInWrapper: ComponentProvider<T>,
         val callableFactory: KCallable<R>,
         override val ignoreGenerics: Boolean = false

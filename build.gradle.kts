@@ -72,6 +72,8 @@ dependencies {
 
     api("net.sourceforge.cssparser:cssparser:0.9.27")
 
+    api("javassist:javassist:3.12.1.GA")
+
     compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
