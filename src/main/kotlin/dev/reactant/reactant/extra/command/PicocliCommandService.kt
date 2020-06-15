@@ -16,9 +16,10 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import picocli.CommandLine.Model
 import kotlin.reflect.KType
+import kotlin.system.measureNanoTime
 
 @Component
-private class PicocliCommandServiceProvider(
+class PicocliCommandServiceProvider(
         private val profilerDataProvider: PublishingProfilerDataProvider = PublishingProfilerDataProvider()
 ) : LifeCycleHook, LifeCycleInspector, ProfilerDataProvider by profilerDataProvider {
 
@@ -79,7 +80,7 @@ private class PicocliCommandServiceProvider(
                     commandSpec.aliases().toList()) {
                 override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
                     val writer = CommandSenderWriter(sender)
-                    val grouppedArgs = argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList()
+                    var grouppedArgs: List<String> = argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList()
 
                     profilerDataProvider.measure(grouppedArgs, requester) {
                         commandTreeMap[name]!!.getCommandLine(sender, writer)
@@ -91,7 +92,11 @@ private class PicocliCommandServiceProvider(
                                     ReactantCore.logger.error("Error occurred while executing the command \"$name ${args.joinToString(" ")}\"", ex);
                                     1
                                 }
-                                .execute(*(argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList().toTypedArray()))
+                                .let {
+                                    measureNanoTime {
+                                        it.execute(*(grouppedArgs.toTypedArray()))
+                                    }.let { ReactantCore.logger.info("s2:${it / 1000000}") }
+                                }
                     }
                     return true;
                 }
