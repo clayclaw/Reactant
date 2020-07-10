@@ -110,6 +110,7 @@ val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("okhttp3", "dev.reactant.reactant.okhttp3")
     relocate("okio", "dev.reactant.reactant.okio")
     relocate("cssparser", "dev.reactant.reactant.cssparser")
+    relocate("javassist", "dev.reactant.reactant.javassist")
 }
 
 val dokkaJar by tasks.registering(Jar::class) {
