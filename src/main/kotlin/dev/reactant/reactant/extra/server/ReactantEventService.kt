@@ -52,7 +52,7 @@ private class ReactantEventServiceProvider(
          */
         private fun listen(eventClass: Class<out Event>) {
             if (!listeningEventClasses.contains(eventClass)) {
-                listeningEventClasses.contains(eventClass)
+                listeningEventClasses.add(eventClass)
                 EventPriority.values().forEach { priority ->
                     listOf(true, false).forEach { ignoreCancelled ->
                         Bukkit.getPluginManager().registerEvent(eventClass, this@ReactantEventServiceProvider, priority,
