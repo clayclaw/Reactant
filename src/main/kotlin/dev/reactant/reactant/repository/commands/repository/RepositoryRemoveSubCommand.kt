@@ -1,8 +1,8 @@
 package dev.reactant.reactant.repository.commands.repository
 
+import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extra.command.ReactantCommand
 import dev.reactant.reactant.repository.RepositoryService
-import dev.reactant.reactant.repository.commands.RepositoryPermission.Companion.Reactant
 import dev.reactant.reactant.utils.PatternMatchingUtils
 import picocli.CommandLine
 
@@ -13,7 +13,7 @@ class RepositoryRemoveSubCommand(private val repositoryService: RepositoryServic
 
     override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
-        requirePermission(Reactant.REPOSITORY.MODIFY)
+        requirePermission(ReactantPermissions.REPOSITORY.MODIFY)
         repositoryService.repositoriesMap.keys
                 .filter { nameWildcards.any { wildcard -> PatternMatchingUtils.matchWildcard(wildcard, it) } }
                 .onEach { repositoryService.removeRepository(it) }

@@ -1,7 +1,15 @@
 package dev.reactant.reactant.extra.command
 
-open class PermissionNode(private val _str: String) {
-    fun child(str: String) = toString() + str
+interface PermissionNode
 
-    override fun toString(): String = _str
+open class PermissionRoot(protected val prefix: String) : PermissionNode {
+
+    open class S(_prefix: String) : PermissionNode {
+        protected val prefix = "${_prefix}.${this::class.simpleName?.toLowerCase()!!}"
+        override fun toString() = prefix
+    }
+
+    override fun toString(): String = prefix
 }
+
+

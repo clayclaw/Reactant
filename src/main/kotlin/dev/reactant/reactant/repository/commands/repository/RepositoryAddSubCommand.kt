@@ -1,8 +1,8 @@
 package dev.reactant.reactant.repository.commands.repository
 
+import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extra.command.ReactantCommand
 import dev.reactant.reactant.repository.RepositoryService
-import dev.reactant.reactant.repository.commands.RepositoryPermission.Companion.Reactant
 import picocli.CommandLine
 
 @CommandLine.Command(name = "add", mixinStandardHelpOptions = true, description = ["Add a maven repository"])
@@ -21,7 +21,7 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
 
     override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
-        requirePermission(Reactant.REPOSITORY.MODIFY)
+        requirePermission(ReactantPermissions.REPOSITORY.MODIFY)
         if (!overwrite && repositoryService.getRepository(name) != null)
             stderr.out("Repository $name already exist, you can overwrite it with option '-o'");
         else repositoryService.setRepository(name, url, !skipConnectionChecking)

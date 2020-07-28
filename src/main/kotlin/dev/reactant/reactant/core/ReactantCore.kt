@@ -49,7 +49,6 @@ class ReactantCore : JavaPlugin() {
         server.scheduler.scheduleSyncDelayedTask(this) {
             updateContainers()
         }
-
     }
 
     @Suppress("UNCHECKED_CAST")

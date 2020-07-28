@@ -2,11 +2,11 @@ package dev.reactant.reactant.repository.commands.repository
 
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.ReactantCore.Companion.tmpDirPath
+import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extensions.jarLocation
 import dev.reactant.reactant.extra.command.ReactantCommand
 import dev.reactant.reactant.repository.MavenRepositoryRetrieverService
 import dev.reactant.reactant.repository.RepositoryService
-import dev.reactant.reactant.repository.commands.RepositoryPermission.Companion.Reactant
 import dev.reactant.reactant.utils.converter.StacktraceConverterUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -43,7 +43,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
 
     override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
-        requirePermission(Reactant.REPOSITORY.RETRIEVE)
+        requirePermission(ReactantPermissions.REPOSITORY.RETRIEVE)
         stdout.out("Retrieving ${identifiers.size} plugin from repositories...")
         Observable.fromIterable(identifiers)
                 .map(::ArtifactInfo)
