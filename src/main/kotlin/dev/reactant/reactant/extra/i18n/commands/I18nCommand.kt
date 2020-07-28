@@ -10,7 +10,7 @@ import picocli.CommandLine
         description = ["I18n related commands"]
 )
 internal class I18nCommand : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.I18N)
         showUsage()
     }

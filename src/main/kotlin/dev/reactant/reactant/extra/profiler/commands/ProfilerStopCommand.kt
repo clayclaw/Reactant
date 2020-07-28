@@ -17,7 +17,7 @@ internal class ProfilerStopCommand(
             description = ["The profiler id you want to stop"])
     var profilerId: Int? = null
 
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.PROFILER)
         if (!profilerService.runningProfilerList.contains(profilerId)) {
             stderr.out("Profiler ID $profilerId not found")

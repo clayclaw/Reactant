@@ -11,7 +11,7 @@ import picocli.CommandLine
         description = ["Reactant components related commands"]
 )
 internal class ReactantComponentCommand : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.OBJ)
         showUsage()
     }

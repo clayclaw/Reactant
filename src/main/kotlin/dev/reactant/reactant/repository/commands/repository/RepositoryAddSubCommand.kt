@@ -19,7 +19,7 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
     @CommandLine.Parameters(index = "1", paramLabel = "URL")
     lateinit var url: String
 
-    override fun run() {
+    override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(Reactant.REPOSITORY.MODIFY)
         if (!overwrite && repositoryService.getRepository(name) != null)

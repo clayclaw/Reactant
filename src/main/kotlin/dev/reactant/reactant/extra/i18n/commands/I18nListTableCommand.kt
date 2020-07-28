@@ -26,7 +26,7 @@ internal class I18nListTableCommand(
     var classNameWildcards: ArrayList<String> = arrayListOf();
 
 
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.I18N.LIST)
         i18nService.tableClasses.sortedBy { it.qualifiedName }
                 .filter { nameMatching(it.java.canonicalName) }

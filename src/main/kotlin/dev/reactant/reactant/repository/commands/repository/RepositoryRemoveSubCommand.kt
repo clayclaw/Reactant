@@ -11,7 +11,7 @@ class RepositoryRemoveSubCommand(private val repositoryService: RepositoryServic
     @CommandLine.Parameters(arity = "1..*", paramLabel = "NAME", description = ["Name of the repositories, wildcard is available"])
     lateinit var nameWildcards: ArrayList<String>
 
-    override fun run() {
+    override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(Reactant.REPOSITORY.MODIFY)
         repositoryService.repositoriesMap.keys

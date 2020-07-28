@@ -20,14 +20,19 @@ class CommandTree(
 
     private fun constructCommandLineRecursively(commandProvider: () -> Runnable,
                                                 sender: CommandSender, stdOut: StdOut, stdErr: StdOut): CommandLine {
-        val commandLine = CommandLine(commandProvider().apply {
+        var commandLine: CommandLine? = null;
+        val commandRunnable = commandProvider().apply {
             if (this is ReactantCommand) {
                 this.sender = sender
                 this.stdout = stdOut
                 this.stderr = stdErr
             }
-        }).setTrimQuotes(true)
-                .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF)).apply {
+        }
+        commandLine = CommandLine(commandRunnable).setTrimQuotes(true)
+                .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF))
+//                .let { it.setResourceBundle() }
+                .also { it.commandSpec.parser().collectErrors(true) }
+                .apply {
                     getCommand<Runnable>().let { if (it is ReactantCommand) it.commandLine = this }
                 };
         subCommandMap[commandProvider]?.forEach { subCommandProvider ->

@@ -50,7 +50,7 @@ internal class ReactantComponentListSubCommand(
         column { align = MultiColumns.Alignment.Center }
     }
 
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.OBJ.LIST)
 
         providerManager.providers.union(providerManager.blacklistedProviders).mapNotNull { it as? ComponentProvider<*> }

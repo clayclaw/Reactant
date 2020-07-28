@@ -25,7 +25,7 @@ internal class ProfilerStartCommand(
 ) : ReactantCommand() {
     data class TimingData(val time: Long, val tick: Int)
 
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.PROFILER)
         profilerService.startMeasure().let { (profilerId, measuredData) ->
             val startMeasureTime = System.currentTimeMillis()

@@ -41,7 +41,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
                 "Use only when you know what you are doing"])
     var ignoreMainClassNotMatch: Boolean = false
 
-    override fun run() {
+    override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(Reactant.REPOSITORY.RETRIEVE)
         stdout.out("Retrieving ${identifiers.size} plugin from repositories...")

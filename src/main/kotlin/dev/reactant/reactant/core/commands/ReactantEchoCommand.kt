@@ -14,7 +14,7 @@ internal class ReactantEchoCommand : ReactantCommand() {
             description = ["The message that you want to echo"])
     var message: String = "";
 
-    override fun run() {
+    override fun execute() {
         stdout.out(message)
     }
 }

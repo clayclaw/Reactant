@@ -52,7 +52,7 @@ internal class ReactantProviderListSubCommand(
         column { align = MultiColumns.Alignment.Center }
     }
 
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.OBJ.LIST)
 
         val targetClass = kotlin.runCatching { Class.forName(targetClassName) }.getOrElse {

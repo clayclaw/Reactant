@@ -8,7 +8,6 @@ import dev.reactant.reactant.core.component.lifecycle.LifeCycleInspector
 import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
-import dev.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import dev.reactant.reactant.service.spec.dsl.Registrable
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import org.bukkit.Bukkit
@@ -22,7 +21,6 @@ class PicocliCommandServiceProvider(
         private val profilerDataProvider: PublishingProfilerDataProvider = PublishingProfilerDataProvider()
 ) : LifeCycleHook, LifeCycleInspector, ProfilerDataProvider by profilerDataProvider {
 
-    private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)");
     private val commandTreeMap = HashMap<String, CommandTree>()
 
     private val registerCommandNameMap = HashMap<Any, HashSet<String>>()
@@ -72,29 +70,8 @@ class PicocliCommandServiceProvider(
             commandTreeMap[name] = CommandTree(name, commandRunnableProvider)
             Bukkit.getHelpMap().addTopic(reactantCommand.getHelpTopic())
 
-            bukkitCommandMap.register(requester.productType.javaClass.canonicalName, (object : org.bukkit.command.Command(
-                    name,
-                    commandSpec.usageMessage().description().joinToString(" "),
-                    commandSpec.usageMessage().customSynopsis().joinToString(""),
-                    commandSpec.aliases().toList()) {
-                override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
-                    val writer = CommandSenderWriter(sender)
-                    val grouppedArgs: List<String> = argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList()
-
-                    profilerDataProvider.measure(grouppedArgs, requester) {
-                        commandTreeMap[name]!!.getCommandLine(sender, writer)
-                                .setExecutionExceptionHandler { ex, _, _ ->
-                                    if (ex is CommandExecutionPermissionException) {
-                                        sender.sendMessage("You don't have permission to do it.")
-                                        return@setExecutionExceptionHandler 0
-                                    }
-                                    ReactantCore.logger.error("Error occurred while executing the command \"$name ${args.joinToString(" ")}\"", ex);
-                                    1
-                                }.execute(*(grouppedArgs.toTypedArray()))
-                    }
-                    return true;
-                }
-            }))
+            val bukkitCommand = PicocliBukkitCommand(commandSpec, profilerDataProvider, requester, commandTreeMap[name]!!)
+            bukkitCommandMap.register(requester.productType.javaClass.canonicalName, bukkitCommand)
 
             Bukkit.getServer()::class.java.getDeclaredMethod("syncCommands").let {
                 it.isAccessible = true
@@ -152,4 +129,29 @@ interface PicocliCommandService : Registrable<PicocliCommandService.CommandRegis
     override fun registerBy(componentRegistrant: Any, registering: CommandRegistering.() -> Unit) = invoke(registering)
 
     operator fun invoke(registering: CommandRegistering.() -> Unit)
+}
+
+private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)");
+
+class PicocliBukkitCommand(
+        commandSpec: Model.CommandSpec,
+        private val profilerDataProvider: PublishingProfilerDataProvider,
+        private val requester: Provider,
+        private val commandTree: CommandTree
+) : org.bukkit.command.Command(
+        commandSpec.name(),
+        commandSpec.usageMessage().description().joinToString(" "),
+        commandSpec.usageMessage().customSynopsis().joinToString(""),
+        commandSpec.aliases().toList()) {
+    override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
+        val writer = CommandSenderWriter(sender)
+        val grouppedArgs: List<String> = argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList()
+        val commandLine = commandTree.getCommandLine(sender, writer)
+        profilerDataProvider.measure(grouppedArgs, requester) {
+            val reactantCommand = commandLine.commandSpec.userObject() as ReactantCommand
+            commandLine.setExecutionExceptionHandler { ex, _, _ -> reactantCommand.handleExecutionExceptions(ex, args) }
+            commandLine.execute(*(grouppedArgs.toTypedArray()))
+        }
+        return true
+    }
 }

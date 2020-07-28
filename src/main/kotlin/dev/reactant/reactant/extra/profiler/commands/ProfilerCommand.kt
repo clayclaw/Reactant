@@ -11,7 +11,7 @@ import picocli.CommandLine
         description = ["Reactant profiler commands"]
 )
 internal class ProfilerCommand : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.PROFILER)
         showUsage()
     }

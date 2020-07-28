@@ -8,7 +8,7 @@ import picocli.CommandLine
 
 @CommandLine.Command(name = "list", aliases = ["ls"], mixinStandardHelpOptions = true)
 class RepositoryListSubCommand(private val repositoryService: RepositoryService) : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(Reactant.REPOSITORY.LIST)
         MultiColumns.create {

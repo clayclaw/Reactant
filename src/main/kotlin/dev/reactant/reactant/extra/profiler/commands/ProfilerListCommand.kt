@@ -13,7 +13,7 @@ import picocli.CommandLine
 internal class ProfilerListCommand(
         private val profilerService: ReactantProfilerService
 ) : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.PROFILER)
         profilerService.runningProfilerList.forEach { stdout.out("$it") }
     }

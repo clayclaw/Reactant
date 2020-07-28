@@ -10,7 +10,7 @@ import picocli.CommandLine
         description = ["Reactant commands"]
 )
 internal class ReactantMainCommand : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         showUsage()
     }
 }

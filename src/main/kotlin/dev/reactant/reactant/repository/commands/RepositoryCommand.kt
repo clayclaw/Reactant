@@ -5,7 +5,7 @@ import picocli.CommandLine
 
 @CommandLine.Command(name = "repository", aliases = ["repo"], mixinStandardHelpOptions = true)
 class RepositoryCommand : ReactantCommand() {
-    override fun run() {
+    override fun execute() {
         showUsage()
     }
 }
