@@ -4,8 +4,8 @@ import com.google.common.net.UrlEscapers
 import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extra.command.ReactantCommand
 import dev.reactant.reactant.extra.file.FileIOUploadService
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.extra.profiler.ReactantProfilerService
-import dev.reactant.reactant.service.spec.parser.JsonParserService
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import io.reactivex.rxjava3.schedulers.Schedulers
 import net.md_5.bungee.api.chat.ClickEvent
@@ -21,7 +21,7 @@ import picocli.CommandLine
 internal class ProfilerStartCommand(
         private val profilerService: ReactantProfilerService,
         private val fileIOUploadService: FileIOUploadService,
-        private val jsonParser: JsonParserService
+        private val jsonParser: GsonJsonParserService
 ) : ReactantCommand() {
     data class TimingData(val time: Long, val tick: Int)
 

@@ -1,13 +1,13 @@
 package dev.reactant.reactant.extra.config
 
-import dev.reactant.reactant.service.spec.parser.JsonParserService
-import dev.reactant.reactant.service.spec.parser.TomlParserService
-import dev.reactant.reactant.service.spec.parser.YamlParserService
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
+import dev.reactant.reactant.extra.parser.SnakeYamlParserService
+import dev.reactant.reactant.extra.parser.Toml4jTomlParserService
 
 open class ConfigParserDecider(
-        private val jsonParserService: JsonParserService,
-        private val yamlParserService: YamlParserService,
-        private val tomlParserService: TomlParserService
+        private val jsonParserService: GsonJsonParserService,
+        private val yamlParserService: SnakeYamlParserService,
+        private val tomlParserService: Toml4jTomlParserService
 ) {
 
     fun getParserByPath(path: String) = when {

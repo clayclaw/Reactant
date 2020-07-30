@@ -14,13 +14,13 @@ import dev.reactant.reactant.extra.i18n.I18nService
 import dev.reactant.reactant.extra.i18n.commands.I18nCommand
 import dev.reactant.reactant.extra.i18n.commands.I18nGenerateTableCommand
 import dev.reactant.reactant.extra.i18n.commands.I18nListTableCommand
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.extra.profiler.ReactantProfilerService
 import dev.reactant.reactant.extra.profiler.commands.ProfilerCommand
 import dev.reactant.reactant.extra.profiler.commands.ProfilerListCommand
 import dev.reactant.reactant.extra.profiler.commands.ProfilerStartCommand
 import dev.reactant.reactant.extra.profiler.commands.ProfilerStopCommand
 import dev.reactant.reactant.service.spec.config.ConfigService
-import dev.reactant.reactant.service.spec.parser.JsonParserService
 import dev.reactant.reactant.service.spec.server.SchedulerService
 
 @Component
@@ -31,7 +31,7 @@ internal class ReactantCommandRegister(
         private val profilerService: ReactantProfilerService,
         private val schedulerService: SchedulerService,
         private val fileIOUploadService: FileIOUploadService,
-        private val jsonParserService: JsonParserService,
+        private val jsonParserService: GsonJsonParserService,
         private val i18nService: I18nService,
         private val configService: ConfigService
 ) : LifeCycleHook {

@@ -11,14 +11,14 @@ import org.yaml.snakeyaml.representer.Representer
 import kotlin.reflect.KClass
 
 @Component
-class SnakeYamlParserService : YamlParserService {
-    private val options = DumperOptions().apply {
+open class SnakeYamlParserService : YamlParserService {
+    protected val options = DumperOptions().apply {
         defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
         indent = 2
         isPrettyFlow = true
     }
-    private val representer = Representer(options)
-    private val yaml = Yaml(CustomClassLoaderConstructor(this.javaClass.classLoader), representer, options)
+    protected val representer = Representer(options)
+    protected val yaml = Yaml(CustomClassLoaderConstructor(this.javaClass.classLoader), representer, options)
 
     override fun encode(obj: Any): Single<String> =
             Single.defer {
@@ -26,7 +26,7 @@ class SnakeYamlParserService : YamlParserService {
                 Single.just(yaml.dump(obj))
             }
 
-    override fun <T : Any> decode(modelClass: KClass<T>, encoded: String) =
+    override fun <T : Any> decode(encoded: String, modelClass: KClass<T>) =
             Single.defer { Single.just(yaml.loadAs(encoded, modelClass.java)) }
 
 }

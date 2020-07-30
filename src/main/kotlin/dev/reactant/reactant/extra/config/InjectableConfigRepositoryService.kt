@@ -6,11 +6,11 @@ import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.extra.config.exception.ConfigDecodeException
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.extra.config.type.SharedConfig
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
+import dev.reactant.reactant.extra.parser.SnakeYamlParserService
+import dev.reactant.reactant.extra.parser.Toml4jTomlParserService
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.config.ConfigService
-import dev.reactant.reactant.service.spec.parser.JsonParserService
-import dev.reactant.reactant.service.spec.parser.TomlParserService
-import dev.reactant.reactant.service.spec.parser.YamlParserService
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -22,9 +22,9 @@ import kotlin.reflect.jvm.jvmErasure
 
 @Component
 private class InjectableConfigRepositoryService(
-        private val jsonParserService: JsonParserService,
-        private val yamlParserService: YamlParserService,
-        private val tomlParserService: TomlParserService,
+        private val jsonParserService: GsonJsonParserService,
+        private val yamlParserService: SnakeYamlParserService,
+        private val tomlParserService: Toml4jTomlParserService,
         private val configService: ConfigService,
         private val providerManager: ProviderManager
 ) {
@@ -36,11 +36,11 @@ private class InjectableConfigRepositoryService(
     private fun getConfigRepository(kType: KType, path: String): MultiConfigs<Any> {
         @Suppress("UNCHECKED_CAST")
         val configClass = kType.arguments.first().type!!.jvmErasure as KClass<Any>
-        return MultiConfigsImpl(File(path), configClass, configParserDecider)
+        return MultiConfigsImpl(File(path), kType.arguments.first().type!!, configParserDecider)
     }
 
     private inner class MultiConfigsImpl<T : Any>(
-            override val configFolder: File, override val modelClass: KClass<T>, val configParserDecider: ConfigParserDecider
+            override val configFolder: File, val kType: KType, val configParserDecider: ConfigParserDecider
     ) : MultiConfigs<T> {
         init {
             when {
@@ -50,18 +50,18 @@ private class InjectableConfigRepositoryService(
         }
 
         override fun get(relativePath: String): Maybe<Config<T>> =
-                configService.get(configParserDecider.getParserByPath(relativePath), modelClass, "${configFolder.absolutePath}/$relativePath")
+                configService.get(configParserDecider.getParserByPath(relativePath), kType, "${configFolder.absolutePath}/$relativePath")
 
         override fun getOrDefault(relativePath: String, defaultContentCallable: () -> T): Single<Config<T>> =
-                configService.getOrDefault(configParserDecider.getParserByPath(relativePath), modelClass, "${configFolder.absolutePath}/$relativePath", defaultContentCallable)
+                configService.getOrDefault(configParserDecider.getParserByPath(relativePath), kType, "${configFolder.absolutePath}/$relativePath", defaultContentCallable)
 
         override fun getOrPut(relativePath: String, defaultContentCallable: () -> T): Single<Config<T>> =
-                configService.getOrPut(configParserDecider.getParserByPath(relativePath), modelClass, "${configFolder.absolutePath}/$relativePath", defaultContentCallable)
+                configService.getOrPut(configParserDecider.getParserByPath(relativePath), kType, "${configFolder.absolutePath}/$relativePath", defaultContentCallable)
 
         override fun getAll(recursively: Boolean): Observable<Config<T>> =
                 Observable.defer { configFolder.walkTopDown().filter { it.isFile }.toObservable() }
                         .flatMapSingle { file ->
-                            configService.get(configParserDecider.getParserByPath(file.absolutePath), modelClass, file.absolutePath)
+                            configService.get<T>(configParserDecider.getParserByPath(file.absolutePath), kType, file.absolutePath)
                                     .switchIfEmpty(Single.error { IllegalStateException() }).materialize().map { file.path to it }
                         }.toList()
                         .flatMap { result ->
@@ -70,6 +70,10 @@ private class InjectableConfigRepositoryService(
                                 else -> Single.just(result.map { it.second.value })
                             }
                         }.flattenAsObservable { it }
+
+        @Suppress("UNCHECKED_CAST")
+        override val modelClass: KClass<T>
+            get() = kType.jvmErasure as KClass<T>
 
     }
 }

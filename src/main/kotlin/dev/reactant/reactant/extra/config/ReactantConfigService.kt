@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 @Component
 class ReactantConfigService(
@@ -19,27 +20,40 @@ class ReactantConfigService(
         private val fileWriter: TextFileWriterService
 ) : ConfigService {
 
+    private fun <T : Any> get(parser: ParserService, rawResult: Single<T>, path: String, modelType: KType? = null): Maybe<Config<T>> = rawResult
+            .toMaybe()
+            .onErrorResumeNext { e ->
+                when (e) {
+                    is FileNotFoundException -> Maybe.empty()
+                    else -> Maybe.error(e)
+                }
+            }.map { content -> ConfigImpl(path, content, parser, modelType) }
+
     override fun <T : Any> get(parser: ParserService, modelClass: KClass<T>, path: String): Maybe<Config<T>> =
-            loadContent(parser, modelClass, path)
-                    .toMaybe()
-                    .onErrorResumeNext { e ->
-                        when (e) {
-                            is FileNotFoundException -> Maybe.empty()
-                            else -> Maybe.error(e)
-                        }
-                    }
-                    .map { content -> ConfigImpl(path, content, parser) }
+            loadContent(parser, modelClass, path).let { get(parser, it, path) }
+
+    override fun <T : Any> get(parser: ParserService, modelType: KType, path: String): Maybe<Config<T>> =
+            loadContent<T>(parser, modelType, path).let { get(parser, it, path, modelType) }
 
     override fun <T : Any> getOrDefault(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
             Single.fromCallable { File(path) }
                     .flatMapMaybe { get(parser, modelClass, path) }
                     .switchIfEmpty(Single.fromCallable { ConfigImpl(path, defaultContentCallable(), parser) })
 
+    override fun <T : Any> getOrDefault(parser: ParserService, modelType: KType, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
+            Single.fromCallable { File(path) }
+                    .flatMapMaybe { get<T>(parser, modelType, path) }
+                    .switchIfEmpty(Single.fromCallable { ConfigImpl(path, defaultContentCallable(), parser, modelType) })
+
     override fun <T : Any> getOrPut(parser: ParserService, modelClass: KClass<T>, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
             getOrDefault(parser, modelClass, path, defaultContentCallable)
                     .doOnSuccess { it.save().blockingAwait() }
 
-    override fun remove(config: Config<Any>): Completable =
+    override fun <T : Any> getOrPut(parser: ParserService, modelType: KType, path: String, defaultContentCallable: () -> T): Single<Config<T>> =
+            getOrDefault(parser, modelType, path, defaultContentCallable)
+                    .doOnSuccess { it.save().blockingAwait() }
+
+    override fun <T : Any> remove(config: Config<T>): Completable =
             Completable.fromCallable {
                 File(config.path).let {
                     when {
@@ -50,30 +64,42 @@ class ReactantConfigService(
                 }
             }
 
-
-    override fun save(config: Config<Any>): Completable {
-        return config.parser.encode(config.content)
-                .flatMapCompletable { encoded -> fileWriter.write(File(config.path), encoded) }
+    override fun <T : Any> save(config: Config<T>): Completable {
+        if (config !is ConfigImpl) throw UnsupportedOperationException("Unmatched config type")
+        val parseResult =
+                if (config.modelType != null) config.parser.encode(config.content, config.modelType!!)
+                else config.parser.encode(config.content)
+        return parseResult.flatMapCompletable { encoded -> fileWriter.write(File(config.path), encoded) }
     }
 
-    override fun refresh(config: Config<Any>): Completable {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> refresh(config: Config<T>): Completable {
         if (config !is ConfigImpl<*>) throw IllegalArgumentException("Not a correct config")
-        return loadContent(config.parser, config.content::class, config.path)
+        val loadResult =
+                if (config.modelType != null) loadContent(config.parser, config.content::class as KClass<T>, config.path)
+                else loadContent(config.parser, config.modelType!!, config.path)
+        return loadResult
                 .doOnSuccess { content -> (config as ConfigImpl).content = content }
                 .ignoreElement()
     }
 
+    protected fun <T : Any> loadContent(parserService: ParserService, modelType: KType, path: String): Single<T> {
+        return fileReader.readAll(File(path))
+                .map { lines -> lines.joinToString("\n") }
+                .flatMap { raw -> parserService.decode<T>(raw, modelType) }
+    }
 
     protected fun <T : Any> loadContent(parserService: ParserService, modelClass: KClass<T>, path: String): Single<T> {
         return fileReader.readAll(File(path))
                 .map { lines -> lines.joinToString("\n") }
-                .flatMap { raw -> parserService.decode(modelClass, raw) }
+                .flatMap { raw -> parserService.decode(raw, modelClass) }
     }
 
     protected inner class ConfigImpl<T : Any>(
             override val path: String,
             override var content: T,
-            override val parser: ParserService) : Config<T> {
+            override val parser: ParserService,
+            override val modelType: KType? = null) : Config<T> {
 
         override fun save(): Completable = this@ReactantConfigService.save(this)
 

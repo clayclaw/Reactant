@@ -8,10 +8,13 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.reflect.KClass
 
 @Component
-class Toml4jTomlParserService : TomlParserService {
-    override fun encode(obj: Any): Single<String> = Single.defer { Single.just(TomlWriter().write(obj)) }
+open class Toml4jTomlParserService : TomlParserService {
+    protected val toml = Toml()
+    protected val tomlWriter = TomlWriter()
 
-    override fun <T : Any> decode(modelClass: KClass<T>, encoded: String): Single<T> =
-            Single.defer { Single.just(Toml().read(encoded).to(modelClass.java)) }
+    override fun encode(obj: Any): Single<String> = Single.defer { Single.just(tomlWriter.write(obj)) }
+
+    override fun <T : Any> decode(encoded: String, modelClass: KClass<T>): Single<T> =
+            Single.defer { Single.just(toml.read(encoded).to(modelClass.java)) }
 
 }

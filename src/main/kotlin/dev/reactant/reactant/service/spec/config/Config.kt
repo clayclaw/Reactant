@@ -2,19 +2,22 @@ package dev.reactant.reactant.service.spec.config
 
 import dev.reactant.reactant.service.spec.parser.ParserService
 import io.reactivex.rxjava3.core.Completable
+import kotlin.reflect.KType
 
 /**
  * The container of the config entity
  *
  * @param <T> Model of config
 </T> */
-interface Config<out T : Any> {
+interface Config<T : Any> {
 
     val path: String
 
-    val content: T
+    var content: T
 
     val parser: ParserService
+
+    val modelType: KType?
 
     /**
      * Save the changes of config

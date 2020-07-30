@@ -6,9 +6,9 @@ import dev.reactant.reactant.core.commands.ReactantPermissions
 import dev.reactant.reactant.extra.command.ReactantCommand
 import dev.reactant.reactant.extra.i18n.I18nService
 import dev.reactant.reactant.extra.i18n.I18nTable
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.service.spec.config.ConfigService
 import dev.reactant.reactant.service.spec.config.getOrDefault
-import dev.reactant.reactant.service.spec.parser.JsonParserService
 import dev.reactant.reactant.utils.PatternMatchingUtils
 import picocli.CommandLine
 import java.io.File
@@ -25,7 +25,7 @@ import kotlin.reflect.full.declaredMemberFunctions
 )
 internal class I18nGenerateTableCommand(
         private val i18nService: I18nService,
-        private val jsonParserService: JsonParserService,
+        private val jsonParserService: GsonJsonParserService,
         private val configService: ConfigService
 ) : ReactantCommand() {
 

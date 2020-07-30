@@ -5,9 +5,9 @@ import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.container.ContainerManager
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
+import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.service.spec.config.ConfigService
 import dev.reactant.reactant.service.spec.config.get
-import dev.reactant.reactant.service.spec.parser.JsonParserService
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -30,7 +30,7 @@ typealias LanguageTableClass = KClass<out I18nTable>
 @Component
 class I18nService(
         private val configService: ConfigService,
-        private val jsonParserService: JsonParserService,
+        private val jsonParserService: GsonJsonParserService,
         private val containerManager: ContainerManager
 ) : LifeCycleHook {
     private val _tableClass: HashSet<LanguageTableClass> = HashSet()
