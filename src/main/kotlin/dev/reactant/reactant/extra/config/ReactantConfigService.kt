@@ -76,8 +76,8 @@ class ReactantConfigService(
     override fun <T : Any> refresh(config: Config<T>): Completable {
         if (config !is ConfigImpl<*>) throw IllegalArgumentException("Not a correct config")
         val loadResult =
-                if (config.modelType != null) loadContent(config.parser, config.content::class as KClass<T>, config.path)
-                else loadContent(config.parser, config.modelType!!, config.path)
+                if (config.modelType != null) loadContent(config.parser, config.modelType!!, config.path)
+                else loadContent(config.parser, config.content::class as KClass<T>, config.path)
         return loadResult
                 .doOnSuccess { content -> (config as ConfigImpl).content = content }
                 .ignoreElement()
