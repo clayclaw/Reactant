@@ -21,7 +21,7 @@ open class SnakeYamlParserService : YamlParserService, SystemLevel {
     protected val representer = Representer(options)
     protected val yaml = Yaml(CustomClassLoaderConstructor(this.javaClass.classLoader), representer, options)
 
-    override fun encode(obj: Any): Single<String> =
+    override fun encode(obj: Any, prettyPrint: Boolean): Single<String> =
             Single.defer {
                 representer.addClassTag(obj::class.java, Tag.MAP)
                 Single.just(yaml.dump(obj))

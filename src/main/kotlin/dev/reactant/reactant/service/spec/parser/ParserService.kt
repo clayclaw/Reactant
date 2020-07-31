@@ -9,12 +9,14 @@ interface ParserService {
     /**
      * Encode the object to target format
      */
-    fun encode(obj: Any): Single<String>
+    fun encode(obj: Any, prettyPrint: Boolean): Single<String>
+    fun encode(obj: Any): Single<String> = encode(obj, true)
 
     /**
      * Encode the object with type to target format
      */
-    fun encode(obj: Any, modelType: KType): Single<String> = encode(obj)
+    fun encode(obj: Any, modelType: KType, prettyPrint: Boolean = true): Single<String> = encode(obj, prettyPrint)
+    fun encode(obj: Any, modelType: KType): Single<String> = encode(obj, modelType, true)
 
     /**
      * Parse the encoded string to object with model class

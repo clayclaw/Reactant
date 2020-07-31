@@ -18,16 +18,21 @@ open class GsonJsonParserService(
         private val typeAdapterFactories: Components<TypeAdapterFactory>,
         private val typeAdapters: Components<TypeAdapterPair>
 ) : JsonParserService, SystemLevel {
+    protected val prettyGson = GsonBuilder()
+            .also { builder -> typeAdapterFactories.forEach { builder.registerTypeAdapterFactory(it) } }
+            .also { builder -> typeAdapters.forEach { builder.registerTypeAdapter(it.type, it.typeAdapter) } }
+            .setPrettyPrinting().create()
+
     protected val gson = GsonBuilder()
             .also { builder -> typeAdapterFactories.forEach { builder.registerTypeAdapterFactory(it) } }
             .also { builder -> typeAdapters.forEach { builder.registerTypeAdapter(it.type, it.typeAdapter) } }
-            .setPrettyPrinting().create()!!
+            .create()
 
-    override fun encode(obj: Any): Single<String> =
-            Single.defer { Single.just(gson.toJson(obj)) }
+    override fun encode(obj: Any, prettyPrint: Boolean): Single<String> =
+            Single.defer { Single.just((if (prettyPrint) prettyGson else gson).toJson(obj)) }
 
-    override fun encode(obj: Any, modelType: KType): Single<String> =
-            Single.defer { Single.just(gson.toJson(obj, modelType.javaType)) }
+    override fun encode(obj: Any, modelType: KType, prettyPrint: Boolean): Single<String> =
+            Single.defer { Single.just((if (prettyPrint) prettyGson else gson).toJson(obj, modelType.javaType)) }
 
     override fun <T : Any> decode(encoded: String, modelClass: KClass<T>): Single<T> =
             Single.defer { Single.just(gson.fromJson(encoded, modelClass.java)) }

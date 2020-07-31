@@ -13,7 +13,7 @@ open class Toml4jTomlParserService : TomlParserService, SystemLevel {
     protected val toml = Toml()
     protected val tomlWriter = TomlWriter()
 
-    override fun encode(obj: Any): Single<String> = Single.defer { Single.just(tomlWriter.write(obj)) }
+    override fun encode(obj: Any, prettyPrint: Boolean): Single<String> = Single.defer { Single.just(tomlWriter.write(obj)) }
 
     override fun <T : Any> decode(encoded: String, modelClass: KClass<T>): Single<T> =
             Single.defer { Single.just(toml.read(encoded).to(modelClass.java)) }
