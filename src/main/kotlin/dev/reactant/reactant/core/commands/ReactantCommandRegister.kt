@@ -41,7 +41,7 @@ internal class ReactantCommandRegister(
             command(::ReactantMainCommand) {
 
                 command(::ReactantComponentCommand) {
-                    command({ ReactantComponentListSubCommand(providerManager, containerManager) })
+                    command({ ReactantComponentListSubCommand(providerManager, containerManager, jsonParserService, fileIOUploadService) })
                 }
 
                 command(::ReactantEchoCommand)
