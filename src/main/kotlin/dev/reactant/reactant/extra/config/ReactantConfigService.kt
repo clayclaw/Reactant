@@ -1,10 +1,11 @@
 package dev.reactant.reactant.extra.config
 
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
+import dev.reactant.reactant.extra.file.ReactantTextFileReaderService
+import dev.reactant.reactant.extra.file.ReactantTextFileWriterService
 import dev.reactant.reactant.service.spec.config.Config
 import dev.reactant.reactant.service.spec.config.ConfigService
-import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
-import dev.reactant.reactant.service.spec.file.text.TextFileWriterService
 import dev.reactant.reactant.service.spec.parser.ParserService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -16,9 +17,9 @@ import kotlin.reflect.KType
 
 @Component
 class ReactantConfigService(
-        private val fileReader: TextFileReaderService,
-        private val fileWriter: TextFileWriterService
-) : ConfigService {
+        private val fileReader: ReactantTextFileReaderService,
+        private val fileWriter: ReactantTextFileWriterService
+) : ConfigService, SystemLevel {
 
     private fun <T : Any> get(parser: ParserService, rawResult: Single<T>, path: String, modelType: KType? = null): Maybe<Config<T>> = rawResult
             .toMaybe()

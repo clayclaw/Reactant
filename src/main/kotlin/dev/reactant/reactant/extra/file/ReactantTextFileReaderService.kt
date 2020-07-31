@@ -1,6 +1,7 @@
 package dev.reactant.reactant.extra.file
 
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.service.spec.file.text.TextFileReaderService
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
@@ -8,7 +9,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.*
 
 @Component
-class ReactantTextFileReaderService : TextFileReaderService {
+class ReactantTextFileReaderService : TextFileReaderService, SystemLevel {
 
     override fun readAll(file: File): Single<List<String>> = read(file).toList()
 

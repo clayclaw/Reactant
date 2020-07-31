@@ -2,12 +2,12 @@ package dev.reactant.reactant.extra.parser.gsonadapters
 
 import com.google.gson.InstanceCreator
 import dev.reactant.reactant.core.component.Component
-import dev.reactant.reactant.extra.parser.TypeAdapterPair
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
 @Component
-class EnumMapGsonTypeAdapterPair : TypeAdapterPair {
+class EnumMapGsonTypeAdapterPair : TypeAdapterPair, SystemLevel {
     /**
      * Dummy enum class
      */

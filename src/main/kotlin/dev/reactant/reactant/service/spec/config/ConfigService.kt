@@ -1,5 +1,6 @@
 package dev.reactant.reactant.service.spec.config
 
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.service.spec.parser.ParserService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -7,7 +8,7 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-interface ConfigService {
+interface ConfigService : SystemLevel {
 
     /**
      * Save the content.

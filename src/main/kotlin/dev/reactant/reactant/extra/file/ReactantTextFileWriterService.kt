@@ -1,6 +1,7 @@
 package dev.reactant.reactant.extra.file
 
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.service.spec.file.text.TextFileWriterService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -8,7 +9,7 @@ import java.io.File
 import java.io.FileWriter
 
 @Component
-class ReactantTextFileWriterService : TextFileWriterService {
+class ReactantTextFileWriterService : TextFileWriterService, SystemLevel {
     override fun append(file: File, string: String): Completable {
         return write(file, string, true)
     }

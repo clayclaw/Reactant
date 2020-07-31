@@ -3,6 +3,7 @@ package dev.reactant.reactant.extra.config
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.Provide
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.extra.config.exception.ConfigDecodeException
 import dev.reactant.reactant.extra.config.type.MultiConfigs
 import dev.reactant.reactant.extra.config.type.SharedConfig
@@ -27,7 +28,7 @@ private class InjectableConfigRepositoryService(
         private val tomlParserService: Toml4jTomlParserService,
         private val configService: ConfigService,
         private val providerManager: ProviderManager
-) {
+) : SystemLevel {
     private val configParserDecider = ConfigParserDecider(jsonParserService, yamlParserService, tomlParserService)
 
     private class DelegatedSharedConfig(val config: Config<Any>) : SharedConfig<Any>, Config<Any> by config

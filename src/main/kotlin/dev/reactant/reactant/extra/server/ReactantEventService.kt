@@ -6,6 +6,7 @@ import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.component.lifecycle.LifeCycleHook
 import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import dev.reactant.reactant.service.spec.server.EventService
 import io.reactivex.rxjava3.core.Observable
@@ -23,7 +24,7 @@ import kotlin.reflect.KType
 @Component
 private class ReactantEventServiceProvider(
         private val profilerDataProvider: PublishingProfilerDataProvider = PublishingProfilerDataProvider()
-) : LifeCycleHook, Listener, ProfilerDataProvider by profilerDataProvider {
+) : LifeCycleHook, Listener, ProfilerDataProvider by profilerDataProvider, SystemLevel {
     /**
      * Map which using Pair<EventClass, Boolean> as key, while the Boolean is ignoreCancelled
      */

@@ -1,6 +1,7 @@
 package dev.reactant.reactant.extra.parser
 
 import dev.reactant.reactant.core.component.Component
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.service.spec.parser.YamlParserService
 import io.reactivex.rxjava3.core.Single
 import org.yaml.snakeyaml.DumperOptions
@@ -11,7 +12,7 @@ import org.yaml.snakeyaml.representer.Representer
 import kotlin.reflect.KClass
 
 @Component
-open class SnakeYamlParserService : YamlParserService {
+open class SnakeYamlParserService : YamlParserService, SystemLevel {
     protected val options = DumperOptions().apply {
         defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
         indent = 2

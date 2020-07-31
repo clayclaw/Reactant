@@ -4,29 +4,20 @@ import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapterFactory
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.components.Components
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
+import dev.reactant.reactant.extra.parser.gsonadapters.TypeAdapterPair
 import dev.reactant.reactant.service.spec.parser.JsonParserService
 import io.reactivex.rxjava3.core.Single
-import java.lang.reflect.Type
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 
 
-interface TypeAdapterPair {
-    val type: Type;
-
-    /**
-     * Type adapter that will register into GSON
-     * @see GsonBuilder.registerTypeAdapter
-     */
-    val typeAdapter: Any
-}
-
 @Component
 open class GsonJsonParserService(
-        val typeAdapterFactories: Components<TypeAdapterFactory>,
-        val typeAdapters: Components<TypeAdapterPair>
-) : JsonParserService {
+        private val typeAdapterFactories: Components<TypeAdapterFactory>,
+        private val typeAdapters: Components<TypeAdapterPair>
+) : JsonParserService, SystemLevel {
     protected val gson = GsonBuilder()
             .also { builder -> typeAdapterFactories.forEach { builder.registerTypeAdapterFactory(it) } }
             .also { builder -> typeAdapters.forEach { builder.registerTypeAdapter(it.type, it.typeAdapter) } }

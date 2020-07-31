@@ -2,12 +2,12 @@ package dev.reactant.reactant.extra.config
 
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Provide
+import dev.reactant.reactant.core.dependency.layers.SystemLevel
 import dev.reactant.reactant.extra.config.type.SharedConfig
 import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.extra.parser.SnakeYamlParserService
 import dev.reactant.reactant.extra.parser.Toml4jTomlParserService
 import dev.reactant.reactant.service.spec.config.Config
-import dev.reactant.reactant.service.spec.config.ConfigService
 import dev.reactant.reactant.service.spec.parser.ParserService
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -18,8 +18,8 @@ private class InjectableConfigProviderService(
         private val jsonParserService: GsonJsonParserService,
         private val yamlParserService: SnakeYamlParserService,
         private val tomlParserService: Toml4jTomlParserService,
-        private val configService: ConfigService
-) {
+        private val configService: ReactantConfigService
+) : SystemLevel {
     private val configParserDecider = ConfigParserDecider(jsonParserService, yamlParserService, tomlParserService)
     private val sharedConfigs = HashMap<Pair<KType, String>, DelegatedSharedConfig>()
 
