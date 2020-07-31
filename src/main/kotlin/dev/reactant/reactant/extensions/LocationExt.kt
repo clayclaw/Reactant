@@ -22,7 +22,7 @@ operator fun Location.div(m: Double) = this.clone().multiply(1 / m)
 operator fun Location.rangeTo(location: Location) = formRectangularPrism(location)
 
 @JvmOverloads
-fun locationOf(world: World, x: Double, y: Double, z: Double, yaw: Float = 0F, pitch: Float = 0F) = Location(world, x, y, z, yaw, pitch)
+fun locationOf(world: World?, x: Double, y: Double, z: Double, yaw: Float = 0F, pitch: Float = 0F) = Location(world, x, y, z, yaw, pitch)
 
 @JvmOverloads
 fun locationOf(worldName: String, x: Double, y: Double, z: Double, yaw: Float = 0F, pitch: Float = 0F) = Location(worldOf(worldName), x, y, z, yaw, pitch)
