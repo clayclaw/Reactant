@@ -11,7 +11,7 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
 
-build:
+publish:
   stage: build
   script:
     - ./gradlew publish
@@ -19,4 +19,11 @@ build:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
+  only:
+    - master
 
+build:
+  stage: build
+  script: ./gradlew build
+  only:
+    - merge_requests
