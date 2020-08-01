@@ -18,12 +18,12 @@ open class GsonJsonParserService(
         private val typeAdapterFactories: Components<TypeAdapterFactory>,
         private val typeAdapters: Components<TypeAdapterPair>
 ) : JsonParserService, SystemLevel {
-    protected val prettyGson = GsonBuilder()
+    val prettyGson = GsonBuilder()
             .also { builder -> typeAdapterFactories.forEach { builder.registerTypeAdapterFactory(it) } }
             .also { builder -> typeAdapters.forEach { builder.registerTypeAdapter(it.type, it.typeAdapter) } }
             .setPrettyPrinting().create()
 
-    protected val gson = GsonBuilder()
+    val gson = GsonBuilder()
             .also { builder -> typeAdapterFactories.forEach { builder.registerTypeAdapterFactory(it) } }
             .also { builder -> typeAdapters.forEach { builder.registerTypeAdapter(it.type, it.typeAdapter) } }
             .create()
