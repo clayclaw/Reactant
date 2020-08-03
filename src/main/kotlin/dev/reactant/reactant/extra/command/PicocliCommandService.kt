@@ -13,6 +13,7 @@ import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
+import picocli.AutoComplete
 import picocli.CommandLine.Model
 import kotlin.reflect.KType
 
@@ -134,7 +135,7 @@ interface PicocliCommandService : Registrable<PicocliCommandService.CommandRegis
 private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)");
 
 class PicocliBukkitCommand(
-        commandSpec: Model.CommandSpec,
+        val commandSpec: Model.CommandSpec,
         private val profilerDataProvider: PublishingProfilerDataProvider,
         private val requester: Provider,
         private val commandTree: CommandTree
@@ -153,5 +154,13 @@ class PicocliBukkitCommand(
             commandLine.execute(*(grouppedArgs.toTypedArray()))
         }
         return true
+    }
+
+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): MutableList<String> {
+        val candidates = arrayListOf<String>()
+        AutoComplete.complete(commandTree.getDummyCommandLine().commandSpec, args, args.size - 1, args.lastOrNull()?.length
+                ?: 0, 0, candidates as List<String>)
+        val result = candidates.map { (args.lastOrNull() ?: "") + it }.toMutableList()
+        return result
     }
 }

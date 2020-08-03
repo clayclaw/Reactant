@@ -18,31 +18,42 @@ class CommandTree(
                 .setErr(out);
     }
 
+    /**
+     * For getting info only
+     */
+    fun getDummyCommandLine() = constructCommandLineRecursively(rootCommandProvider, null, null, null)
+
     private fun constructCommandLineRecursively(commandProvider: () -> Runnable,
-                                                sender: CommandSender, stdOut: StdOut, stdErr: StdOut): CommandLine {
+                                                sender: CommandSender?, stdOut: StdOut?, stdErr: StdOut?): CommandLine {
         var commandLine: CommandLine? = null;
         val commandRunnable = commandProvider().apply {
             if (this is ReactantCommand) {
-                this.sender = sender
-                this.stdout = stdOut
-                this.stderr = stdErr
+                sender?.let { this.sender = it }
+                stdOut?.let { this.stdout = it }
+                stdErr?.let { this.stderr = it }
             }
         }
         commandLine = CommandLine(commandRunnable).setTrimQuotes(true)
                 .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.OFF))
-//                .let { it.setResourceBundle() }
                 .also { it.commandSpec.parser().collectErrors(true) }
-                .apply {
-                    getCommand<Runnable>().let { if (it is ReactantCommand) it.commandLine = this }
-                };
+                .apply { getCommand<Runnable>().let { if (it is ReactantCommand) it.commandLine = this } }
+
         subCommandMap[commandProvider]?.forEach { subCommandProvider ->
-            constructCommandLineRecursively(subCommandProvider,
-                    sender, stdOut, stdErr).let {
-                commandLine.addSubcommand(it.commandSpec.name(), it, *it.commandSpec.aliases())
-            }
+            constructCommandLineRecursively(subCommandProvider, sender, stdOut, stdErr)
+                    .let { commandLine.addSubcommand(it.commandSpec.name(), it, *it.commandSpec.aliases()) }
         }
+
         return commandLine
     }
+//
+//    private fun constructCommandSpecRecursively(commandProvider: () -> Runnable) {
+//        val commandSpec = CommandLine.Model.CommandSpec.forAnnotatedObject(rootCommandProvider)
+//
+//        subCommandMap[commandProvider]?.forEach { subCommandProvider ->
+//            constructCommandSpecRecursively(subCommandProvider).let {
+//            }
+//        }
+//    }
 
     fun addSubcommand(superCommandProvider: () -> Runnable, subCommandProvider: () -> Runnable) {
         subCommandMap.getOrPut(superCommandProvider) { arrayListOf() }.add(subCommandProvider)
