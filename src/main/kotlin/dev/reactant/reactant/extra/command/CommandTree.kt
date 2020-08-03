@@ -45,15 +45,6 @@ class CommandTree(
 
         return commandLine
     }
-//
-//    private fun constructCommandSpecRecursively(commandProvider: () -> Runnable) {
-//        val commandSpec = CommandLine.Model.CommandSpec.forAnnotatedObject(rootCommandProvider)
-//
-//        subCommandMap[commandProvider]?.forEach { subCommandProvider ->
-//            constructCommandSpecRecursively(subCommandProvider).let {
-//            }
-//        }
-//    }
 
     fun addSubcommand(superCommandProvider: () -> Runnable, subCommandProvider: () -> Runnable) {
         subCommandMap.getOrPut(superCommandProvider) { arrayListOf() }.add(subCommandProvider)
