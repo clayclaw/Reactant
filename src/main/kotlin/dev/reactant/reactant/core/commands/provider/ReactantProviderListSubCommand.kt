@@ -1,6 +1,7 @@
 package dev.reactant.reactant.core.commands.provider
 
 import dev.reactant.reactant.core.commands.ReactantPermissions
+import dev.reactant.reactant.core.commands.completion.ReactantInternalCommandCandidates.ComponentClassNames
 import dev.reactant.reactant.core.component.container.ContainerManager
 import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
@@ -42,7 +43,8 @@ internal class ReactantProviderListSubCommand(
 
 
     @CommandLine.Parameters(arity = "1", paramLabel = "TARGET_CLASS_NAME",
-            description = ["The canonical name of searching class or interface"])
+            description = ["The canonical name of searching class or interface"],
+            completionCandidates = ComponentClassNames::class)
     var targetClassName: String = ""
 
     private val listTable = MultiColumns.create {
