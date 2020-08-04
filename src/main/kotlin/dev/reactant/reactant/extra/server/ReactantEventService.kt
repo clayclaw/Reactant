@@ -13,10 +13,10 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.bukkit.Bukkit
-import org.bukkit.event.Event
-import org.bukkit.event.EventPriority
-import org.bukkit.event.HandlerList
-import org.bukkit.event.Listener
+import org.bukkit.event.*
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -28,7 +28,7 @@ private class ReactantEventServiceProvider(
     /**
      * Map which using Pair<EventClass, Boolean> as key, while the Boolean is ignoreCancelled
      */
-    private val eventPrioritySubjectMap = HashMap<Pair<Class<out Event>, Boolean>, HashMap<EventPriority, PublishSubject<Event>>>();
+    private val eventPrioritySubjectMap = HashMap<Pair<Class<out Event>, Boolean>, EnumMap<EventPriority, PublishSubject<Event>>>();
     private val listeningEventClasses = HashSet<Class<out Event>>();
 
     override fun onDisable() {
@@ -41,10 +41,13 @@ private class ReactantEventServiceProvider(
 
     private inner class ReactantEventService(override val requester: Provider) : EventService {
 
-        private fun onEvent(event: Event, ignoreCancelled: Boolean, priority: EventPriority) {
-            if (eventPrioritySubjectMap.containsKey(event::class.java to ignoreCancelled)
-                    && eventPrioritySubjectMap[event::class.java to ignoreCancelled]!!.containsKey(priority)) {
-                eventPrioritySubjectMap[event::class.java to ignoreCancelled]!![priority]!!.onNext(event)
+        private fun onEvent(eventClass: Class<out Event>, event: Event, ignoreCancelled: Boolean, priority: EventPriority) {
+            if (eventPrioritySubjectMap.containsKey(eventClass to ignoreCancelled)
+                    && eventPrioritySubjectMap[eventClass to ignoreCancelled]!!.containsKey(priority)) {
+                eventPrioritySubjectMap[eventClass to ignoreCancelled]!![priority]!!.onNext(event)
+            }
+            if (eventClass.superclass != Event::class.java) {
+                onEvent(eventClass.superclass as Class<out Event>, event, ignoreCancelled, priority)
             }
         }
 
@@ -57,7 +60,7 @@ private class ReactantEventServiceProvider(
                 EventPriority.values().forEach { priority ->
                     listOf(true, false).forEach { ignoreCancelled ->
                         Bukkit.getPluginManager().registerEvent(eventClass, this@ReactantEventServiceProvider, priority,
-                                { _, event -> onEvent(event, ignoreCancelled, priority) }, ReactantCore.instance, ignoreCancelled)
+                                { _, event -> onEvent(event::class.java, event, ignoreCancelled, priority) }, ReactantCore.instance, ignoreCancelled)
                     }
                 }
             }
@@ -70,8 +73,12 @@ private class ReactantEventServiceProvider(
 
             return Observable.create<T> { source ->
                 disposable = (eventPrioritySubjectMap
-                        .getOrPut(eventClass.java to ignoreCancelled, { HashMap() })
+                        .getOrPut(eventClass.java to ignoreCancelled, { EnumMap(org.bukkit.event.EventPriority::class.java) })
                         .getOrPut(eventPriority, { PublishSubject.create() }))
+                        .let {
+                            if (ignoreCancelled) it.filter { e -> (e as? Cancellable)?.isCancelled?.not() ?: true }
+                            else it
+                        }
                         .doOnError { it.printStackTrace() }
                         .subscribe { event ->
                             profilerDataProvider.measure(listOf(eventClass.qualifiedName ?: "Unknown"), requester) {
