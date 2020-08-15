@@ -5,77 +5,95 @@ import java.net.URI
 
 val versionNumber = "0.2.1"
 val isSnapshot = true
-val kotlinVersion = "1.3.72"
+val kotlinVersion = "1.4.0-rc"
 
 group = "dev.reactant"
 version = "$versionNumber${if (isSnapshot) "-SNAPSHOT" else ""}"
 
-
 plugins {
     java
+    kotlin("jvm") version "1.4.0-rc"
     `maven-publish`
     signing
-    kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.0.0"
     id("org.jetbrains.dokka") version "0.10.0"
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+allprojects {
+    apply(plugin = "java")
+    apply(plugin = "kotlin")
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.freeCompilerArgs = listOf("-Xjvm-default=compatibility")
-}
+    val compileKotlin: KotlinCompile by tasks
+    compileKotlin.kotlinOptions {
+        jvmTarget = "1.8"
+        languageVersion = "1.4"
+        freeCompilerArgs = listOf("-Xjvm-default=compatibility")
+    }
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
-    maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
-    maven { url = URI.create("https://oss.sonatype.org/content/repositories/releases/") }
-    maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
-}
+    val compileTestKotlin: KotlinCompile by tasks
+    compileTestKotlin.kotlinOptions {
+        jvmTarget = "1.8"
+    }
 
-dependencies {
-    listOf(
-            "stdlib-jdk8",
-            "reflect"
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url = URI.create("https://hub.spigotmc.org/nexus/content/repositories/snapshots") }
+        maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
+        maven { url = URI.create("https://oss.sonatype.org/content/repositories/releases/") }
+        maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    }
+
+    dependencies {
+        listOf(
+                "stdlib-jdk8",
+                "reflect"
 //            "script-util",
 //            "script-runtime",
 //            "compiler-embeddable",
 //            "scripting-compiler"
-    ).forEach { api(kotlin(it, kotlinVersion)) }
+        ).forEach { api(kotlin(it, kotlinVersion)) }
 
-    implementation("org.bstats:bstats-bukkit:1.7") {
-        isTransitive = false
+        implementation("org.bstats:bstats-bukkit:1.7") {
+            isTransitive = false
+        }
+
+        api("io.reactivex.rxjava3:rxjava:3.0.4")
+        api("io.reactivex.rxjava3:rxkotlin:3.0.0")
+        api("org.reflections:reflections:0.9.12")
+
+        api("com.google.code.gson:gson:2.8.6")
+        api("org.yaml:snakeyaml:1.26")
+        api("com.moandjiezana.toml:toml4j:0.7.2")
+
+        api("info.picocli:picocli:4.3.2")
+        api("org.mariadb.jdbc:mariadb-java-client:2.5.1")
+
+        api("org.apache.logging.log4j:log4j-core:2.12.1")
+
+        api("com.squareup.retrofit2:retrofit:2.9.0")
+        api("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+        api("com.squareup.retrofit2:converter-gson:2.9.0")
+
+        api("net.sourceforge.cssparser:cssparser:0.9.27")
+
+        api("javassist:javassist:3.12.1.GA")
+
+        compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
+        implementation(kotlin("stdlib-jdk8"))
+
     }
-
-    api("io.reactivex.rxjava3:rxjava:3.0.4")
-    api("io.reactivex.rxjava3:rxkotlin:3.0.0")
-    api("org.reflections:reflections:0.9.12")
-
-    api("com.google.code.gson:gson:2.8.6")
-    api("org.yaml:snakeyaml:1.26")
-    api("com.moandjiezana.toml:toml4j:0.7.2")
-
-    api("info.picocli:picocli:4.3.2")
-    api("org.mariadb.jdbc:mariadb-java-client:2.5.1")
-
-    api("org.apache.logging.log4j:log4j-core:2.12.1")
-
-    api("com.squareup.retrofit2:retrofit:2.9.0")
-    api("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
-    api("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    api("net.sourceforge.cssparser:cssparser:0.9.27")
-
-    api("javassist:javassist:3.12.1.GA")
-
-    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
 }
+
+dependencies {
+    api(project(":reactant-rui"))
+}
+
 val dokka = (tasks["dokka"] as DokkaTask).apply {
     outputFormat = "html"
 }
@@ -173,8 +191,6 @@ publishing {
                 }
 
             }
-
-
         }
     }
 
@@ -193,6 +209,7 @@ publishing {
         }
     }
 }
+
 signing {
     ext["signing.keyId"] = findProperty("signingKeyId") as String?
     val signingKey: String? by project
