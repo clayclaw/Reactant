@@ -268,6 +268,31 @@ class RuiDivPropsBuilder() : RuiPropsBuilder<RuiDivProps>() {
 
     // shorthands
 
+    fun positionAbsolute(left: Int, top: Int) {
+        this.position = RuiPosition.Absolute
+        this.left = left
+        this.top = top
+    }
+
+    fun positionFixed(left: Int, top: Int) {
+        this.position = RuiPosition.Fixed
+        this.left = left
+        this.top = top
+    }
+
+    fun background(itemStack: ItemStack?) {
+        this.background = { itemStack?.clone() }
+    }
+
+    fun background(backgroundFactory: (BackgroundRenderingInfo) -> ItemStack?) {
+        this.background = backgroundFactory
+    }
+
+    fun size(width: Int, height: Int) {
+        this.width = width;
+        this.height = height
+    }
+
     fun margin(top: Int, right: Int, bottom: Int, left: Int) {
         marginTop = top
         marginRight = right

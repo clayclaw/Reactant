@@ -1,6 +1,5 @@
 package dev.reactant.reactant.rui.frontrender
 
-import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.rui.RuiRootUI
 import dev.reactant.rui.dom.*
 import dev.reactant.rui.render.ElementDOMTreeNode
@@ -26,7 +25,6 @@ class VisualBox(
 
 
     val pixels: Sequence<Pair<Int, Int>> by lazy(LazyThreadSafetyMode.NONE) {
-        ReactantCore.logger.info("${(x1 + 1)} until ${x2}, ${y1 + 1} until ${y2}")
         ((x1 + 1) until x2).asSequence().flatMap { x ->
             ((y1 + 1) until y2).asSequence().map { y -> x to y }
         }
@@ -62,8 +60,6 @@ class InProgressConversion(
     var computedMinAllocationHeight: Int = 0
 
 
-    // == step 3
-
     lateinit var flexContainers: List<FlexContainer>
 
     var finalWidth: Int = 0
@@ -72,15 +68,15 @@ class InProgressConversion(
 
     var finalUIX: Int = 0
     var finalUIY: Int = 0
+
+    lateinit var renderedVisualBox: VisualBox
 }
 
 fun constructInProgressConversion(node: ElementDOMTreeNode, parent: InProgressConversion? = null): InProgressConversion? {
     (node.element.props as RuiDivProps).let { attribute ->
         if (attribute.display == RuiDisplay.None) return null
         val result = InProgressConversion(node, attribute, parent)
-        ReactantCore.logger.info("${node.element.props.key} <")
         result.children = node.children.mapNotNull { constructInProgressConversion(it, result) }.toList()
-        ReactantCore.logger.info(" > ${node.element.props.key} ")
         return result
     }
 }
@@ -112,7 +108,6 @@ class FlexContainer(flexDirection: RuiFlexDirection, mainSize: Int, val reverse:
     }
 
     fun shouldWarp(next: InProgressConversion): Boolean {
-        ReactantCore.logger.info("WARP CONDITIONS: ${children.size == 0} ${isRow && next.attributes.width == RuiSizing.FillParent} ${isRow && next.attributes.height == RuiSizing.FillParent}")
         if (children.size == 0) return false
 //        if (isRow && next.attributes.width == RuiSizing.fillParent) return true
 //        else if (!isRow && next.attributes.height == RuiSizing.fillParent) return true
@@ -120,7 +115,6 @@ class FlexContainer(flexDirection: RuiFlexDirection, mainSize: Int, val reverse:
         val nextMainSize =
                 if (isRow) next.computedMinAllocationWidth
                 else next.computedMinAllocationHeight
-        ReactantCore.logger.info("CHECKING: ${mainAxisRemain} < ${nextMainSize}")
         return (mainAxisRemain < nextMainSize)
     }
 }
@@ -396,12 +390,25 @@ fun convertTreeToVisualBoxes(conversion: InProgressConversion, uiWidth: Int, uiH
     val visualBoxes = ArrayList<VisualBox>()
     fun toVisualBox(conversion: InProgressConversion, inheritInteractEvent: RuiInteractEvent) {
         val overridedInteractEvent = if (conversion.attributes.interactEvent == RuiInteractEvent.Inherit) inheritInteractEvent else conversion.attributes.interactEvent
+
+        val overflowHideX = conversion.parent?.attributes?.overflow?.let { it == RuiOverflow.XHidden || it == RuiOverflow.Hidden } == true
+        val overflowHideY = conversion.parent?.attributes?.overflow?.let { it == RuiOverflow.YHidden || it == RuiOverflow.Hidden } == true
+
+        val x1 = if (overflowHideX) (conversion.finalUIX - 1).coerceAtLeast(conversion.parent!!.renderedVisualBox.x1)
+        else conversion.finalUIX - 1
+
+        val x2 = if (overflowHideX) (conversion.finalUIX + conversion.finalWidth).coerceAtMost(conversion.parent!!.renderedVisualBox.x2)
+        else conversion.finalUIX + conversion.finalWidth
+
+        val y1 = if (overflowHideY) (conversion.finalUIY - 1).coerceAtLeast(conversion.parent!!.renderedVisualBox.y1)
+        else conversion.finalUIY - 1
+
+        val y2 = if (overflowHideY) (conversion.finalUIY + conversion.finalWidth).coerceAtMost(conversion.parent!!.renderedVisualBox.y2)
+        else conversion.finalUIY + conversion.finalWidth
+
         visualBoxes.add(VisualBox(
                 conversion.attributes.zIndex,
-                conversion.finalUIX - 1,
-                conversion.finalUIY - 1,
-                conversion.finalUIX + conversion.finalWidth,
-                conversion.finalUIY + conversion.finalHeight,
+                x1, x2, y1, y2,
                 if (overridedInteractEvent == RuiInteractEvent.None) null else conversion.eventTarget,
                 if (conversion.attributes.visibility == RuiVisibility.Hidden) { _: BackgroundRenderingInfo -> null } else conversion.attributes.background
         ))

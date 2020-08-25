@@ -5,14 +5,14 @@ import java.net.URI
 
 val versionNumber = "0.2.1"
 val isSnapshot = true
-val kotlinVersion = "1.4.0-rc"
+val kotlinVersion = "1.4.0"
 
 group = "dev.reactant"
 version = "$versionNumber${if (isSnapshot) "-SNAPSHOT" else ""}"
 
 plugins {
     java
-    kotlin("jvm") version "1.4.0-rc"
+    kotlin("jvm") version "1.4.0"
     `maven-publish`
     signing
     id("com.github.johnrengelman.shadow") version "5.0.0"

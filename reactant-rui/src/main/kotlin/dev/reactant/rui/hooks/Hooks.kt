@@ -1,4 +1,4 @@
-import dev.reactant.rui.ReactantRui
+import dev.reactant.rui.RuiRootUI
 import dev.reactant.rui.render.Update
 import dev.reactant.rui.render.ruiRenderGlobalState
 import io.reactivex.rxjava3.core.Observable
@@ -66,7 +66,6 @@ fun useEffect(effect: () -> (() -> Unit)?, deps: Array<Any>? = null) = hookGuard
         this.states[originalDepsStateIndex] = deps
         this.domRenderedAction.add {
             effect()?.let {
-                ReactantRui.logger.info("Added:")
                 unmountActionRef.current = it
                 this.unmountActions.add(it)
             }
@@ -95,13 +94,15 @@ fun <T : Any?> useObservable(observable: Observable<T>): T? {
 
 fun <T : Any?> useObservable(observable: Observable<T>, initialState: T): T {
     val (lastValue, setLastValue) = useState(initialState)
-    ReactantRui.logger.info("DEB=2===")
     useEffect({
-        ReactantRui.logger.info("DEB=====")
         observable.subscribe {
-            ReactantRui.logger.info("DEB" + it)
             setLastValue(it)
         }.let { { it.dispose() } }
     }, arrayOf(observable, setLastValue))
     return lastValue
+}
+
+fun useRootUI(): RuiRootUI {
+    return ruiRenderGlobalState?.currentNodeState?.rootUI
+            ?: throw IllegalStateException("useRootUI can only be called in the top level of rendering function")
 }
