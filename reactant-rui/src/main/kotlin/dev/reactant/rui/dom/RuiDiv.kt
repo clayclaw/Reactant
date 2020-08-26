@@ -2,6 +2,7 @@ package dev.reactant.rui.dom
 
 import dev.reactant.rui.events.RuiClickEvent
 import dev.reactant.rui.events.RuiDragEvent
+import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 data class BackgroundRenderingInfo(
@@ -268,6 +269,14 @@ class RuiDivPropsBuilder() : RuiPropsBuilder<RuiDivProps>() {
 
     // shorthands
 
+    fun flexRow() {
+        this.flexDirection = RuiFlexDirection.Row
+    }
+
+    fun flexColumn() {
+        this.flexDirection = RuiFlexDirection.Column
+    }
+
     fun positionAbsolute(left: Int, top: Int) {
         this.position = RuiPosition.Absolute
         this.left = left
@@ -282,6 +291,10 @@ class RuiDivPropsBuilder() : RuiPropsBuilder<RuiDivProps>() {
 
     fun background(itemStack: ItemStack?) {
         this.background = { itemStack?.clone() }
+    }
+
+    fun background(material: Material?) {
+        this.background = { material?.let { ItemStack(it) } }
     }
 
     fun background(backgroundFactory: (BackgroundRenderingInfo) -> ItemStack?) {

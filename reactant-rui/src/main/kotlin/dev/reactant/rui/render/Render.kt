@@ -179,7 +179,7 @@ fun rerenderNode(currentNodeState: RuiNodeState, parentTreeNode: ElementDOMTreeN
 fun renderUI(rootUI: RuiRootUI, isInitial: Boolean, batchedUpdates: List<Update>? = listOf()) {
     var rerenderCount = 0
     var internalBatchedUpdates: List<Update>? = batchedUpdates
-    while ((isInitial && rerenderCount == 0) || internalBatchedUpdates!!.isNotEmpty()) {
+    while ((isInitial && rerenderCount == 0) || internalBatchedUpdates?.isNotEmpty() ?: false) {
         val isFirstRun = (isInitial && rerenderCount == 0)
         rerenderCount++
 
@@ -216,9 +216,7 @@ fun renderUI(rootUI: RuiRootUI, isInitial: Boolean, batchedUpdates: List<Update>
                     }
         }
 
-        if (ruiRenderGlobalState!!.pendingBatchUpdate?.isNotEmpty() == true) {
-            internalBatchedUpdates = ruiRenderGlobalState!!.pendingBatchUpdate
-        }
+        internalBatchedUpdates = ruiRenderGlobalState!!.pendingBatchUpdate
         ruiRenderGlobalState = null
     }
 }

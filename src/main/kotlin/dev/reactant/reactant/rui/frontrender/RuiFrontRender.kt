@@ -18,6 +18,9 @@ class VisualBox(
         var eventTarget: ElementDOMTreeNode?,
         var background: (BackgroundRenderingInfo) -> ItemStack?
 ) {
+    init {
+        if (x1 >= x2 || y1 >= y2) throw IllegalStateException("Illegal visual box: ($x1, $y1) ($x2, $y2)");
+    }
 
     // remind visibility
 
@@ -70,6 +73,8 @@ class InProgressConversion(
     var finalUIY: Int = 0
 
     lateinit var renderedVisualBox: VisualBox
+    lateinit var recentHideXVisualBox: VisualBox
+    lateinit var recentHideYVisualBox: VisualBox
 }
 
 fun constructInProgressConversion(node: ElementDOMTreeNode, parent: InProgressConversion? = null): InProgressConversion? {
@@ -387,31 +392,49 @@ fun convertTreeToVisualBoxes(conversion: InProgressConversion, uiWidth: Int, uiH
     calculateSpecialPositioning(conversion, 0, 0, uiWidth, uiHeight)
     computeChildrenPosition(conversion, conversion)
 
+    val uiVisualBox = VisualBox(0, -1, -1, uiWidth, uiHeight, null, { null });
+
     val visualBoxes = ArrayList<VisualBox>()
     fun toVisualBox(conversion: InProgressConversion, inheritInteractEvent: RuiInteractEvent) {
         val overridedInteractEvent = if (conversion.attributes.interactEvent == RuiInteractEvent.Inherit) inheritInteractEvent else conversion.attributes.interactEvent
 
-        val overflowHideX = conversion.parent?.attributes?.overflow?.let { it == RuiOverflow.XHidden || it == RuiOverflow.Hidden } == true
-        val overflowHideY = conversion.parent?.attributes?.overflow?.let { it == RuiOverflow.YHidden || it == RuiOverflow.Hidden } == true
+        val overflowHideX = conversion.parent?.attributes?.overflow
+                ?.let { it == RuiOverflow.XHidden || it == RuiOverflow.Hidden } ?: true
+        val overflowHideY = conversion.parent?.attributes?.overflow
+                ?.let { it == RuiOverflow.YHidden || it == RuiOverflow.Hidden } ?: true
 
-        val x1 = if (overflowHideX) (conversion.finalUIX - 1).coerceAtLeast(conversion.parent!!.renderedVisualBox.x1)
+        val x1 = if (overflowHideX) (conversion.finalUIX - 1)
+                .coerceAtLeast((conversion.parent?.recentHideXVisualBox ?: uiVisualBox).x1)
         else conversion.finalUIX - 1
 
-        val x2 = if (overflowHideX) (conversion.finalUIX + conversion.finalWidth).coerceAtMost(conversion.parent!!.renderedVisualBox.x2)
+
+        val x2 = if (overflowHideX) (conversion.finalUIX + conversion.finalWidth)
+                .coerceAtMost((conversion.parent?.recentHideXVisualBox ?: uiVisualBox).x2)
         else conversion.finalUIX + conversion.finalWidth
 
-        val y1 = if (overflowHideY) (conversion.finalUIY - 1).coerceAtLeast(conversion.parent!!.renderedVisualBox.y1)
+        val y1 = if (overflowHideY) (conversion.finalUIY - 1)
+                .coerceAtLeast((conversion.parent?.recentHideYVisualBox ?: uiVisualBox).y1)
         else conversion.finalUIY - 1
 
-        val y2 = if (overflowHideY) (conversion.finalUIY + conversion.finalWidth).coerceAtMost(conversion.parent!!.renderedVisualBox.y2)
-        else conversion.finalUIY + conversion.finalWidth
+        val y2 = if (overflowHideY) (conversion.finalUIY + conversion.finalHeight)
+                .coerceAtMost((conversion.parent?.recentHideYVisualBox ?: uiVisualBox).y2)
+        else conversion.finalUIY + conversion.finalHeight
 
-        visualBoxes.add(VisualBox(
+        val visualBox = VisualBox(
                 conversion.attributes.zIndex,
-                x1, x2, y1, y2,
+                x1, y1, x2, y2,
                 if (overridedInteractEvent == RuiInteractEvent.None) null else conversion.eventTarget,
                 if (conversion.attributes.visibility == RuiVisibility.Hidden) { _: BackgroundRenderingInfo -> null } else conversion.attributes.background
-        ))
+        )
+        visualBoxes.add(visualBox)
+        conversion.renderedVisualBox = visualBox
+
+        conversion.recentHideXVisualBox = if (conversion.attributes.overflow.let { it == RuiOverflow.XHidden || it == RuiOverflow.Hidden })
+            visualBox else conversion.parent?.recentHideXVisualBox ?: uiVisualBox
+
+        conversion.recentHideYVisualBox = if (conversion.attributes.overflow.let { it == RuiOverflow.YHidden || it == RuiOverflow.Hidden })
+            visualBox else conversion.parent?.recentHideYVisualBox ?: uiVisualBox
+
         conversion.children.forEach { toVisualBox(it, overridedInteractEvent) }
     }
 
