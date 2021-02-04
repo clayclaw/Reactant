@@ -39,5 +39,3 @@ build:
     paths:
       - build
       - .gradle
-  only:
-    - merge_requests
