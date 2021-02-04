@@ -2,6 +2,7 @@ image: java:8-jdk
 
 stages:
   - build
+  - deploy
 
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
@@ -12,18 +13,31 @@ cache:
     - .gradle/caches
 
 publish:
-  stage: build
+  stage: deploy
   script:
-    - ./gradlew publish
+    - ./gradlew --build-cache publish
+  cache:
+    key: "$ci_commit_ref_name"
+    policy: pull
+    paths:
+      - build
+      - .gradle
   artifacts:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
   only:
     - master
+    - tags
 
 build:
   stage: build
-  script: ./gradlew build
+  script: ./gradlew --build-cache build
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
   only:
     - merge_requests

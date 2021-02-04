@@ -13,10 +13,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.inventory.Inventory
 
+@Deprecated("Will be removed at 0.4.0, Use Resquare UI instead")
 @Component
 class ReactantUIService(
-        val event: EventService,
-        val schedulerService: SchedulerService
+    val event: EventService,
+    val schedulerService: SchedulerService
 ) : LifeCycleHook {
     val inventoryUIMap = HashMap<Inventory, UIView>()
     val destroyOnNoViewer = HashMap<Inventory, UIView>()
@@ -28,15 +29,15 @@ class ReactantUIService(
         register(event) {
 
             InventoryOpenEvent::class.observable(EventPriority.LOWEST)
-                    .filter { !it.isCancelled && destroyOnNoViewer.containsKey(it.inventory) } // is pending destroy
-                    .subscribe { destroyOnNoViewer.remove(it.inventory) }
+                .filter { !it.isCancelled && destroyOnNoViewer.containsKey(it.inventory) } // is pending destroy
+                .subscribe { destroyOnNoViewer.remove(it.inventory) }
 
             InventoryCloseEvent::class.observable(EventPriority.HIGHEST)
-                    .filter { it.view.topInventory.viewers.size == 1 }  // only 1 viewer
-                    .filter { inventoryUIMap.containsKey(it.view.topInventory) }  // it is ui view
-                    .map { inventoryUIMap[it.view.topInventory]!! }
-                    .filter { autoDestroy.contains(it) } // auto destroy available
-                    .subscribe { pendingDestroy[it] = schedulerService.timer(20).subscribe { destroyUI(it) } }
+                .filter { it.view.topInventory.viewers.size == 1 } // only 1 viewer
+                .filter { inventoryUIMap.containsKey(it.view.topInventory) } // it is ui view
+                .map { inventoryUIMap[it.view.topInventory]!! }
+                .filter { autoDestroy.contains(it) } // auto destroy available
+                .subscribe { pendingDestroy[it] = schedulerService.timer(20).subscribe { destroyUI(it) } }
         }
     }
 
@@ -67,6 +68,4 @@ class ReactantUIService(
 
         return ui
     }
-
 }
-
