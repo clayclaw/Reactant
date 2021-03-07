@@ -46,7 +46,7 @@ abstract class ReactantCommand(val helpTopicPermission: String? = null) : Runnab
     protected open fun showUsage() = usage.forEach(stdout::out)
 
     fun canSeeHelpTopic(player: CommandSender): Boolean =
-            helpTopicPermission == null || player.hasPermission(helpTopicPermission)
+        helpTopicPermission == null || player.hasPermission(helpTopicPermission)
 
     fun getHelpTopic(): HelpTopic = ReactantCommandHelpTopic(this)
 
@@ -68,8 +68,16 @@ abstract class ReactantCommand(val helpTopicPermission: String? = null) : Runnab
      * Called when there have parse error in the command
      */
     open fun handleParseErrors(errors: List<Exception>) {
-        stderr.out(errors.first().message!!)
-        usage.forEach(stderr::out)
+        if (helpTopicPermission != null && !sender.hasPermission(helpTopicPermission)) {
+            throw CommandExecutionPermissionException(
+                sender,
+                helpTopicPermission,
+                "execute command: ${this.javaClass.canonicalName}"
+            )
+        } else {
+            stderr.out(errors.first().message!!)
+            usage.forEach(stderr::out)
+        }
     }
 
     /**
@@ -81,7 +89,7 @@ abstract class ReactantCommand(val helpTopicPermission: String? = null) : Runnab
             0
         } else {
             stderr.out("Error occurred while executing the command")
-            ReactantCore.logger.error("Error occurred while executing the command \"${commandLine.commandSpec.name()} ${args.joinToString(" ")}\"", exception);
+            ReactantCore.logger.error("Error occurred while executing the command \"${commandLine.commandSpec.name()} ${args.joinToString(" ")}\"", exception)
             1
         }
     }

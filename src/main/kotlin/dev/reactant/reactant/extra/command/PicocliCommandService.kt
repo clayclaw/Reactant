@@ -19,7 +19,7 @@ import kotlin.reflect.KType
 
 @Component
 class PicocliCommandServiceProvider(
-        private val profilerDataProvider: PublishingProfilerDataProvider = PublishingProfilerDataProvider()
+    private val profilerDataProvider: PublishingProfilerDataProvider = PublishingProfilerDataProvider()
 ) : LifeCycleHook, LifeCycleInspector, ProfilerDataProvider by profilerDataProvider {
 
     private val commandTreeMap = HashMap<String, CommandTree>()
@@ -40,31 +40,29 @@ class PicocliCommandServiceProvider(
 
     fun unregisterCommand(commandName: String) {
         if (commandTreeMap.containsKey(commandName)) {
-            commandTreeMap.remove(commandName);
+            commandTreeMap.remove(commandName)
             try {
                 bukkitCommandMap::class.java.getDeclaredField("knownCommands").apply {
                     isAccessible = true
                     @Suppress("UNCHECKED_CAST")
                     (get(bukkitCommandMap) as HashMap<String, org.bukkit.command.Command>)
-                            .remove(commandName)
+                        .remove(commandName)
                 }
             } catch (e: NoSuchFieldException) {
-
             }
         } else {
-            throw IllegalArgumentException();
+            throw IllegalArgumentException()
         }
     }
-
 
     @Provide(".*", true)
     private fun getPicocliCommandService(kType: KType, path: String, requester: Provider) = PicocliCommandServiceImpl(requester)
 
     inner class PicocliCommandServiceImpl(val requester: Provider) : PicocliCommandService {
         override fun registerCommand(commandRunnableProvider: () -> ReactantCommand): CommandTree {
-            val reactantCommand = commandRunnableProvider();
+            val reactantCommand = commandRunnableProvider()
             val commandSpec = Model.CommandSpec.forAnnotatedObject(reactantCommand)
-            var name = commandSpec.name();
+            var name = commandSpec.name()
             name = reviseConflictCommand(name)
 
             registerCommandNameMap.getOrPut(requester) { hashSetOf() }.add(name)
@@ -86,16 +84,18 @@ class PicocliCommandServiceProvider(
          * Revise the command with "command$number" if it have a same name with other command
          */
         private fun reviseConflictCommand(name: String): String {
-            var result = name;
+            var result = name
             val existingCommand = bukkitCommandMap.commands.map { it.name }
             if (existingCommand.contains(result)) {
                 val revisedNumber = (2..Int.MAX_VALUE).first { !existingCommand.contains("$result$it") }
                 result = "$result$revisedNumber"
-                ReactantCore.logger.warn("Command result conflict: $result " +
+                ReactantCore.logger.warn(
+                    "Command result conflict: $result " +
                         "(register by ${requester.productType}), " +
-                        "revised to $result")
+                        "revised to $result"
+                )
             }
-            return result;
+            return result
         }
 
 // DSL
@@ -132,18 +132,19 @@ interface PicocliCommandService : Registrable<PicocliCommandService.CommandRegis
     operator fun invoke(registering: CommandRegistering.() -> Unit)
 }
 
-private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)");
+private val argsGroupingRegex = Regex("(\"(?:\\\\\"|[^\"])+\")|((?:\\\\\"|\\\\ |[^\" ])+)")
 
 class PicocliBukkitCommand(
-        val commandSpec: Model.CommandSpec,
-        private val profilerDataProvider: PublishingProfilerDataProvider,
-        private val requester: Provider,
-        private val commandTree: CommandTree
+    val commandSpec: Model.CommandSpec,
+    private val profilerDataProvider: PublishingProfilerDataProvider,
+    private val requester: Provider,
+    private val commandTree: CommandTree
 ) : org.bukkit.command.Command(
-        commandSpec.name(),
-        commandSpec.usageMessage().description().joinToString(" "),
-        commandSpec.usageMessage().customSynopsis().joinToString(""),
-        commandSpec.aliases().toList()) {
+    commandSpec.name(),
+    commandSpec.usageMessage().description().joinToString(" "),
+    commandSpec.usageMessage().customSynopsis().joinToString(""),
+    commandSpec.aliases().toList()
+) {
     override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
         val writer = CommandSenderWriter(sender)
         val grouppedArgs: List<String> = argsGroupingRegex.findAll(args.joinToString(" ")).map { it.value }.toList()
@@ -158,8 +159,17 @@ class PicocliBukkitCommand(
 
     override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): MutableList<String> {
         val candidates = arrayListOf<String>()
-        AutoComplete.complete(commandTree.getDummyCommandLine().commandSpec, args, args.size - 1, args.lastOrNull()?.length
-                ?: 0, 0, candidates as List<String>)
+        val reactantCommand = commandTree.getDummyCommandLine().commandSpec.userObject() as ReactantCommand
+        if (reactantCommand.helpTopicPermission != null && !sender.hasPermission(reactantCommand.helpTopicPermission)) {
+            return candidates
+        }
+
+        AutoComplete.complete(
+            commandTree.getDummyCommandLine().commandSpec, args, args.size - 1,
+            args.lastOrNull()?.length
+                ?: 0,
+            0, candidates as List<String>
+        )
         val result = candidates.map { (args.lastOrNull() ?: "") + it }.toMutableList()
         return result
     }
