@@ -8,33 +8,38 @@ import picocli.CommandLine
 import java.util.regex.Pattern
 
 @CommandLine.Command(
-        name = "ls",
-        aliases = ["list"],
-        mixinStandardHelpOptions = true,
-        description = ["List i18n language tables"]
+    name = "ls",
+    aliases = ["list"],
+    mixinStandardHelpOptions = true,
+    description = ["List i18n language tables"]
 )
 internal class I18nListTableCommand(
-        private val i18nService: I18nService
-) : ReactantCommand() {
+    private val i18nService: I18nService
+) : ReactantCommand(ReactantPermissions.ADMIN.DEV.I18N.LIST.toString()) {
 
-    @CommandLine.Option(names = ["-p", "--pattern"], paramLabel = "REG_EXP",
-            description = ["Filtering I18n Table class canonical name by RegExp"])
+    @CommandLine.Option(
+        names = ["-p", "--pattern"], paramLabel = "REG_EXP",
+        description = ["Filtering I18n Table class canonical name by RegExp"]
+    )
     var classNamePattern: Pattern? = null
 
-    @CommandLine.Parameters(arity = "0..*", paramLabel = "CLASS_NAME",
-            description = ["Filtering I18n Table class canonical name, wildcard is available"])
-    var classNameWildcards: ArrayList<String> = arrayListOf();
-
+    @CommandLine.Parameters(
+        arity = "0..*", paramLabel = "CLASS_NAME",
+        description = ["Filtering I18n Table class canonical name, wildcard is available"]
+    )
+    var classNameWildcards: ArrayList<String> = arrayListOf()
 
     override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.I18N.LIST)
         i18nService.tableClasses.sortedBy { it.qualifiedName }
-                .filter { nameMatching(it.java.canonicalName) }
-                .forEach { stdout.out(it.java.canonicalName) }
+            .filter { nameMatching(it.java.canonicalName) }
+            .forEach { stdout.out(it.java.canonicalName) }
     }
 
     private fun nameMatching(canonicalName: String): Boolean =
-            (classNamePattern == null || classNamePattern!!.toRegex().matches(canonicalName)) &&
-                    (classNameWildcards.isEmpty() || classNameWildcards
-                            .any { wildcard -> PatternMatchingUtils.matchWildcard(wildcard, canonicalName) })
+        (classNamePattern == null || classNamePattern!!.toRegex().matches(canonicalName)) &&
+            (
+                classNameWildcards.isEmpty() || classNameWildcards
+                    .any { wildcard -> PatternMatchingUtils.matchWildcard(wildcard, canonicalName) }
+                )
 }

@@ -14,15 +14,15 @@ import org.bukkit.entity.Player
 import picocli.CommandLine
 
 @CommandLine.Command(
-        name = "start",
-        mixinStandardHelpOptions = true,
-        description = ["Start the profiler"]
+    name = "start",
+    mixinStandardHelpOptions = true,
+    description = ["Start the profiler"]
 )
 internal class ProfilerStartCommand(
-        private val profilerService: ReactantProfilerService,
-        private val fileIOUploadService: FileIOUploadService,
-        private val jsonParser: GsonJsonParserService
-) : ReactantCommand() {
+    private val profilerService: ReactantProfilerService,
+    private val fileIOUploadService: FileIOUploadService,
+    private val jsonParser: GsonJsonParserService
+) : ReactantCommand(ReactantPermissions.ADMIN.DEV.PROFILER.toString()) {
     data class TimingData(val time: Long, val tick: Int)
 
     override fun execute() {
@@ -30,32 +30,31 @@ internal class ProfilerStartCommand(
         profilerService.startMeasure().let { (profilerId, measuredData) ->
             val startMeasureTime = System.currentTimeMillis()
             measuredData
-                    .toList()
-                    .subscribe { list: MutableList<Pair<ProfilerDataProvider, ProfilerDataProvider.ProfilerData>> ->
-                        val data = list.groupBy { it.first }
+                .toList()
+                .subscribe { list: MutableList<Pair<ProfilerDataProvider, ProfilerDataProvider.ProfilerData>> ->
+                    val data = list.groupBy { it.first }
+                        .mapValues {
+                            it.value.map { it.second }.groupBy { it.path }
                                 .mapValues {
-                                    it.value.map { it.second }.groupBy { it.path }
-                                            .mapValues {
-                                                it.value.groupBy { it.target }
-                                                        .mapValues { it.value.map { TimingData(it.time, it.tick) } }
-                                            }
+                                    it.value.groupBy { it.target }
+                                        .mapValues { it.value.map { TimingData(it.time, it.tick) } }
                                 }
+                        }
 
-                        fileIOUploadService.upload("report.html", jsonParser.encode(data).blockingGet())
-                                .subscribeOn(Schedulers.io())
-                                .subscribe { res ->
-                                    if (sender is Player) {
-                                        val msg = TextComponent("Click here to open your profiler report")
-                                        msg.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, res.link)
-                                        (sender as Player).spigot().sendMessage(msg)
-                                    } else {
-                                        sender.sendMessage("Profiler report: ${UrlEscapers.urlPathSegmentEscaper().escape(res.link)}")
-                                    }
-                                }
-                        stdout.out("Uploading profiler report...")
-                    }
+                    fileIOUploadService.upload("report.html", jsonParser.encode(data).blockingGet())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe { res ->
+                            if (sender is Player) {
+                                val msg = TextComponent("Click here to open your profiler report")
+                                msg.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, res.link)
+                                (sender as Player).spigot().sendMessage(msg)
+                            } else {
+                                sender.sendMessage("Profiler report: ${UrlEscapers.urlPathSegmentEscaper().escape(res.link)}")
+                            }
+                        }
+                    stdout.out("Uploading profiler report...")
+                }
             stdout.out("Started profiler successfully, use \"/reactant profiler stop ${profilerId}\" to stop profiling")
         }
     }
-
 }

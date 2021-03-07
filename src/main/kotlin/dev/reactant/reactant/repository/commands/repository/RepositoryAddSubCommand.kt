@@ -6,7 +6,8 @@ import dev.reactant.reactant.repository.RepositoryService
 import picocli.CommandLine
 
 @CommandLine.Command(name = "add", mixinStandardHelpOptions = true, description = ["Add a maven repository"])
-class RepositoryAddSubCommand(private val repositoryService: RepositoryService) : ReactantCommand() {
+class RepositoryAddSubCommand(private val repositoryService: RepositoryService) :
+    ReactantCommand(ReactantPermissions.REPOSITORY.MODIFY.toString()) {
     @CommandLine.Option(names = ["-s", "--skip-checking"], description = ["Skip connection checking"])
     var skipConnectionChecking: Boolean = false
 
@@ -23,9 +24,9 @@ class RepositoryAddSubCommand(private val repositoryService: RepositoryService) 
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(ReactantPermissions.REPOSITORY.MODIFY)
         if (!overwrite && repositoryService.getRepository(name) != null)
-            stderr.out("Repository $name already exist, you can overwrite it with option '-o'");
+            stderr.out("Repository $name already exist, you can overwrite it with option '-o'")
         else repositoryService.setRepository(name, url, !skipConnectionChecking)
-                .doOnError { stderr.out("Exception occurred: ${it.message}, consider use '-s' to skip connection checking.") }
-                .subscribe { stdout.out("Repository $name added successfully") }
+            .doOnError { stderr.out("Exception occurred: ${it.message}, consider use '-s' to skip connection checking.") }
+            .subscribe { stdout.out("Repository $name added successfully") }
     }
 }

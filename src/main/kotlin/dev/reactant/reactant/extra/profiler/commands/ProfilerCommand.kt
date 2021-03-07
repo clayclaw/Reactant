@@ -5,12 +5,12 @@ import dev.reactant.reactant.extra.command.ReactantCommand
 import picocli.CommandLine
 
 @CommandLine.Command(
-        name = "profiler",
-        aliases = ["prof"],
-        mixinStandardHelpOptions = true,
-        description = ["Reactant profiler commands"]
+    name = "profiler",
+    aliases = ["prof"],
+    mixinStandardHelpOptions = true,
+    description = ["Reactant profiler commands"]
 )
-internal class ProfilerCommand : ReactantCommand() {
+internal class ProfilerCommand : ReactantCommand(ReactantPermissions.ADMIN.DEV.PROFILER.toString()) {
     override fun execute() {
         requirePermission(ReactantPermissions.ADMIN.DEV.PROFILER)
         showUsage()

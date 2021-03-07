@@ -23,22 +23,36 @@ import java.io.FileOutputStream
 import java.net.URLClassLoader
 import java.util.*
 
-@CommandLine.Command(name = "retrieve", aliases = ["ret"], mixinStandardHelpOptions = true,
-        description = ["Retrieve a plugin from maven repositories"])
-class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryService,
-                                   private val repositoryRetrieverService: MavenRepositoryRetrieverService) : ReactantCommand() {
-    @CommandLine.Parameters(arity = "1..*", paramLabel = "IDENTIFIER",
-            description = ["Gradle style rawIdentifier of the plugins artifact",
-                "format: \"{groupId}:{artifactId}:{version}:{classifier(optional)}\""])
+@CommandLine.Command(
+    name = "retrieve", aliases = ["ret"], mixinStandardHelpOptions = true,
+    description = ["Retrieve a plugin from maven repositories"]
+)
+class RepositoryRetrieveSubCommand(
+    private val repositoryService: RepositoryService,
+    private val repositoryRetrieverService: MavenRepositoryRetrieverService
+) : ReactantCommand(ReactantPermissions.REPOSITORY.RETRIEVE.toString()) {
+    @CommandLine.Parameters(
+        arity = "1..*", paramLabel = "IDENTIFIER",
+        description = [
+            "Gradle style rawIdentifier of the plugins artifact",
+            "format: \"{groupId}:{artifactId}:{version}:{classifier(optional)}\""
+        ]
+    )
     lateinit var identifiers: ArrayList<String>
 
-    @CommandLine.Option(names = ["-v", "--verbose"],
-            description = ["Verbose mode, print more details"])
+    @CommandLine.Option(
+        names = ["-v", "--verbose"],
+        description = ["Verbose mode, print more details"]
+    )
     var verbose: Boolean = false
 
-    @CommandLine.Option(names = ["-f", "--force"],
-            description = ["Ignore main class not match problem when updating plugin",
-                "Use only when you know what you are doing"])
+    @CommandLine.Option(
+        names = ["-f", "--force"],
+        description = [
+            "Ignore main class not match problem when updating plugin",
+            "Use only when you know what you are doing"
+        ]
+    )
     var ignoreMainClassNotMatch: Boolean = false
 
     override fun execute() {
@@ -46,15 +60,18 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
         requirePermission(ReactantPermissions.REPOSITORY.RETRIEVE)
         stdout.out("Retrieving ${identifiers.size} plugin from repositories...")
         Observable.fromIterable(identifiers)
-                .map(::ArtifactInfo)
-                .flatMapSingle(this::download)
-                .flatMapSingle(this::installPlugin)
-                .subscribe({ stdout.out("Retrieve successfully as ${it.absolutePath}"); },
-                        {
-                            stderr.out("Retrieve failed :${it.message ?: ""}");
-                            if (verbose)
-                                StacktraceConverterUtils.convertToString(it).split("\n").forEach(stdout::out)
-                        }, { Bukkit.reload() })
+            .map(::ArtifactInfo)
+            .flatMapSingle(this::download)
+            .flatMapSingle(this::installPlugin)
+            .subscribe(
+                { stdout.out("Retrieve successfully as ${it.absolutePath}"); },
+                {
+                    stderr.out("Retrieve failed :${it.message ?: ""}")
+                    if (verbose)
+                        StacktraceConverterUtils.convertToString(it).split("\n").forEach(stdout::out)
+                },
+                { Bukkit.reload() }
+            )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -73,12 +90,10 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
             val pluginClassLoader = URLClassLoader(arrayOf(tmpFile.toURI().toURL()))
             pluginDescription = PluginDescriptionFile(pluginClassLoader.getResourceAsStream("plugin.yml"))
         } catch (e: InvalidDescriptionException) {
-            throw IllegalStateException("Not a valid plugin");
+            throw IllegalStateException("Not a valid plugin")
         }
 
-
         val installLocation = findInstallLocation(pluginDescription, !ignoreMainClassNotMatch)
-
 
         FileInputStream(tmpFile).channel.use { input ->
             FileOutputStream(installLocation).channel.use { output ->
@@ -91,11 +106,11 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
 
     private fun findInstallLocation(pluginDescription: PluginDescriptionFile, requireSameMainClass: Boolean): File {
         val replacingPlugin = Bukkit.getPluginManager().plugins
-                .firstOrNull { it.name == pluginDescription.name && it.isEnabled }
+            .firstOrNull { it.name == pluginDescription.name && it.isEnabled }
 
         // if is updating plugin
         if (replacingPlugin != null) {
-            val newMain = replacingPlugin.description.main;
+            val newMain = replacingPlugin.description.main
             val oldMain = pluginDescription.main
             if (newMain != oldMain) {
                 if (requireSameMainClass) throw PluginMainClassNotMatchException(pluginDescription.name, newMain, oldMain)
@@ -124,7 +139,6 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
                     close()
                 }
             }.map { true }.onErrorReturn { false }
-
         }.takeUntil { it }.toList().flatMap {
             if (!downloadTo.exists()) Single.error { Exception("Artifact not found") }
             else Single.just(downloadTo)
@@ -133,8 +147,8 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
 
     class RetrieveException(val identifier: String, val reason: String) : Exception("Failed to retrieve $identifier, $reason")
 
-    class PluginMainClassNotMatchException(val pluginName: String, val newMain: String, val oldMain: String)
-        : Exception("Plugin \"$pluginName\" cannot be updated, main class not matching. $newMain (downloaded) $oldMain (current)")
+    class PluginMainClassNotMatchException(val pluginName: String, val newMain: String, val oldMain: String) :
+        Exception("Plugin \"$pluginName\" cannot be updated, main class not matching. $newMain (downloaded) $oldMain (current)")
 
     private inner class ArtifactInfo(val rawIdentifier: String) {
         val extension = if (rawIdentifier.contains("@")) rawIdentifier.split("@").last() else "jar"
@@ -154,7 +168,7 @@ class RepositoryRetrieveSubCommand(private val repositoryService: RepositoryServ
         }
 
         fun download(repo: String): Single<ResponseBody> =
-                if (classifier == null) repositoryRetrieverService.getArtifact(repo, groupId, artifactId, version, extension)
-                else repositoryRetrieverService.getArtifact(repo, groupId, artifactId, version, extension, classifier)
+            if (classifier == null) repositoryRetrieverService.getArtifact(repo, groupId, artifactId, version, extension)
+            else repositoryRetrieverService.getArtifact(repo, groupId, artifactId, version, extension, classifier)
     }
 }

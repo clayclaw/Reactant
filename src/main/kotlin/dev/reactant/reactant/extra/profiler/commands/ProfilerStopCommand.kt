@@ -6,15 +6,17 @@ import dev.reactant.reactant.extra.profiler.ReactantProfilerService
 import picocli.CommandLine
 
 @CommandLine.Command(
-        name = "stop",
-        mixinStandardHelpOptions = true,
-        description = ["Stop the profiler"]
+    name = "stop",
+    mixinStandardHelpOptions = true,
+    description = ["Stop the profiler"]
 )
 internal class ProfilerStopCommand(
-        private val profilerService: ReactantProfilerService
-) : ReactantCommand() {
-    @CommandLine.Parameters(arity = "1", paramLabel = "PROFILER_ID",
-            description = ["The profiler id you want to stop"])
+    private val profilerService: ReactantProfilerService
+) : ReactantCommand(ReactantPermissions.ADMIN.DEV.PROFILER.toString()) {
+    @CommandLine.Parameters(
+        arity = "1", paramLabel = "PROFILER_ID",
+        description = ["The profiler id you want to stop"]
+    )
     var profilerId: Int? = null
 
     override fun execute() {

@@ -7,7 +7,8 @@ import dev.reactant.reactant.utils.formatting.MultiColumns
 import picocli.CommandLine
 
 @CommandLine.Command(name = "list", aliases = ["ls"], mixinStandardHelpOptions = true)
-class RepositoryListSubCommand(private val repositoryService: RepositoryService) : ReactantCommand() {
+class RepositoryListSubCommand(private val repositoryService: RepositoryService) :
+    ReactantCommand(ReactantPermissions.REPOSITORY.LIST.toString()) {
     override fun execute() {
         repositoryService.consoleOnlyValidate(sender)
         requirePermission(ReactantPermissions.REPOSITORY.LIST)
