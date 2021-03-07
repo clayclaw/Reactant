@@ -17,10 +17,15 @@ import kotlin.reflect.jvm.jvmName
 @Component
 class ReactantContainerManager : ContainerManager {
     private var matchingConfig: ServiceMatchingConfig = File("${ReactantCore.configDirPath}/services.json")
-            .let { file ->
-                if (file.exists()) FileReader(file).use { reader -> Gson().fromJson(reader, ServiceMatchingConfig::class.java) }
-                else ServiceMatchingConfig()
+        .let { file ->
+            if (file.exists()) FileReader(file).use { reader ->
+                Gson().fromJson(
+                    reader,
+                    ServiceMatchingConfig::class.java
+                )
             }
+            else ServiceMatchingConfig()
+        }
 
     private val componentContainerMap = HashMap<String, Container>()
 
@@ -28,7 +33,7 @@ class ReactantContainerManager : ContainerManager {
     private val dependencyManager = instanceManager.getInstance(ProviderManager::class)!!
 
     override val containers: Collection<Container> get() = componentContainerMap.values
-    private val containerInjectableProviderMap = HashMap<Container, HashSet<Provider>>();
+    private val containerInjectableProviderMap = HashMap<Container, HashSet<Provider>>()
 
     override fun getContainer(identifier: String): Container? {
         return componentContainerMap[identifier]
@@ -42,20 +47,22 @@ class ReactantContainerManager : ContainerManager {
 
     private fun addAllInjectableProvider(container: Container) {
         container.componentClasses
-                .filter { it.java.isAnnotationPresent(Component::class.java) }
-                .map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
-                    // providers including component and @Provide
-                    listOf(it).union(DynamicProvider.findAllFromComponentInjectableProvider(it))
-                            .union(DynamicSubtypeProvider.findAllFromComponentInjectableProvider(it))
-                            .onEach { provider -> containerInjectableProviderMap.getOrPut(container) { hashSetOf() }.add(provider) }
-                            .forEach { provider ->
-                                val providerName = it.componentClass.jvmName;
-                                val isBlacklisted = matchingConfig.blacklistServicePatterns
-                                        .any { pattern -> PatternMatchingUtils.matchWildcardOrRegex(pattern, providerName) }
-                                if (isBlacklisted) dependencyManager.addBlacklistedProvider(provider)
-                                else dependencyManager.addProvider(provider)
-                            }
-                }
+            .filter { it.java.isAnnotationPresent(Component::class.java) }
+            .map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
+                // providers including component and @Provide
+                listOf(it).union(DynamicProvider.findAllFromComponentInjectableProvider(it))
+                    .union(DynamicSubtypeProvider.findAllFromComponentInjectableProvider(it))
+                    .onEach { provider ->
+                        containerInjectableProviderMap.getOrPut(container) { hashSetOf() }.add(provider)
+                    }
+                    .forEach { provider ->
+                        val providerName = it.componentClass.jvmName
+                        val isBlacklisted = matchingConfig.blacklistServicePatterns
+                            .any { pattern -> PatternMatchingUtils.matchWildcardOrRegex(pattern, providerName) }
+                        if (isBlacklisted) dependencyManager.addBlacklistedProvider(provider)
+                        else dependencyManager.addProvider(provider)
+                    }
+            }
     }
 
     override fun removeContainer(container: Container) {
@@ -67,7 +74,5 @@ class ReactantContainerManager : ContainerManager {
     }
 
     override fun getContainerProvidedInjectableProvider(container: Container): Set<Provider> =
-            containerInjectableProviderMap[container]!!
-
-
+        containerInjectableProviderMap[container] ?: setOf()
 }
