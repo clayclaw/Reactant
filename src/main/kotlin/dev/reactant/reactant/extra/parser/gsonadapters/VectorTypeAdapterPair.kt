@@ -43,7 +43,7 @@ class VectorTypeAdapterPair : TypeAdapterPair, SystemLevel {
                 var z: Double = 0.0
 
                 while (hasNext()) {
-                    val name = nextString()
+                    val name = nextName()
                     when (name) {
                         "x" -> x = nextDouble()
                         "y" -> y = nextDouble()
