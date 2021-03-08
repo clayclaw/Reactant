@@ -57,7 +57,7 @@ class LocationTypeAdapterPair : TypeAdapterPair, SystemLevel {
                 var pitch: Float = 0.0F
 
                 while (hasNext()) {
-                    val name = nextString()
+                    val name = nextName()
                     when (name) {
                         "world" -> world = Bukkit.getWorld(UUID.fromString(nextString()))
                         "x" -> x = nextDouble()
