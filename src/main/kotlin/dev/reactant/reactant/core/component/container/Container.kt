@@ -1,6 +1,6 @@
 package dev.reactant.reactant.core.component.container
 
-import org.reflections.Reflections
+import org.reflections8.Reflections
 import kotlin.reflect.KClass
 
 /**

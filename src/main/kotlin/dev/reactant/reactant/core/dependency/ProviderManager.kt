@@ -66,6 +66,12 @@ class ProviderManager : SystemLevel {
      * Once a relation resolved and confirmed, the relation won't change anymore
      */
     fun decideRelation() {
+
+        if(availableProviders.isEmpty()) {
+            ReactantCore.logger.warn("No available provider is found! Cancelled relation decision.")
+            return
+        }
+
         interpretedRelations = availableProviders
                 .flatMap { provider ->
                     relationInterpreters.mapNotNull { interpreter ->
@@ -96,7 +102,9 @@ class ProviderManager : SystemLevel {
         }
 
         // Make all non-system level component provider depends on FunctionalityLayer
-        val functionalityLayerProvider = availableProviders.find { it.productType.jvmErasure == FunctionalityLayer::class }!!
+        val functionalityLayerProvider = availableProviders.find {
+            it.productType.jvmErasure == FunctionalityLayer::class
+        }!!
         availableProviders
                 .filter { it is ComponentProvider<*> }
                 .filter { it != functionalityLayerProvider && !it.canProvideType(SystemLevel::class.starProjectedType) }

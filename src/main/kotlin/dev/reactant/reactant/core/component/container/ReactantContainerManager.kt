@@ -46,9 +46,11 @@ class ReactantContainerManager : ContainerManager {
     }
 
     private fun addAllInjectableProvider(container: Container) {
-        container.componentClasses
+
+        val componentClasses = container.componentClasses
             .filter { it.java.isAnnotationPresent(Component::class.java) }
-            .map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
+
+        componentClasses.map { ComponentProvider.fromComponent(it, instanceManager, container) }.forEach {
                 // providers including component and @Provide
                 listOf(it).union(DynamicProvider.findAllFromComponentInjectableProvider(it))
                     .union(DynamicSubtypeProvider.findAllFromComponentInjectableProvider(it))
@@ -63,6 +65,7 @@ class ReactantContainerManager : ContainerManager {
                         else dependencyManager.addProvider(provider)
                     }
             }
+
     }
 
     override fun removeContainer(container: Container) {

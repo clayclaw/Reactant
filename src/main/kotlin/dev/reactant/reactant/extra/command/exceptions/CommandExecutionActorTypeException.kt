@@ -1,6 +1,5 @@
 package dev.reactant.reactant.extra.command.exceptions
 
-import CommandCommonExecutionException
 import org.bukkit.command.CommandSender
 import kotlin.reflect.KClass
 

@@ -11,10 +11,12 @@ plugins {
     java
     `maven-publish`
     signing
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "5.0.0"
     id("org.jetbrains.dokka") version "0.10.0"
     id("com.palantir.git-version") version "0.12.3"
+    id("io.izzel.taboolib") version "1.3"
+    //id("org.jetbrains.kotlin.jvm") version "1.4.0"
 }
 
 group = "dev.reactant"
@@ -46,39 +48,27 @@ repositories {
 }
 
 dependencies {
-    listOf(
-        "stdlib-jdk8",
-        "reflect"
-//            "script-util",
-//            "script-runtime",
-//            "compiler-embeddable",
-//            "scripting-compiler"
-    ).forEach { api(kotlin(it, kotlinVersion)) }
+
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+    compileOnly(kotlin("reflect", kotlinVersion))
 
     implementation("org.bstats:bstats-bukkit:1.7") {
         isTransitive = false
     }
+    compileOnly("ink.ptms.core:v11600:11600:all")
 
-    api("io.reactivex.rxjava3:rxjava:3.0.9")
-    api("io.reactivex.rxjava3:rxkotlin:3.0.1")
-    api("org.reflections:reflections:0.9.12")
+    compileOnly("io.reactivex.rxjava3:rxjava:3.0.11")
+    compileOnly("io.reactivex.rxjava3:rxkotlin:3.0.1")
+    // compileOnly("org.reflections:reflections:0.9.12")
+    compileOnly("net.oneandone.reflections8:reflections8:0.11.7")
 
-    api("com.google.code.gson:gson:2.8.6")
-    api("org.yaml:snakeyaml:1.26")
-    api("com.moandjiezana.toml:toml4j:0.7.2")
+    compileOnly("com.google.code.gson:gson:2.8.6")
+    compileOnly("org.yaml:snakeyaml:1.26")
+    compileOnly("com.moandjiezana.toml:toml4j:0.7.2")
 
-    api("info.picocli:picocli:4.3.2")
-    api("org.mariadb.jdbc:mariadb-java-client:2.5.1")
+    compileOnly("info.picocli:picocli:4.3.2")
 
-    api("org.apache.logging.log4j:log4j-core:2.12.1")
-
-    api("com.squareup.retrofit2:retrofit:2.9.0")
-    api("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
-    api("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    api("net.sourceforge.cssparser:cssparser:0.9.27")
-
-    api("javassist:javassist:3.12.1.GA")
+    compileOnly("org.apache.logging.log4j:log4j-core:2.12.1")
 
     compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
 }
@@ -113,10 +103,7 @@ val javadocJar by tasks.registering(Jar::class) {
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "dev.reactant.reactant.core")
-    relocate("okhttp3", "dev.reactant.reactant.okhttp3")
-    relocate("okio", "dev.reactant.reactant.okio")
-    relocate("cssparser", "dev.reactant.reactant.cssparser")
-    relocate("javassist", "dev.reactant.reactant.javassist")
+    relocate("io.izzel.taboolib.loader", "${project.group}.reactant.boot")
 }
 
 val dokkaJar by tasks.registering(Jar::class) {
@@ -203,4 +190,32 @@ if (isRelease) {
         useInMemoryPgpKeys(signingKey?.replace("\\n", "\n"), signingPassword)
         sign(publishing.publications["maven"])
     }
+}
+
+taboolib {
+    tabooLibVersion = "5.6"
+    loaderVersion = "2.12"
+    classifier = null
+    builtin = true
+}
+
+configure<ProcessResources>("processResources") {
+    filesMatching("application.properties") {
+        expand(project.properties)
+    }
+    from(sourceSets.main.get().resources.sourceDirectories) {
+        include("plugin.yml")
+
+        expand(
+            "name" to rootProject.name,
+            "main" to "${project.group}.reactant.boot.PluginBoot",
+            "version" to project.version,
+            "libVersion" to taboolib.tabooLibVersion,
+            "loaderVersion" to taboolib.loaderVersion
+        )
+    }
+}
+
+inline fun <reified C> Project.configure(name: String, configuration: C.() -> Unit) {
+    (this.tasks.getByName(name) as C).configuration()
 }

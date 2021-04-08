@@ -1,7 +1,7 @@
 package dev.reactant.reactant.extra.command
 
-import CommandCommonExecutionException
 import dev.reactant.reactant.core.ReactantCore
+import dev.reactant.reactant.extra.command.exceptions.CommandCommonExecutionException
 import dev.reactant.reactant.extra.command.exceptions.CommandExecutionActorTypeException
 import dev.reactant.reactant.extra.command.exceptions.CommandExecutionPermissionException
 import dev.reactant.reactant.extra.command.io.StdOut

@@ -25,8 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
-@ReactantPlugin(servicePackages = ["dev.reactant.reactant"])
-class ReactantCore : JavaPlugin() {
+class ReactantCore(val plugin: JavaPlugin) {
     val instanceManager: ComponentInstanceManager = ReactantInstanceManager()
     internal val reactantInstanceManager: ReactantInstanceManager get() = instanceManager as ReactantInstanceManager
     private val componentLifeCycleManager: ComponentLifeCycleManager
@@ -40,15 +39,19 @@ class ReactantCore : JavaPlugin() {
         providerManager = reactantInstanceManager.getOrConstructWithoutInjection(ProviderManager::class)
     }
 
-    override fun onEnable() {
+    fun onEnable() {
+
         @Suppress("UNUSED_VARIABLE")
-        val metrics = Metrics(this, 6056)
+        val metrics = Metrics(this.plugin, 6056)
 
-        mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(this, command) }
+        mainThreadScheduler = Schedulers.from { command: Runnable ->
+            Bukkit.getServer().scheduler.runTask(this.plugin, command)
+        }
 
-        server.scheduler.scheduleSyncDelayedTask(this) {
+        Bukkit.getServer().scheduler.scheduleSyncDelayedTask(this.plugin) {
             updateContainers()
         }
+
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -65,7 +68,6 @@ class ReactantCore : JavaPlugin() {
         }
     }
 
-
     private fun updateContainers() {
         // Feed the watch dog prevent causing crash logging
         val spigotWatchDogFeeder: Disposable? = Class.forName("org.spigotmc.WatchdogThread")
@@ -81,7 +83,6 @@ class ReactantCore : JavaPlugin() {
 
         ReactantCore.logger.info("Searching all containers")
         findAllLoadedPluginContainer()
-
 
         ReactantCore.logger.info("Resolving service providers")
         providerManager.decideRelation()
@@ -104,10 +105,6 @@ class ReactantCore : JavaPlugin() {
         spigotWatchDogFeeder?.dispose()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun onDisable() {
-    }
-
     companion object {
         @JvmStatic
         lateinit var instance: ReactantCore
@@ -119,5 +116,10 @@ class ReactantCore : JavaPlugin() {
         internal val logger: Logger = LogManager.getLogger("ReactantCore")
         const val configDirPath = "plugins/Reactant";
         const val tmpDirPath = "${ReactantCore.configDirPath}/tmp";
+
+        @JvmStatic
+        fun registerToLoadPath() {
+
+        }
     }
 }

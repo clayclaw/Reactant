@@ -6,11 +6,9 @@ import dev.reactant.reactant.core.dependency.ProviderManager
 import dev.reactant.reactant.core.dependency.injection.producer.ComponentProvider
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.extra.command.ReactantCommand
-import dev.reactant.reactant.extra.file.FileIOUploadService
 import dev.reactant.reactant.extra.parser.GsonJsonParserService
 import dev.reactant.reactant.utils.PatternMatchingUtils
 import dev.reactant.reactant.utils.formatting.MultiColumns
-import okhttp3.MediaType
 import picocli.CommandLine
 import java.util.regex.Pattern
 import kotlin.reflect.jvm.jvmErasure
@@ -25,8 +23,7 @@ import kotlin.reflect.jvm.jvmName
 internal class ReactantComponentListSubCommand(
     val providerManager: ProviderManager,
     val containerManager: ContainerManager,
-    val jsonParserService: GsonJsonParserService,
-    val fileIOUploadService: FileIOUploadService
+    val jsonParserService: GsonJsonParserService
 ) : ReactantCommand(ReactantPermissions.ADMIN.DEV.OBJ.LIST.toString()) {
 
     @CommandLine.Option(
@@ -59,12 +56,6 @@ internal class ReactantComponentListSubCommand(
     )
     var classNameWildcards: ArrayList<String> = arrayListOf()
 
-    @CommandLine.Option(
-        names = ["-e", "--export"],
-        description = ["Export the file as json"]
-    )
-    var export: Boolean = false
-
     private val listTable = MultiColumns.create {
         column { align = MultiColumns.Alignment.Right }
         column { maxLength = 50; overflowCutFromRight = false; }
@@ -90,15 +81,8 @@ internal class ReactantComponentListSubCommand(
             .toList()
             .map { ComponentRow(it, showShortName, providerManager.blacklistedProviders) }
             .let {
-                if (export) {
-                    stdout.out("Exporting components...")
-                    jsonParserService.encode(it).flatMap {
-                        fileIOUploadService.upload("component-list.json", it, MediaType.parse("application/json")!!)
-                    }.subscribe { resp -> stdout.out("Exported and uploaded to ${resp.link}") }
-                } else {
-                    it.forEach { addToListTable(it) }
-                    listTable.generate().forEach(stdout::out)
-                }
+                it.forEach { addToListTable(it) }
+                listTable.generate().forEach(stdout::out)
             }
     }
 

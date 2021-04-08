@@ -1,1 +1,1 @@
-rootProject.name = "reactant"
+rootProject.name = "reactant-tlib"

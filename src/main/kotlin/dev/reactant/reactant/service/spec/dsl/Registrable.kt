@@ -14,4 +14,3 @@ fun <T> LifeCycleHook.register(registrable: Registrable<T>, registering: T.() ->
         throw UnsupportedOperationException("Only component can use register() function.")
     else -> registrable.registerBy(this, registering)
 }
-
