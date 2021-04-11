@@ -1,11 +1,11 @@
 package dev.reactant.reactant.extra.server
 
-import PublishingProfilerDataProvider
 import dev.reactant.reactant.core.ReactantCore
 import dev.reactant.reactant.core.component.Component
 import dev.reactant.reactant.core.dependency.injection.Provide
 import dev.reactant.reactant.core.dependency.injection.producer.Provider
 import dev.reactant.reactant.core.dependency.layers.SystemLevel
+import dev.reactant.reactant.extra.profiler.PublishingProfilerDataProvider
 import dev.reactant.reactant.service.spec.profiler.ProfilerDataProvider
 import dev.reactant.reactant.service.spec.server.SchedulerService
 import io.reactivex.rxjava3.core.Completable
@@ -34,7 +34,7 @@ private class ReactantSchedulerServiceProvider(
             val currentThread = Thread.currentThread()
             Completable.create { source ->
                 if (Thread.currentThread() != currentThread) throw noSubscribeOnException;
-                taskId = Bukkit.getScheduler().runTask(ReactantCore.instance, Runnable {
+                taskId = Bukkit.getScheduler().runTask(ReactantCore.instance.plugin, Runnable {
                     profilerDataProvider.measure(listOf("next"), requester) {
                         source.onComplete()
                     }
@@ -47,7 +47,7 @@ private class ReactantSchedulerServiceProvider(
             val currentThread = Thread.currentThread()
             Completable.create { source ->
                 if (Thread.currentThread() != currentThread) throw noSubscribeOnException;
-                taskId = Bukkit.getScheduler().runTaskLater(ReactantCore.instance, Runnable {
+                taskId = Bukkit.getScheduler().runTaskLater(ReactantCore.instance.plugin, Runnable {
                     profilerDataProvider.measure(listOf("timer"), requester) {
                         source.onComplete()
                     }
@@ -62,7 +62,7 @@ private class ReactantSchedulerServiceProvider(
             Observable.create<Int> { source ->
                 if (Thread.currentThread() != currentThread) throw noSubscribeOnException;
                 taskId = Bukkit.getScheduler()
-                        .runTaskTimer(ReactantCore.instance, Runnable {
+                        .runTaskTimer(ReactantCore.instance.plugin, Runnable {
                             profilerDataProvider.measure(listOf("interval"), requester) {
                                 source.onNext(count++)
                             }
@@ -71,7 +71,7 @@ private class ReactantSchedulerServiceProvider(
         }
 
         override val mainThreadScheduler: Scheduler = Schedulers.from { runnable: Runnable ->
-            Bukkit.getServer().scheduler.runTask(ReactantCore.instance, Runnable {
+            Bukkit.getServer().scheduler.runTask(ReactantCore.instance.plugin, Runnable {
                 profilerDataProvider.measure(listOf("mainThreadScheduler"), requester) {
                     runnable.run()
                 }

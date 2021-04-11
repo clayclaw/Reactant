@@ -46,41 +46,34 @@ repositories {
 }
 
 dependencies {
-    listOf(
-        "stdlib-jdk8",
-        "reflect"
-//            "script-util",
-//            "script-runtime",
-//            "compiler-embeddable",
-//            "scripting-compiler"
-    ).forEach { api(kotlin(it, kotlinVersion)) }
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+    compileOnly(kotlin("reflect", kotlinVersion))
 
     implementation("org.bstats:bstats-bukkit:1.7") {
         isTransitive = false
     }
 
-    api("io.reactivex.rxjava3:rxjava:3.0.9")
-    api("io.reactivex.rxjava3:rxkotlin:3.0.1")
-    api("org.reflections:reflections:0.9.12")
+    compileOnly("io.reactivex.rxjava3:rxjava:3.0.11")
+    compileOnly("io.reactivex.rxjava3:rxkotlin:3.0.1")
+    compileOnly("org.reflections:reflections:0.9.12")
 
-    api("com.google.code.gson:gson:2.8.6")
-    api("org.yaml:snakeyaml:1.26")
-    api("com.moandjiezana.toml:toml4j:0.7.2")
+    compileOnly("com.google.code.gson:gson:2.8.6")
+    compileOnly("org.yaml:snakeyaml:1.26")
+    compileOnly("com.moandjiezana.toml:toml4j:0.7.2")
 
-    api("info.picocli:picocli:4.3.2")
-    api("org.mariadb.jdbc:mariadb-java-client:2.5.1")
+    compileOnly("info.picocli:picocli:4.3.2")
 
-    api("org.apache.logging.log4j:log4j-core:2.12.1")
+    compileOnly("org.apache.logging.log4j:log4j-core:2.12.1")
 
-    api("com.squareup.retrofit2:retrofit:2.9.0")
-    api("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
-    api("com.squareup.retrofit2:converter-gson:2.9.0")
+    compileOnly("com.squareup.retrofit2:retrofit:2.9.0")
+    compileOnly("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+    compileOnly("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    api("net.sourceforge.cssparser:cssparser:0.9.27")
-
-    api("javassist:javassist:3.12.1.GA")
+    compileOnly("net.sourceforge.cssparser:cssparser:0.9.27")
 
     compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
+
+    compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
     outputFormat = "html"
@@ -113,10 +106,10 @@ val javadocJar by tasks.registering(Jar::class) {
 
 val shadowJar = (tasks["shadowJar"] as ShadowJar).apply {
     relocate("org.bstats", "dev.reactant.reactant.core")
-    relocate("okhttp3", "dev.reactant.reactant.okhttp3")
-    relocate("okio", "dev.reactant.reactant.okio")
-    relocate("cssparser", "dev.reactant.reactant.cssparser")
-    relocate("javassist", "dev.reactant.reactant.javassist")
+    // relocate("okhttp3", "dev.reactant.reactant.okhttp3")
+    // relocate("okio", "dev.reactant.reactant.okio")
+    // relocate("cssparser", "dev.reactant.reactant.cssparser")
+    // relocate("javassist", "dev.reactant.reactant.javassist")
 }
 
 val dokkaJar by tasks.registering(Jar::class) {

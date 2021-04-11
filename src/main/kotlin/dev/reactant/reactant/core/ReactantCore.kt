@@ -21,12 +21,10 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.plugin.Plugin
-import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
-@ReactantPlugin(servicePackages = ["dev.reactant.reactant"])
-class ReactantCore : JavaPlugin() {
+class ReactantCore(val plugin: ReactantCoreAccessor) {
     val instanceManager: ComponentInstanceManager = ReactantInstanceManager()
     internal val reactantInstanceManager: ReactantInstanceManager get() = instanceManager as ReactantInstanceManager
     private val componentLifeCycleManager: ComponentLifeCycleManager
@@ -40,15 +38,12 @@ class ReactantCore : JavaPlugin() {
         providerManager = reactantInstanceManager.getOrConstructWithoutInjection(ProviderManager::class)
     }
 
-    override fun onEnable() {
+    fun onEnable() {
         @Suppress("UNUSED_VARIABLE")
-        val metrics = Metrics(this, 6056)
+        val metrics = Metrics(plugin, 6056)
 
-        mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(this, command) }
-
-        server.scheduler.scheduleSyncDelayedTask(this) {
-            updateContainers()
-        }
+        mainThreadScheduler = Schedulers.from { command: Runnable -> Bukkit.getServer().scheduler.runTask(plugin, command) }
+        updateContainers()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -65,7 +60,6 @@ class ReactantCore : JavaPlugin() {
         }
     }
 
-
     private fun updateContainers() {
         // Feed the watch dog prevent causing crash logging
         val spigotWatchDogFeeder: Disposable? = Class.forName("org.spigotmc.WatchdogThread")
@@ -81,7 +75,6 @@ class ReactantCore : JavaPlugin() {
 
         ReactantCore.logger.info("Searching all containers")
         findAllLoadedPluginContainer()
-
 
         ReactantCore.logger.info("Resolving service providers")
         providerManager.decideRelation()
@@ -102,10 +95,6 @@ class ReactantCore : JavaPlugin() {
                 "Time used ${System.currentTimeMillis() - startTime} ms${ChatColor.RESET}")
 
         spigotWatchDogFeeder?.dispose()
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun onDisable() {
     }
 
     companion object {

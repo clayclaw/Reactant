@@ -1,4 +1,4 @@
-name: Reactant
-main: dev.reactant.reactant.core.ReactantCore
-version: 0.2.0
+name: ReactantXaku
+main: dev.reactant.reactant.core.ReactantCoreAccessor
+version: 0.2.0-Xaku
 api-version: "1.14"

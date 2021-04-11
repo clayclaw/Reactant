@@ -66,6 +66,12 @@ class ProviderManager : SystemLevel {
      * Once a relation resolved and confirmed, the relation won't change anymore
      */
     fun decideRelation() {
+
+        if(availableProviders.isEmpty()) {
+            ReactantCore.logger.warn("No available provider is found! Cancelled relation decision.")
+            return
+        }
+
         interpretedRelations = availableProviders
                 .flatMap { provider ->
                     relationInterpreters.mapNotNull { interpreter ->
