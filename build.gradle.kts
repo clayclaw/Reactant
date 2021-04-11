@@ -43,6 +43,7 @@ repositories {
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = URI.create("https://oss.sonatype.org/content/repositories/releases/") }
     maven { url = URI.create("https://repo.codemc.org/repository/maven-public") }
+    maven { url = URI.create("https://jitpack.io") }
 }
 
 dependencies {
@@ -74,6 +75,8 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT")
 
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+
+    implementation("com.github.clayclaw:XakuDependencyManager:3929620b6e")
 }
 val dokka = (tasks["dokka"] as DokkaTask).apply {
     outputFormat = "html"
