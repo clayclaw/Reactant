@@ -18,7 +18,6 @@ object BukkitPluginContainerLoader {
 
         val out = PrintStream(FileOutputStream(FileDescriptor.out))
 
-
         val foundContainers = Bukkit.getPluginManager().plugins
                 .filter { it.javaClass.isAnnotationPresent(ReactantPlugin::class.java) }
                 .filter { containerManager.getContainer(BukkitPluginContainer.getIdentifier(it)) == null };

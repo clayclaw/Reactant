@@ -96,9 +96,11 @@ class ProviderManager : SystemLevel {
         }
 
         // Make all non-system level component provider depends on FunctionalityLayer
-        val functionalityLayerProvider = availableProviders.find { it.productType.jvmErasure == FunctionalityLayer::class }!!
+        val functionalityLayerProvider = availableProviders.find {
+            it.productType.jvmErasure == FunctionalityLayer::class
+        }!!
         availableProviders
-                .filter { it is ComponentProvider<*> }
+                .filterIsInstance<ComponentProvider<*>>()
                 .filter { it != functionalityLayerProvider && !it.canProvideType(SystemLevel::class.starProjectedType) }
                 .forEach {
                     providerRelationManager.addDependencyRelation(InterpretedProviderRelation(
